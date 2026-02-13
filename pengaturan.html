@@ -57,8 +57,10 @@
         .location-status { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
         .location-status.active { background: rgba(16, 185, 129, 0.15); color: var(--success); }
         .location-status.inactive { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .location-status.tracking { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
         .location-coords { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
         .coord-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
+        .coord-row:last-child { margin-bottom: 0; }
         .coord-label { color: var(--gray-light); }
         .coord-value { font-weight: 600; font-family: monospace; }
         .btn-update { width: 100%; padding: 12px; background: var(--gradient-primary); border: none; border-radius: 10px; color: white; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -86,6 +88,22 @@
         .info-banner i { color: var(--accent); margin-right: 4px; }
         .info-banner.success { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
         .info-banner.success i { color: var(--success); }
+        .info-banner.tracking { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); }
+        .info-banner.tracking i { color: var(--primary); }
+
+        /* Slider */
+        .slider-container { padding: 14px 16px; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .slider-value { background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .slider-range { width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); outline: none; -webkit-appearance: none; }
+        .slider-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); cursor: pointer; }
+        .slider-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--gray); margin-top: 6px; }
+
+        /* Stats */
+        .stats-row { display: flex; gap: 8px; margin-top: 10px; }
+        .stat-item { flex: 1; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; text-align: center; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.65rem; color: var(--gray-light); }
 
         /* Logout */
         .logout-btn { width: 100%; padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; color: var(--danger); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -97,11 +115,17 @@
         /* Toast */
         .toast { position: fixed; top: 70px; left: 12px; right: 12px; background: var(--dark-light); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; z-index: 1000; animation: slideIn 0.3s ease; }
         .toast.hidden { display: none; }
+        .toast.error { border-color: rgba(239, 68, 68, 0.3); }
+        .toast.error .toast-icon { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; background: rgba(16, 185, 129, 0.15); color: var(--success); }
         .toast-content { flex: 1; }
         .toast-title { font-weight: 600; font-size: 0.85rem; }
         .toast-message { font-size: 0.75rem; color: var(--gray-light); }
+
+        /* Pulse animation */
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .pulse { animation: pulse 2s infinite; }
     </style>
 </head>
 <body>
@@ -114,7 +138,7 @@
 
     <!-- Toast -->
     <div class="toast hidden" id="toast">
-        <div class="toast-icon"><i class="fas fa-check"></i></div>
+        <div class="toast-icon" id="toastIcon"><i class="fas fa-check"></i></div>
         <div class="toast-content">
             <div class="toast-title" id="toastTitle">Berhasil</div>
             <div class="toast-message" id="toastMessage">Pengaturan disimpan</div>
@@ -126,14 +150,14 @@
 
         <header class="header">
             <div class="header-left">
-                <button class="back-btn" onclick="window.location.href='branda.html'"><i class="fas fa-arrow-left"></i></button>
+                <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
                 <div class="header-title">Pengaturan</div>
             </div>
         </header>
 
         <!-- Location Section -->
         <div class="section">
-            <div class="section-title"><i class="fas fa-location-arrow"></i> Lokasi</div>
+            <div class="section-title"><i class="fas fa-location-arrow"></i> Lokasi GPS</div>
             <div class="card">
                 <div class="location-card">
                     <div class="location-header">
@@ -153,15 +177,73 @@
                             <span class="coord-value" id="lngValue">-</span>
                         </div>
                         <div class="coord-row">
+                            <span class="coord-label">Akurasi</span>
+                            <span class="coord-value" id="accuracyValue">-</span>
+                        </div>
+                        <div class="coord-row">
                             <span class="coord-label">Update Terakhir</span>
                             <span class="coord-value" id="locationTime">-</span>
                         </div>
                     </div>
-                    <button class="btn-update" id="btnUpdate" onclick="updateLocation()">
-                        <i class="fas fa-sync-alt"></i>
-                        <span id="btnText">Update Lokasi</span>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-value" id="updateCount">0</div>
+                            <div class="stat-label">Total Update</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="trackingStatus">OFF</div>
+                            <div class="stat-label">Tracking</div>
+                        </div>
+                    </div>
+                    <button class="btn-update" id="btnUpdate" onclick="manualUpdate()">
+                        <i class="fas fa-sync-alt" id="btnIcon"></i>
+                        <span id="btnText">Update Lokasi Manual</span>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Background Tracking Section -->
+        <div class="section">
+            <div class="section-title"><i class="fas fa-broadcast-tower"></i> Pelacakan Otomatis</div>
+            <div class="card">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title"><i class="fas fa-location-arrow" style="color: var(--primary); margin-right: 6px;"></i> Background Tracking</div>
+                        <div class="setting-desc">Update lokasi otomatis di background</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleBackground" onchange="toggleBackgroundTracking(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title"><i class="fas fa-crosshairs" style="color: var(--accent); margin-right: 6px;"></i> High Accuracy GPS</div>
+                        <div class="setting-desc">Gunakan GPS presisi tinggi (lebih boros baterai)</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleGps" checked onchange="toggleSetting('gps', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <div>
+                            <div class="setting-title" style="font-size: 0.85rem;"><i class="fas fa-clock" style="color: var(--secondary); margin-right: 6px;"></i> Interval Update</div>
+                            <div class="setting-desc">Lokasi diupdate setiap beberapa detik</div>
+                        </div>
+                        <span class="slider-value" id="intervalValue">30 detik</span>
+                    </div>
+                    <input type="range" class="slider-range" id="intervalSlider" min="10" max="120" value="30" step="10" onchange="updateInterval(this.value)">
+                    <div class="slider-labels">
+                        <span>10 detik</span>
+                        <span>120 detik</span>
+                    </div>
+                </div>
+            </div>
+            <div class="info-banner" id="trackingBanner">
+                <i class="fas fa-info-circle"></i> Aktifkan Background Tracking untuk update lokasi otomatis
             </div>
         </div>
 
@@ -169,26 +251,6 @@
         <div class="section">
             <div class="section-title"><i class="fas fa-sliders-h"></i> Pengaturan Aplikasi</div>
             <div class="card">
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-title">Background Location</div>
-                        <div class="setting-desc">Update lokasi saat di background</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="toggleBg" onchange="toggleSetting('bg', this.checked)">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-title">High Accuracy GPS</div>
-                        <div class="setting-desc">Gunakan GPS presisi tinggi</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="toggleGps" checked onchange="toggleSetting('gps', this.checked)">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
                 <div class="setting-item">
                     <div class="setting-info">
                         <div class="setting-title">Notifikasi dengan Suara</div>
@@ -209,21 +271,21 @@
         <div class="section">
             <div class="section-title"><i class="fas fa-user-cog"></i> Akun</div>
             <div class="card">
-                <div class="setting-item" onclick="window.location.href='profil.html'">
+                <div class="setting-item" onclick="showToast('Info', 'Fitur edit profil akan segera hadir')">
                     <div class="setting-info">
                         <div class="setting-title">Edit Profil</div>
                         <div class="setting-desc">Ubah foto, nama, dan data lainnya</div>
                     </div>
                     <i class="fas fa-chevron-right" style="color: var(--gray);"></i>
                 </div>
-                <div class="setting-item" onclick="changePassword()">
+                <div class="setting-item" onclick="showToast('Info', 'Fitur ubah password akan segera hadir')">
                     <div class="setting-info">
                         <div class="setting-title">Ubah Password</div>
                         <div class="setting-desc">Ganti password akun Anda</div>
                     </div>
                     <i class="fas fa-chevron-right" style="color: var(--gray);"></i>
                 </div>
-                <div class="setting-item" onclick="showPermissions()">
+                <div class="setting-item" onclick="showToast('Info', 'Buka pengaturan browser untuk mengubah izin')">
                     <div class="setting-info">
                         <div class="setting-title">Kelola Izin Aplikasi</div>
                         <div class="setting-desc">Atur izin lokasi, notifikasi, dll</div>
@@ -244,7 +306,7 @@
                     </div>
                     <span style="color: var(--success); font-size: 0.75rem; font-weight: 600;">Terbaru</span>
                 </div>
-                <div class="setting-item" onclick="window.location.href='bantuan.html'">
+                <div class="setting-item" onclick="showToast('Info', 'Halaman bantuan akan segera hadir')">
                     <div class="setting-info">
                         <div class="setting-title">Bantuan & FAQ</div>
                         <div class="setting-desc">Pertanyaan yang sering diajukan</div>
@@ -272,7 +334,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase Config
+        // ==========================================
+        // FIREBASE CONFIG
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
             authDomain: "cedar-setup-425414-d7.firebaseapp.com",
@@ -287,30 +351,113 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        let settings = { bg: false, gps: true, notif: false };
+        // ==========================================
+        // STATE MANAGEMENT
+        // ==========================================
+        let settings = {
+            backgroundTracking: false,
+            gps: true,
+            notif: false,
+            updateInterval: 30
+        };
 
-        function showToast(title, message) {
+        let watchId = null;
+        let updateCount = 0;
+        let lastUpdateTime = 0;
+        let wakeLock = null;
+        let currentUser = null;
+
+        // ==========================================
+        // TOAST NOTIFICATION
+        // ==========================================
+        function showToast(title, message, isError = false) {
             const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            
             document.getElementById('toastTitle').textContent = title;
             document.getElementById('toastMessage').textContent = message;
+            
+            toast.className = isError ? 'toast error' : 'toast';
+            toastIcon.innerHTML = isError ? '<i class="fas fa-times"></i>' : '<i class="fas fa-check"></i>';
+            
             toast.classList.remove('hidden');
             setTimeout(() => toast.classList.add('hidden'), 3000);
         }
 
+        // ==========================================
+        // UI UPDATE FUNCTIONS
+        // ==========================================
+        function updateLocationUI(lat, lng, accuracy) {
+            document.getElementById('latValue').textContent = lat.toFixed(6);
+            document.getElementById('lngValue').textContent = lng.toFixed(6);
+            document.getElementById('accuracyValue').textContent = accuracy ? `${accuracy.toFixed(1)} m` : '-';
+            document.getElementById('locationTime').textContent = new Date().toLocaleTimeString('id-ID');
+            
+            const status = document.getElementById('locationStatus');
+            status.classList.remove('inactive');
+            
+            if (settings.backgroundTracking) {
+                status.classList.add('tracking');
+                status.classList.remove('active');
+                document.getElementById('locationStatusText').textContent = 'Tracking';
+            } else {
+                status.classList.add('active');
+                status.classList.remove('tracking');
+                document.getElementById('locationStatusText').textContent = 'Aktif';
+            }
+        }
+
+        function updateTrackingUI(isTracking) {
+            document.getElementById('trackingStatus').textContent = isTracking ? 'ON' : 'OFF';
+            document.getElementById('trackingStatus').style.color = isTracking ? 'var(--success)' : 'var(--gray)';
+            
+            const banner = document.getElementById('trackingBanner');
+            if (isTracking) {
+                banner.className = 'info-banner tracking';
+                banner.innerHTML = '<i class="fas fa-broadcast-tower" style="animation: pulse 2s infinite;"></i> Background Tracking AKTIF - Lokasi diupdate otomatis';
+            } else {
+                banner.className = 'info-banner';
+                banner.innerHTML = '<i class="fas fa-info-circle"></i> Aktifkan Background Tracking untuk update lokasi otomatis';
+            }
+        }
+
+        function updateCountUI() {
+            document.getElementById('updateCount').textContent = updateCount;
+        }
+
+        // ==========================================
+        // SETTINGS MANAGEMENT
+        // ==========================================
         function loadSettings() {
             const saved = localStorage.getItem('appSettings');
-            if (saved) settings = JSON.parse(saved);
-            document.getElementById('toggleBg').checked = settings.bg;
+            if (saved) {
+                settings = { ...settings, ...JSON.parse(saved) };
+            }
+            
+            document.getElementById('toggleBackground').checked = settings.backgroundTracking;
             document.getElementById('toggleGps').checked = settings.gps;
             document.getElementById('toggleNotif').checked = settings.notif;
+            document.getElementById('intervalSlider').value = settings.updateInterval;
+            document.getElementById('intervalValue').textContent = `${settings.updateInterval} detik`;
+            
+            updateTrackingUI(settings.backgroundTracking);
             updateBanner();
+        }
+
+        function saveSettings() {
+            localStorage.setItem('appSettings', JSON.stringify(settings));
         }
 
         function toggleSetting(key, value) {
             settings[key] = value;
-            localStorage.setItem('appSettings', JSON.stringify(settings));
-            showToast('Berhasil', key === 'notif' ? (value ? 'Notifikasi diaktifkan' : 'Notifikasi dinonaktifkan') : 'Pengaturan disimpan');
-            updateBanner();
+            saveSettings();
+            
+            if (key === 'notif') {
+                showToast('Berhasil', value ? 'Notifikasi diaktifkan' : 'Notifikasi dinonaktifkan');
+                updateBanner();
+            } else {
+                showToast('Berhasil', 'Pengaturan disimpan');
+            }
         }
 
         function updateBanner() {
@@ -324,79 +471,319 @@
             }
         }
 
-        async function updateLocation() {
-            const btn = document.getElementById('btnUpdate');
-            const btnText = document.getElementById('btnText');
-            btn.disabled = true;
-            btnText.textContent = 'Mendapatkan lokasi...';
+        function updateInterval(value) {
+            settings.updateInterval = parseInt(value);
+            document.getElementById('intervalValue').textContent = `${value} detik`;
+            saveSettings();
+            showToast('Berhasil', `Interval update diatur ke ${value} detik`);
+        }
 
-            if (!navigator.geolocation) {
-                showToast('Error', 'Browser tidak mendukung geolokasi');
-                btn.disabled = false;
-                btnText.textContent = 'Update Lokasi';
+        // ==========================================
+        // WAKE LOCK - Keep screen/device awake
+        // ==========================================
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('🔋 Wake Lock acquired - device will stay awake');
+                    
+                    wakeLock.addEventListener('release', () => {
+                        console.log('🔋 Wake Lock released');
+                    });
+                } catch (err) {
+                    console.log('Wake Lock error:', err.message);
+                }
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                } catch (err) {
+                    console.log('Wake Lock release error:', err);
+                }
+            }
+        }
+
+        // ==========================================
+        // LOCATION UPDATE TO FIREBASE
+        // ==========================================
+        async function updateLocationToFirebase(lat, lng, accuracy) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    latitude: lat,
+                    longitude: lng,
+                    accuracy: accuracy || 0,
+                    locationUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isLocationActive: true,
+                    isBackgroundTracking: settings.backgroundTracking
+                });
+                
+                console.log('📍 Location updated to Firebase:', lat.toFixed(6), lng.toFixed(6));
+            } catch (e) {
+                console.error('Firebase update error:', e);
+            }
+        }
+
+        // ==========================================
+        // GEOLOCATION FUNCTIONS
+        // ==========================================
+        function handlePosition(position) {
+            const now = Date.now();
+            const minInterval = settings.updateInterval * 1000;
+            
+            // Throttle updates based on interval
+            if (now - lastUpdateTime < minInterval && watchId !== null) {
                 return;
             }
+            
+            lastUpdateTime = now;
+            updateCount++;
+            
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+            
+            updateLocationUI(lat, lng, accuracy);
+            updateCountUI();
+            updateLocationToFirebase(lat, lng, accuracy);
+            
+            // Show toast only for manual updates
+            if (watchId === null) {
+                showToast('Berhasil', 'Lokasi berhasil diperbarui');
+            }
+        }
 
+        function handlePositionError(error) {
+            let errorMessage = 'Gagal mendapatkan lokasi';
+            
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = 'Izin lokasi ditolak oleh pengguna';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = 'Informasi lokasi tidak tersedia';
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = 'Permintaan lokasi timeout';
+                    break;
+            }
+            
+            showToast('Error', errorMessage, true);
+            
+            // Reset button state
+            const btn = document.getElementById('btnUpdate');
+            const btnText = document.getElementById('btnText');
+            btn.disabled = false;
+            btnText.textContent = 'Update Lokasi Manual';
+        }
+
+        const geoOptions = {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+        };
+
+        // Manual update
+        function manualUpdate() {
+            if (!navigator.geolocation) {
+                showToast('Error', 'Browser tidak mendukung geolokasi', true);
+                return;
+            }
+            
+            const btn = document.getElementById('btnUpdate');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            
+            btn.disabled = true;
+            btnIcon.className = 'fas fa-spinner fa-spin';
+            btnText.textContent = 'Mendapatkan lokasi...';
+            
+            const options = {
+                ...geoOptions,
+                enableHighAccuracy: settings.gps
+            };
+            
             navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    const user = auth.currentUser;
-
-                    document.getElementById('latValue').textContent = lat.toFixed(6);
-                    document.getElementById('lngValue').textContent = lng.toFixed(6);
-                    document.getElementById('locationTime').textContent = new Date().toLocaleTimeString('id-ID');
-
-                    const status = document.getElementById('locationStatus');
-                    status.classList.remove('inactive');
-                    status.classList.add('active');
-                    document.getElementById('locationStatusText').textContent = 'Aktif';
-
-                    if (user) {
-                        try {
-                            await db.collection('users').doc(user.uid).update({
-                                latitude: lat,
-                                longitude: lng,
-                                locationUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        } catch (e) { console.error(e); }
-                    }
-
-                    showToast('Berhasil', 'Lokasi berhasil diperbarui');
+                (position) => {
+                    handlePosition(position);
+                    btnIcon.className = 'fas fa-check';
                     btnText.textContent = 'Berhasil!';
-                    setTimeout(() => { btnText.textContent = 'Update Lokasi'; btn.disabled = false; }, 2000);
+                    
+                    setTimeout(() => {
+                        btnIcon.className = 'fas fa-sync-alt';
+                        btnText.textContent = 'Update Lokasi Manual';
+                        btn.disabled = false;
+                    }, 2000);
                 },
-                (err) => {
-                    showToast('Error', err.code === 1 ? 'Izin lokasi ditolak' : 'Gagal mendapatkan lokasi');
-                    btn.disabled = false;
-                    btnText.textContent = 'Update Lokasi';
+                (error) => {
+                    handlePositionError(error);
+                    btnIcon.className = 'fas fa-sync-alt';
+                    btnText.textContent = 'Update Lokasi Manual';
                 },
-                { enableHighAccuracy: settings.gps, timeout: 10000 }
+                options
             );
         }
 
-        function changePassword() { showToast('Info', 'Fitur ubah password akan segera hadir'); }
-        function showPermissions() { showToast('Info', 'Buka pengaturan browser untuk mengubah izin'); }
+        // ==========================================
+        // BACKGROUND TRACKING
+        // ==========================================
+        function startBackgroundTracking() {
+            if (!navigator.geolocation) {
+                showToast('Error', 'Browser tidak mendukung geolokasi', true);
+                return;
+            }
+            
+            // Stop existing watch
+            stopBackgroundTracking();
+            
+            // Start watching position
+            const options = {
+                ...geoOptions,
+                enableHighAccuracy: settings.gps,
+                maximumAge: 5000
+            };
+            
+            watchId = navigator.geolocation.watchPosition(
+                handlePosition,
+                handlePositionError,
+                options
+            );
+            
+            // Request wake lock to keep device awake
+            requestWakeLock();
+            
+            // Get initial position immediately
+            navigator.geolocation.getCurrentPosition(
+                handlePosition,
+                handlePositionError,
+                options
+            );
+            
+            updateTrackingUI(true);
+            showToast('Berhasil', 'Background Tracking diaktifkan');
+            
+            console.log('🚀 Background tracking started');
+        }
+
+        function stopBackgroundTracking() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            
+            releaseWakeLock();
+            updateTrackingUI(false);
+            
+            console.log('🛑 Background tracking stopped');
+        }
+
+        function toggleBackgroundTracking(enabled) {
+            settings.backgroundTracking = enabled;
+            saveSettings();
+            
+            if (enabled) {
+                startBackgroundTracking();
+            } else {
+                stopBackgroundTracking();
+                showToast('Info', 'Background Tracking dinonaktifkan');
+            }
+        }
+
+        // ==========================================
+        // PAGE VISIBILITY HANDLING
+        // ==========================================
+        document.addEventListener('visibilitychange', async () => {
+            if (document.hidden) {
+                console.log('📱 App moved to background');
+                // Tracking continues in background
+            } else {
+                console.log('📱 App returned to foreground');
+                
+                // Re-acquire wake lock if tracking is enabled
+                if (settings.backgroundTracking) {
+                    await requestWakeLock();
+                    
+                    // Get fresh location
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            handlePosition,
+                            handlePositionError,
+                            { ...geoOptions, enableHighAccuracy: settings.gps }
+                        );
+                    }
+                }
+            }
+        });
+
+        // ==========================================
+        // NAVIGATION & LOGOUT
+        // ==========================================
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = 'branda.html';
+            }
+        }
 
         async function handleLogout() {
             if (!confirm('Apakah Anda yakin ingin keluar?')) return;
-            try {
-                localStorage.removeItem('userSessionId');
-                await auth.signOut();
-                window.location.href = 'index.html';
-            } catch (e) { console.error(e); }
+            
+            // Stop tracking
+            stopBackgroundTracking();
+            
+            // Update Firebase status
+            if (currentUser) {
+                try {
+                    await db.collection('users').doc(currentUser.uid).update({
+                        isLocationActive: false,
+                        isBackgroundTracking: false
+                    });
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+            
+            localStorage.removeItem('userSessionId');
+            localStorage.removeItem('appSettings');
+            
+            await auth.signOut();
+            window.location.href = 'index.html';
         }
 
+        // ==========================================
+        // APP INITIALIZATION
+        // ==========================================
         function showApp() {
             document.getElementById('loadingScreen').classList.add('hidden');
             document.getElementById('mainApp').style.display = 'block';
             loadSettings();
         }
 
-        // Auth State
+        // Auth State Observer
         auth.onAuthStateChanged((user) => {
-            if (!user) { window.location.href = 'index.html'; return; }
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUser = user;
             showApp();
+            
+            // Resume background tracking if it was enabled
+            if (settings.backgroundTracking) {
+                startBackgroundTracking();
+            }
+        });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            stopBackgroundTracking();
         });
     </script>
 
