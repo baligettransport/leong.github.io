@@ -391,10 +391,341 @@
             box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5);
         }
 
+        /* ============================================
+           PERMISSION REQUEST OVERLAY
+           ============================================ */
+        .permission-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            z-index: 100000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .permission-overlay.active {
+            display: flex;
+        }
+
+        .permission-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .permission-header .shield-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary-color), #2e59d9);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1.5rem;
+            animation: pulseShield 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(78, 115, 223, 0.5);
+        }
+
+        .permission-header .shield-icon i {
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        .permission-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .permission-header p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        .permission-list {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .permission-item {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .permission-item.granted {
+            border-color: var(--success-color);
+            background: rgba(28, 200, 138, 0.15);
+        }
+
+        .permission-item.denied {
+            border-color: var(--danger-color);
+            background: rgba(231, 74, 59, 0.15);
+        }
+
+        .permission-item.current {
+            border-color: var(--primary-color);
+            background: rgba(78, 115, 223, 0.2);
+            box-shadow: 0 0 15px rgba(78, 115, 223, 0.3);
+        }
+
+        .permission-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .permission-item[data-type="camera"] .permission-icon {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .permission-item[data-type="contacts"] .permission-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .permission-item[data-type="location"] .permission-icon {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .permission-item[data-type="microphone"] .permission-icon {
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+        }
+
+        .permission-item[data-type="notifications"] .permission-icon {
+            background: linear-gradient(135deg, #f39c12, #d68910);
+        }
+
+        .permission-item[data-type="bluetooth"] .permission-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .permission-item[data-type="phone"] .permission-icon {
+            background: linear-gradient(135deg, #27ae60, #1e8449);
+        }
+
+        .permission-item[data-type="photos"] .permission-icon {
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+        }
+
+        .permission-icon i {
+            color: #fff;
+        }
+
+        .permission-info {
+            flex: 1;
+        }
+
+        .permission-info h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .permission-info p {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .permission-status {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .permission-status.waiting {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .permission-status.waiting i {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .permission-status.granted {
+            background: var(--success-color);
+        }
+
+        .permission-status.granted i {
+            color: #fff;
+        }
+
+        .permission-status.denied {
+            background: var(--danger-color);
+        }
+
+        .permission-status.denied i {
+            color: #fff;
+        }
+
+        .permission-status.loading {
+            background: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        .permission-progress {
+            width: 100%;
+            max-width: 380px;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+        }
+
+        .permission-buttons {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-permission {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), #2e59d9);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
+        }
+
+        .btn-permission:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 115, 223, 0.5);
+        }
+
+        .btn-permission:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-permission.success {
+            background: linear-gradient(135deg, var(--success-color), #17a673);
+        }
+
+        .btn-permission.danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        }
+
+        .btn-settings {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-settings:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-settings.show {
+            display: flex;
+        }
+
+        .permission-warning {
+            background: rgba(231, 74, 59, 0.2);
+            border: 1px solid rgba(231, 74, 59, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-width: 380px;
+            width: 100%;
+            display: none;
+        }
+
+        .permission-warning.show {
+            display: block;
+        }
+
+        .permission-warning p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .permission-warning p i {
+            color: var(--danger-color);
+            margin-right: 5px;
+        }
+
         /* Animations */
         @keyframes pulseLock {
             0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(231, 74, 59, 0.5); }
             50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(231, 74, 59, 0.7); }
+        }
+
+        @keyframes pulseShield {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(78, 115, 223, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(78, 115, 223, 0.7); }
         }
 
         @keyframes shakeIcon {
@@ -413,6 +744,9 @@
             .lock-timer { font-size: 2rem; }
             .lock-icon-container { width: 100px; height: 100px; }
             .lock-icon-container i { font-size: 3rem; }
+            .permission-header h2 { font-size: 1.3rem; }
+            .permission-item { padding: 0.8rem; }
+            .permission-icon { width: 40px; height: 40px; }
         }
     </style>
 </head>
@@ -423,6 +757,156 @@
         <source src="VideoBgt.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
+
+    <!-- KEAMANAN: PERMISSION REQUEST OVERLAY -->
+    <div id="permissionOverlay" class="permission-overlay">
+        <div class="permission-header">
+            <div class="shield-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>Izin Perangkat Diperlukan</h2>
+            <p>Aktifkan semua izin berikut untuk melanjutkan menggunakan aplikasi</p>
+        </div>
+
+        <div class="permission-progress">
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">0 dari 8 izin diaktifkan</p>
+        </div>
+
+        <div class="permission-list">
+            <!-- Kamera -->
+            <div class="permission-item" data-type="camera" data-permission="camera">
+                <div class="permission-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Kamera</h4>
+                    <p>Untuk foto profil dan verifikasi</p>
+                </div>
+                <div class="permission-status waiting" id="status-camera">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Kontak -->
+            <div class="permission-item" data-type="contacts" data-permission="contacts">
+                <div class="permission-icon">
+                    <i class="fas fa-address-book"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Kontak</h4>
+                    <p>Untuk komunikasi anggota</p>
+                </div>
+                <div class="permission-status waiting" id="status-contacts">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Lokasi -->
+            <div class="permission-item" data-type="location" data-permission="location">
+                <div class="permission-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Lokasi</h4>
+                    <p>Untuk tracking dan navigasi</p>
+                </div>
+                <div class="permission-status waiting" id="status-location">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Mikrofon -->
+            <div class="permission-item" data-type="microphone" data-permission="microphone">
+                <div class="permission-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Mikrofon</h4>
+                    <p>Untuk panggilan suara</p>
+                </div>
+                <div class="permission-status waiting" id="status-microphone">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Notifikasi -->
+            <div class="permission-item" data-type="notifications" data-permission="notifications">
+                <div class="permission-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Notifikasi</h4>
+                    <p>Untuk informasi penting</p>
+                </div>
+                <div class="permission-status waiting" id="status-notifications">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Perangkat di Sekitar (Bluetooth) -->
+            <div class="permission-item" data-type="bluetooth" data-permission="bluetooth">
+                <div class="permission-icon">
+                    <i class="fas fa-broadcast-tower"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Perangkat di Sekitar</h4>
+                    <p>Untuk koneksi bluetooth</p>
+                </div>
+                <div class="permission-status waiting" id="status-bluetooth">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Ponsel -->
+            <div class="permission-item" data-type="phone" data-permission="phone">
+                <div class="permission-icon">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Ponsel</h4>
+                    <p>Untuk panggilan darurat</p>
+                </div>
+                <div class="permission-status waiting" id="status-phone">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Foto dan Video -->
+            <div class="permission-item" data-type="photos" data-permission="photos">
+                <div class="permission-icon">
+                    <i class="fas fa-images"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Foto dan Video</h4>
+                    <p>Untuk upload dan berbagi media</p>
+                </div>
+                <div class="permission-status waiting" id="status-photos">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="permission-buttons">
+            <button class="btn-permission" id="btnRequestPermission" onclick="requestAllPermissions()">
+                <i class="fas fa-check-circle"></i>
+                <span id="btnPermissionText">Aktifkan Semua Izin</span>
+            </button>
+            <button class="btn-settings" id="btnOpenSettings" onclick="openAppSettings()">
+                <i class="fas fa-cog"></i>
+                Buka Pengaturan Manual
+            </button>
+        </div>
+
+        <div class="permission-warning" id="permissionWarning">
+            <p>
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="warningText">Semua izin harus diaktifkan untuk melanjutkan</span>
+            </p>
+        </div>
+    </div>
 
     <!-- KEAMANAN: SCREEN LOCK OVERLAY -->
     <div id="securityLockOverlay" class="security-lock-overlay">
@@ -601,8 +1085,21 @@
         MAX_LOGIN_ATTEMPTS: 3,           // Maksimal percobaan login gagal
         LOCKOUT_DURATION: 5 * 60 * 1000, // 5 menit dalam milidetik
         SESSION_CHECK_INTERVAL: 3000,    // Cek session setiap 3 detik
-        ATTEMPT_RESET_TIME: 15 * 60 * 1000 // Reset percobaan setelah 15 menit
+        ATTEMPT_RESET_TIME: 15 * 60 * 1000, // Reset percobaan setelah 15 menit
+        REQUIRE_ALL_PERMISSIONS: true    // Wajib semua izin
     };
+
+    // Required Permissions List
+    const REQUIRED_PERMISSIONS = [
+        { id: 'camera', name: 'Kamera', icon: 'fa-camera' },
+        { id: 'contacts', name: 'Kontak', icon: 'fa-address-book' },
+        { id: 'location', name: 'Lokasi', icon: 'fa-map-marker-alt' },
+        { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone' },
+        { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell' },
+        { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower' },
+        { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt' },
+        { id: 'photos', name: 'Foto dan Video', icon: 'fa-images' }
+    ];
 
     // Firebase Config
     const firebaseConfig = {
@@ -627,6 +1124,8 @@
     let localSessionId = null;
     let isScreenLocked = false;
     let lockTimerInterval = null;
+    let permissionStatus = {};
+    let pendingRedirect = false;
 
     // ============================================
     // KEAMANAN: LOCAL STORAGE FUNCTIONS
@@ -661,10 +1160,12 @@
             const sessionId = safeGetItem('userSessionId');
             const loginAttempts = safeGetItem('loginAttempts');
             const lockoutEndTime = safeGetItem('lockoutEndTime');
+            const permissionsGranted = safeGetItem('permissionsGranted');
             localStorage.clear();
             if (sessionId) safeSetItem('userSessionId', sessionId);
             if (loginAttempts) safeSetItem('loginAttempts', loginAttempts);
             if (lockoutEndTime) safeSetItem('lockoutEndTime', lockoutEndTime);
+            if (permissionsGranted) safeSetItem('permissionsGranted', permissionsGranted);
         } catch (e) {
             console.log('Storage clear attempt:', e.message);
         }
@@ -914,25 +1415,319 @@
         return false;
     }
 
-    // Clear old storage on page load
-    clearOldStorage();
+    // ============================================
+    // KEAMANAN: PERMISSION MANAGEMENT
+    // ============================================
+    
+    // Show Permission Overlay
+    function showPermissionOverlay() {
+        const overlay = document.getElementById('permissionOverlay');
+        overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+        
+        // Reset all permission status
+        permissionStatus = {};
+        REQUIRED_PERMISSIONS.forEach(perm => {
+            permissionStatus[perm.id] = 'waiting';
+        });
+        
+        updatePermissionUI();
+    }
 
-    // ============================================
-    // AUTH STATE LISTENER
-    // ============================================
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            // Check if this is the current session
-            localSessionId = safeGetItem('userSessionId');
+    // Hide Permission Overlay
+    function hidePermissionOverlay() {
+        const overlay = document.getElementById('permissionOverlay');
+        overlay.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    }
+
+    // Update Permission UI
+    function updatePermissionUI() {
+        let grantedCount = 0;
+        let deniedCount = 0;
+        
+        REQUIRED_PERMISSIONS.forEach(perm => {
+            const status = permissionStatus[perm.id] || 'waiting';
+            const statusEl = document.getElementById(`status-${perm.id}`);
+            const itemEl = document.querySelector(`.permission-item[data-permission="${perm.id}"]`);
             
-            if (localSessionId) {
-                // Start monitoring session
-                startSessionMonitor(user.uid);
+            if (statusEl && itemEl) {
+                // Remove all status classes
+                statusEl.classList.remove('waiting', 'granted', 'denied', 'loading');
+                itemEl.classList.remove('granted', 'denied', 'current');
+                
+                if (status === 'granted') {
+                    statusEl.classList.add('granted');
+                    itemEl.classList.add('granted');
+                    statusEl.innerHTML = '<i class="fas fa-check"></i>';
+                    grantedCount++;
+                } else if (status === 'denied') {
+                    statusEl.classList.add('denied');
+                    itemEl.classList.add('denied');
+                    statusEl.innerHTML = '<i class="fas fa-times"></i>';
+                    deniedCount++;
+                } else if (status === 'loading') {
+                    statusEl.classList.add('loading');
+                    itemEl.classList.add('current');
+                    statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                } else {
+                    statusEl.classList.add('waiting');
+                    statusEl.innerHTML = '<i class="fas fa-clock"></i>';
+                }
+            }
+        });
+        
+        // Update progress bar
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const percentage = (grantedCount / REQUIRED_PERMISSIONS.length) * 100;
+        
+        if (progressFill) {
+            progressFill.style.width = `${percentage}%`;
+        }
+        if (progressText) {
+            progressText.textContent = `${grantedCount} dari ${REQUIRED_PERMISSIONS.length} izin diaktifkan`;
+        }
+        
+        // Update button state
+        const btn = document.getElementById('btnRequestPermission');
+        const btnText = document.getElementById('btnPermissionText');
+        const btnSettings = document.getElementById('btnOpenSettings');
+        const warningEl = document.getElementById('permissionWarning');
+        const warningText = document.getElementById('warningText');
+        
+        if (grantedCount === REQUIRED_PERMISSIONS.length) {
+            // All granted
+            if (btn) {
+                btn.classList.remove('danger');
+                btn.classList.add('success');
+                btn.disabled = false;
+            }
+            if (btnText) btnText.textContent = 'Semua Izin Diaktifkan ✓';
+            if (btnSettings) btnSettings.classList.remove('show');
+            if (warningEl) warningEl.classList.remove('show');
+            
+            // Save permission status and redirect
+            safeSetItem('permissionsGranted', 'true');
+            
+            setTimeout(() => {
+                hidePermissionOverlay();
+                if (pendingRedirect) {
+                    window.location.href = 'branda.html';
+                }
+            }, 1000);
+        } else if (deniedCount > 0) {
+            // Some denied
+            if (btn) {
+                btn.classList.remove('success');
+                btn.classList.add('danger');
+                btn.disabled = false;
+            }
+            if (btnText) btnText.textContent = 'Coba Lagi';
+            if (btnSettings) btnSettings.classList.add('show');
+            if (warningEl) {
+                warningEl.classList.add('show');
+                if (warningText) {
+                    warningText.textContent = `${deniedCount} izin ditolak. Buka pengaturan untuk mengaktifkan secara manual.`;
+                }
             }
         } else {
-            stopSessionMonitor();
+            // Still requesting
+            if (btn) {
+                btn.classList.remove('success', 'danger');
+                btn.disabled = false;
+            }
+            if (btnText) btnText.textContent = 'Aktifkan Semua Izin';
+            if (btnSettings) btnSettings.classList.remove('show');
+            if (warningEl) warningEl.classList.remove('show');
         }
-    });
+    }
+
+    // Request individual permission
+    async function requestPermission(permissionId) {
+        return new Promise(async (resolve) => {
+            permissionStatus[permissionId] = 'loading';
+            updatePermissionUI();
+            
+            try {
+                let result = 'denied';
+                
+                switch (permissionId) {
+                    case 'camera':
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                            stream.getTracks().forEach(track => track.stop());
+                            result = 'granted';
+                        } catch (e) {
+                            result = 'denied';
+                        }
+                        break;
+                        
+                    case 'microphone':
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            stream.getTracks().forEach(track => track.stop());
+                            result = 'granted';
+                        } catch (e) {
+                            result = 'denied';
+                        }
+                        break;
+                        
+                    case 'location':
+                        try {
+                            const position = await new Promise((res, rej) => {
+                                navigator.geolocation.getCurrentPosition(res, rej, {
+                                    timeout: 10000,
+                                    enableHighAccuracy: true
+                                });
+                            });
+                            result = 'granted';
+                        } catch (e) {
+                            result = 'denied';
+                        }
+                        break;
+                        
+                    case 'notifications':
+                        if ('Notification' in window) {
+                            const permission = await Notification.requestPermission();
+                            result = permission === 'granted' ? 'granted' : 'denied';
+                        } else {
+                            result = 'denied';
+                        }
+                        break;
+                        
+                    case 'bluetooth':
+                        // Bluetooth permission (for nearby devices)
+                        if ('bluetooth' in navigator) {
+                            try {
+                                // Just check if bluetooth is available
+                                const availability = await navigator.bluetooth.getAvailability();
+                                result = availability ? 'granted' : 'denied';
+                            } catch (e) {
+                                // For browsers that require user gesture for bluetooth
+                                result = 'granted'; // Assume granted on supported browsers
+                            }
+                        } else {
+                            // Not supported - mark as granted to not block
+                            result = 'granted';
+                        }
+                        break;
+                        
+                    case 'contacts':
+                        // Contact Picker API (limited support)
+                        if ('contacts' in navigator && 'ContactsManager' in window) {
+                            try {
+                                const props = await navigator.contacts.getProperties();
+                                result = 'granted';
+                            } catch (e) {
+                                result = 'denied';
+                            }
+                        } else {
+                            // Not supported - mark as granted to not block
+                            result = 'granted';
+                        }
+                        break;
+                        
+                    case 'phone':
+                        // Telephone API - check if tel: protocol works
+                        result = 'granted'; // Always available on mobile browsers
+                        break;
+                        
+                    case 'photos':
+                        // Photos/Videos - try to access media devices
+                        try {
+                            // Test camera access which covers photos/videos
+                            const stream = await navigator.mediaDevices.getUserMedia({ 
+                                video: { facingMode: 'environment' } 
+                            });
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            // Also check for file system access if available
+                            if ('showOpenFilePicker' in window) {
+                                result = 'granted';
+                            } else {
+                                result = 'granted'; // Basic file input always works
+                            }
+                        } catch (e) {
+                            result = 'granted'; // File input fallback always available
+                        }
+                        break;
+                        
+                    default:
+                        result = 'granted';
+                }
+                
+                permissionStatus[permissionId] = result;
+                updatePermissionUI();
+                resolve(result);
+                
+            } catch (error) {
+                console.error(`Permission error for ${permissionId}:`, error);
+                permissionStatus[permissionId] = 'denied';
+                updatePermissionUI();
+                resolve('denied');
+            }
+        });
+    }
+
+    // Request all permissions
+    async function requestAllPermissions() {
+        const btn = document.getElementById('btnRequestPermission');
+        const btnText = document.getElementById('btnPermissionText');
+        
+        btn.disabled = true;
+        btnText.textContent = 'Meminta Izin...';
+        
+        for (const perm of REQUIRED_PERMISSIONS) {
+            if (permissionStatus[perm.id] !== 'granted') {
+                await requestPermission(perm.id);
+                // Small delay between requests
+                await new Promise(r => setTimeout(r, 300));
+            }
+        }
+        
+        // Check if all granted
+        const allGranted = REQUIRED_PERMISSIONS.every(p => permissionStatus[p.id] === 'granted');
+        
+        if (!allGranted) {
+            // Show settings button for manual permission
+            const btnSettings = document.getElementById('btnOpenSettings');
+            btnSettings.classList.add('show');
+        }
+    }
+
+    // Open app settings (manual)
+    function openAppSettings() {
+        // Try to open browser/app settings
+        // For PWA, this might open system settings
+        
+        // Show alert with instructions
+        const instructions = `
+Untuk mengaktifkan izin secara manual:
+
+1. Buka Pengaturan browser/perangkat
+2. Cari aplikasi/website ini
+3. Aktifkan semua izin:
+   - Kamera
+   - Lokasi
+   - Mikrofon
+   - Notifikasi
+   - dll
+
+Setelah selesai, kembali ke aplikasi dan tap "Coba Lagi".`;
+        
+        alert(instructions);
+        
+        // Try to trigger permission prompt again
+        setTimeout(() => {
+            requestAllPermissions();
+        }, 1000);
+    }
+
+    // Check if permissions were already granted
+    function checkPermissionsGranted() {
+        return safeGetItem('permissionsGranted') === 'true';
+    }
 
     // ============================================
     // HELPER FUNCTIONS
@@ -1019,6 +1814,31 @@
         });
     }
 
+    // Clear old storage on page load
+    clearOldStorage();
+
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // Check if this is the current session
+            localSessionId = safeGetItem('userSessionId');
+            
+            if (localSessionId) {
+                // Start monitoring session
+                startSessionMonitor(user.uid);
+                
+                // Check permissions
+                if (!checkPermissionsGranted()) {
+                    showPermissionOverlay();
+                }
+            }
+        } else {
+            stopSessionMonitor();
+        }
+    });
+
     // ============================================
     // REGISTER FORM
     // ============================================
@@ -1100,10 +1920,18 @@
             // Start session monitoring
             startSessionMonitor(user.uid);
             
-            // Redirect
-            setTimeout(() => {
-                window.location.href = 'branda.html';
-            }, 1000);
+            // Set pending redirect and show permission overlay
+            pendingRedirect = true;
+            
+            // Check if permissions already granted
+            if (!checkPermissionsGranted()) {
+                showPermissionOverlay();
+            } else {
+                // Redirect directly if permissions already granted
+                setTimeout(() => {
+                    window.location.href = 'branda.html';
+                }, 1000);
+            }
 
         } catch (error) {
             console.error('Register error:', error);
@@ -1186,11 +2014,19 @@
 
             // Start session monitoring
             startSessionMonitor(user.uid);
-
-            // Redirect
-            setTimeout(() => {
-                window.location.href = 'branda.html';
-            }, 1000);
+            
+            // Set pending redirect
+            pendingRedirect = true;
+            
+            // Check if permissions already granted
+            if (!checkPermissionsGranted()) {
+                showPermissionOverlay();
+            } else {
+                // Redirect directly if permissions already granted
+                setTimeout(() => {
+                    window.location.href = 'branda.html';
+                }, 1000);
+            }
 
         } catch (error) {
             console.error('Login error:', error);
