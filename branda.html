@@ -1015,14 +1015,14 @@
 
         // Required Permissions List
         const REQUIRED_PERMISSIONS = [
-            { id: 'camera', name: 'Kamera', icon: 'fa-camera', apiName: 'camera' },
-            { id: 'contacts', name: 'Kontak', icon: 'fa-address-book', apiName: 'contacts' },
-            { id: 'location', name: 'Lokasi', icon: 'fa-map-marker-alt', apiName: 'geolocation' },
-            { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone', apiName: 'microphone' },
-            { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell', apiName: 'notifications' },
-            { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower', apiName: 'bluetooth' },
-            { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt', apiName: 'phone' },
-            { id: 'photos', name: 'Foto dan Video', icon: 'fa-images', apiName: 'photos' }
+            { id: 'camera', name: 'Kamera', icon: 'fa-camera', webSupport: true },
+            { id: 'contacts', name: 'Kontak', icon: 'fa-address-book', webSupport: false },
+            { id: 'location', name: 'Lokasi', icon: 'fa-map-marker-alt', webSupport: true },
+            { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone', webSupport: true },
+            { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell', webSupport: true },
+            { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower', webSupport: false },
+            { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt', webSupport: true },
+            { id: 'photos', name: 'Foto dan Video', icon: 'fa-images', webSupport: true }
         ];
 
         // Firebase Config
@@ -1214,7 +1214,7 @@
             
             btn.disabled = false;
             
-            const grantedCount = Object.values(permissionStatus).filter(s => s === 'granted').length;
+            const grantedCount = Object.values(permissionStatus).filter(s => s === 'granted' || s === 'not_applicable').length;
             const deniedCount = Object.values(permissionStatus).filter(s => s === 'denied').length;
             
             if (grantedCount === REQUIRED_PERMISSIONS.length) {
@@ -1244,6 +1244,8 @@
             return new Promise(async (resolve) => {
                 let status = 'waiting';
                 
+                const permInfo = REQUIRED_PERMISSIONS.find(p => p.id === permissionId);
+                
                 try {
                     switch (permissionId) {
                         case 'camera':
@@ -1268,7 +1270,7 @@
                                     status = 'waiting';
                                 }
                             } else {
-                                status = 'denied';
+                                status = 'not_applicable';
                             }
                             break;
                             
@@ -1276,12 +1278,12 @@
                             if ('bluetooth' in navigator) {
                                 try {
                                     const available = await navigator.bluetooth.getAvailability();
-                                    status = available ? 'granted' : 'denied';
+                                    status = available ? 'granted' : 'not_applicable';
                                 } catch (e) {
-                                    status = 'denied';
+                                    status = 'not_applicable';
                                 }
                             } else {
-                                status = 'denied';
+                                status = 'not_applicable';
                             }
                             break;
                             
@@ -1289,7 +1291,7 @@
                             if ('contacts' in navigator && 'ContactsManager' in window) {
                                 status = 'granted';
                             } else {
-                                status = 'denied';
+                                status = 'not_applicable';
                             }
                             break;
                             
@@ -1298,8 +1300,7 @@
                             break;
                             
                         case 'photos':
-                            const cameraStatus = await checkPermissionViaAPI('camera');
-                            status = cameraStatus === 'granted' ? 'granted' : 'granted';
+                            status = 'granted';
                             break;
                             
                         default:
@@ -1307,7 +1308,11 @@
                     }
                 } catch (error) {
                     console.log(`Permission check error for ${permissionId}:`, error.message);
-                    status = 'waiting';
+                    if (permInfo && !permInfo.webSupport) {
+                        status = 'not_applicable';
+                    } else {
+                        status = 'waiting';
+                    }
                 }
                 
                 resolve(status);
@@ -1381,10 +1386,16 @@
                 const itemEl = document.querySelector(`.permission-item[data-permission="${perm.id}"]`);
                 
                 if (statusEl && itemEl) {
-                    statusEl.classList.remove('waiting', 'granted', 'denied', 'loading');
-                    itemEl.classList.remove('granted', 'denied', 'current');
+                    statusEl.classList.remove('waiting', 'granted', 'denied', 'loading', 'not_applicable');
+                    itemEl.classList.remove('granted', 'denied', 'current', 'not_supported');
                     
                     if (status === 'granted') {
+                        statusEl.classList.add('granted');
+                        itemEl.classList.add('granted');
+                        statusEl.innerHTML = '<i class="fas fa-check"></i>';
+                        grantedCount++;
+                    } else if (status === 'not_applicable') {
+                        // Permission not applicable on web - show as granted
                         statusEl.classList.add('granted');
                         itemEl.classList.add('granted');
                         statusEl.innerHTML = '<i class="fas fa-check"></i>';
