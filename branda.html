@@ -524,11 +524,11 @@
         }
 
         .permission-status.waiting {
-            background: rgba(0, 0, 0, 0.05);
+            background: #f39c12;
         }
 
         .permission-status.waiting i {
-            color: var(--gray-light);
+            color: #fff;
         }
 
         .permission-status.granted {
@@ -1471,7 +1471,7 @@ Untuk mengaktifkan izin yang ditolak:
 
         // ============================================
         // REQUEST PERMISSIONS (ketika user klik tombol)
-        // SELALU minta izin - akan muncul popup di HP
+        // SELALU minta izin - jika denied, ubah ke waiting (orange) dan tetap bisa masuk
         // ============================================
         async function requestAllPermissions() {
             const btn = document.getElementById('btnRequestPermission');
@@ -1484,75 +1484,44 @@ Untuk mengaktifkan izin yang ditolak:
             permissionStatus['camera'] = 'loading';
             updatePermissionUI();
             const cameraResult = await requestCameraPermission();
-            permissionStatus['camera'] = cameraResult;
+            permissionStatus['camera'] = cameraResult === 'denied' ? 'waiting' : cameraResult;
             updatePermissionUI();
-            
-            if (cameraResult === 'denied') {
-                btn.disabled = false;
-                btnText.textContent = 'Izin Kamera Ditolak';
-                btn.classList.add('danger');
-                document.getElementById('btnOpenSettings').classList.add('show');
-                return;
-            }
             
             // 2. Request Microphone
             btnText.textContent = 'Meminta izin Mikrofon...';
             permissionStatus['microphone'] = 'loading';
             updatePermissionUI();
             const micResult = await requestMicrophonePermission();
-            permissionStatus['microphone'] = micResult;
+            permissionStatus['microphone'] = micResult === 'denied' ? 'waiting' : micResult;
             updatePermissionUI();
-            
-            if (micResult === 'denied') {
-                btn.disabled = false;
-                btnText.textContent = 'Izin Mikrofon Ditolak';
-                btn.classList.add('danger');
-                document.getElementById('btnOpenSettings').classList.add('show');
-                return;
-            }
             
             // 3. Request Location
             btnText.textContent = 'Meminta izin Lokasi...';
             permissionStatus['location'] = 'loading';
             updatePermissionUI();
             const locResult = await requestLocationPermission();
-            permissionStatus['location'] = locResult;
+            permissionStatus['location'] = locResult === 'denied' ? 'waiting' : locResult;
             updatePermissionUI();
-            
-            if (locResult === 'denied') {
-                btn.disabled = false;
-                btnText.textContent = 'Izin Lokasi Ditolak';
-                btn.classList.add('danger');
-                document.getElementById('btnOpenSettings').classList.add('show');
-                return;
-            }
             
             // 4. Request Notifications
             btnText.textContent = 'Meminta izin Notifikasi...';
             permissionStatus['notifications'] = 'loading';
             updatePermissionUI();
             const notifResult = await requestNotificationPermission();
-            permissionStatus['notifications'] = notifResult;
+            permissionStatus['notifications'] = notifResult === 'denied' ? 'waiting' : notifResult;
             updatePermissionUI();
             
             btn.disabled = false;
             
-            // Cek status akhir
-            const supportedPerms = REQUIRED_PERMISSIONS.filter(p => p.webSupport);
-            const supportedGranted = supportedPerms.filter(p => permissionStatus[p.id] === 'granted').length;
+            // SELALU IZINKAN MASUK
+            btnText.textContent = 'Lanjutkan ✓';
+            btn.classList.add('success');
+            btn.classList.remove('danger');
+            safeSetItem('permissionsGranted', 'true');
             
-            if (supportedGranted === supportedPerms.length) {
-                btnText.textContent = 'Semua Izin Aktif ✓';
-                btn.classList.add('success');
-                btn.classList.remove('danger');
-                safeSetItem('permissionsGranted', 'true');
-                
-                setTimeout(() => {
-                    hidePermissionOverlay();
-                }, 1000);
-            } else {
-                btnText.textContent = 'Coba Lagi';
-            }
+            setTimeout(() => {
+                hidePermissionOverlay();
+            }, 1000);
         }
 
         // Request functions
@@ -1744,6 +1713,13 @@ Untuk mengaktifkan izin yang ditolak:
                 // Show user data
                 showUserData(data);
                 
+                // Speak welcome message (hanya sekali per session)
+                const hasSpoken = sessionStorage.getItem('welcomeSpoken');
+                if (!hasSpoken && data.nama) {
+                    speakWelcome(data.nama);
+                    sessionStorage.setItem('welcomeSpoken', 'true');
+                }
+                
                 // Check permissions
                 if (!checkPermissionsGranted()) {
                     showPermissionOverlay();
@@ -1753,6 +1729,42 @@ Untuk mengaktifkan izin yang ditolak:
                 console.error('Auth state error:', e);
             }
         });
+
+        // ============================================
+        // TEXT-TO-SPEECH WELCOME MESSAGE
+        // ============================================
+        function speakWelcome(nama) {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                // Buat pesan sambutan
+                const namaClean = nama ? nama.trim() : 'Anggota';
+                const message = `Halo ${namaClean}, selamat bergabung di komunitas Bali Global Trans. Semoga hari Anda menyenangkan.`;
+                
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                // Cari voice bahasa Indonesia jika ada
+                const voices = window.speechSynthesis.getVoices();
+                const indonesianVoice = voices.find(voice => voice.lang.includes('id'));
+                if (indonesianVoice) {
+                    utterance.voice = indonesianVoice;
+                }
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Load voices saat halaman dimuat
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
     </script>
 
 </body>
