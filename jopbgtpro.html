@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lowongan Kerja - BGT-PRO</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --gradient-green: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow-x: hidden; }
+        body { font-family: 'Poppins', sans-serif; background: var(--dark); color: var(--white); min-height: 100dvh; }
+
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
+        .loading-screen.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner { width: 35px; height: 35px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .app-container { width: 100%; min-height: 100dvh; padding-bottom: 20px; }
+
+        /* Header */
+        .header { position: sticky; top: 0; z-index: 100; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .header-title { font-size: 1.1rem; font-weight: 700; }
+        .back-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.05); border: none; border-radius: 10px; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .back-btn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+
+        /* Hero */
+        .hero { margin: 16px; background: var(--gradient-green); border-radius: 20px; padding: 24px; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -40%; right: -15%; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+        .hero-icon { width: 70px; height: 70px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.8rem; }
+        .hero-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+        .hero-desc { font-size: 0.85rem; opacity: 0.9; }
+
+        /* Filter Tabs */
+        .filter-tabs { display: flex; gap: 8px; padding: 0 16px 12px; overflow-x: auto; }
+        .filter-tab { padding: 8px 16px; background: var(--dark-light); border: 1px solid rgba(255,255,255,0.05); border-radius: 9999px; font-size: 0.8rem; font-weight: 500; color: var(--gray-light); cursor: pointer; white-space: nowrap; }
+        .filter-tab.active { background: var(--gradient-primary); border-color: transparent; color: white; }
+
+        /* Job List */
+        .job-list { padding: 0 16px; }
+        .job-card { background: var(--dark-light); border-radius: 16px; margin-bottom: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .job-image { width: 100%; height: 140px; object-fit: cover; }
+        .job-content { padding: 14px; }
+        .job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .job-title { font-size: 1rem; font-weight: 700; flex: 1; margin-right: 10px; }
+        .job-badge { padding: 4px 10px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
+        .job-badge.new { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .job-badge.hot { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .job-badge.urgent { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+        .job-company { font-size: 0.85rem; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .job-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+        .job-meta-item { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--gray-light); }
+        .job-meta-item i { font-size: 0.75rem; color: var(--gray); }
+        .job-salary { font-size: 1rem; font-weight: 700; color: var(--success); margin-bottom: 12px; }
+        .job-footer { display: flex; justify-content: space-between; align-items: center; }
+        .job-deadline { font-size: 0.75rem; color: var(--gray); }
+        .job-btn { padding: 8px 18px; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .job-btn:active { transform: scale(0.95); }
+
+        /* Empty */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-light); }
+        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <p style="color: var(--gray-light); font-size: 0.85rem; margin-top: 15px;">Memuat Lowongan...</p>
+    </div>
+
+    <!-- App Container -->
+    <div class="app-container" id="mainApp" style="display: none;">
+
+        <header class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="window.location.href='branda.html'"><i class="fas fa-arrow-left"></i></button>
+                <div class="header-title">Lowongan Kerja</div>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-icon"><i class="fas fa-briefcase"></i></div>
+            <h2 class="hero-title">Temukan Pekerjaan Impian</h2>
+            <p class="hero-desc">Lowongan eksklusif untuk anggota BGT-PRO</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterJobs('all')">Semua</div>
+            <div class="filter-tab" onclick="filterJobs('driver')">Driver</div>
+            <div class="filter-tab" onclick="filterJobs('admin')">Admin</div>
+            <div class="filter-tab" onclick="filterJobs('other')">Lainnya</div>
+        </div>
+
+        <!-- Job List -->
+        <div class="job-list" id="jobList"></div>
+
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
+            authDomain: "cedar-setup-425414-d7.firebaseapp.com",
+            databaseURL: "https://cedar-setup-425414-d7-default-rtdb.firebaseio.com",
+            projectId: "cedar-setup-425414-d7",
+            storageBucket: "cedar-setup-425414-d7.firebasestorage.app",
+            messagingSenderId: "723545991983",
+            appId: "1:723545991983:web:379548d2b425a502a60fda"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Sample job data
+        const jobData = [
+            { id: 1, title: 'Driver Armada Baru', company: 'PT. Bali Global Trans', type: 'driver', image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400', location: 'Denpasar, Bali', salary: 'Rp 5.000.000 - 8.000.000', deadline: '28 Feb 2025', badge: 'hot' },
+            { id: 2, title: 'Admin Logistik', company: 'BGT Cargo Division', type: 'admin', image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400', location: 'Badung, Bali', salary: 'Rp 4.500.000 - 6.000.000', deadline: '15 Feb 2025', badge: 'new' },
+            { id: 3, title: 'Driver Ekspedisi', company: 'PT. Bali Global Trans', type: 'driver', image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400', location: 'Gianyar, Bali', salary: 'Rp 6.000.000 - 10.000.000', deadline: '20 Feb 2025', badge: 'urgent' },
+            { id: 4, title: 'Customer Service', company: 'BGT Service Center', type: 'admin', image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400', location: 'Denpasar, Bali', salary: 'Rp 4.000.000 - 5.500.000', deadline: '28 Feb 2025', badge: 'new' },
+            { id: 5, title: 'Fleet Manager', company: 'BGT Fleet Management', type: 'other', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', location: 'Tabanan, Bali', salary: 'Rp 8.000.000 - 12.000.000', deadline: '15 Mar 2025', badge: 'new' }
+        ];
+
+        let currentFilter = 'all';
+
+        function filterJobs(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderJobs();
+        }
+
+        function renderJobs() {
+            const list = document.getElementById('jobList');
+            let filtered = jobData;
+
+            if (currentFilter !== 'all') {
+                filtered = jobData.filter(j => j.type === currentFilter);
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fas fa-briefcase"></i><p>Tidak ada lowongan tersedia</p></div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(j => `
+                <div class="job-card">
+                    <img src="${j.image}" alt="${j.title}" class="job-image" loading="lazy">
+                    <div class="job-content">
+                        <div class="job-header">
+                            <h4 class="job-title">${j.title}</h4>
+                            <span class="job-badge ${j.badge}">${j.badge.toUpperCase()}</span>
+                        </div>
+                        <div class="job-company"><i class="fas fa-building"></i> ${j.company}</div>
+                        <div class="job-meta">
+                            <div class="job-meta-item"><i class="fas fa-map-marker-alt"></i> ${j.location}</div>
+                        </div>
+                        <div class="job-salary">${j.salary}</div>
+                        <div class="job-footer">
+                            <span class="job-deadline"><i class="fas fa-clock"></i> Deadline: ${j.deadline}</span>
+                            <button class="job-btn" onclick="applyJob(${j.id})">Lamar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function applyJob(id) {
+            alert('Lamaran untuk lowongan #' + id + ' berhasil dikirim! Admin akan menghubungi Anda segera.');
+        }
+
+        function showApp() {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('mainApp').style.display = 'block';
+            renderJobs();
+        }
+
+        // Auth State
+        auth.onAuthStateChanged((user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            showApp();
+        });
+    </script>
+
+</body>
+</html>

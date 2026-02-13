@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anggota - BGT-PRO</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow-x: hidden; }
+        body { font-family: 'Poppins', sans-serif; background: var(--dark); color: var(--white); min-height: 100dvh; }
+
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
+        .loading-screen.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner { width: 35px; height: 35px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .app-container { width: 100%; min-height: 100dvh; padding-bottom: 80px; }
+
+        /* Header */
+        .header { position: sticky; top: 0; z-index: 100; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .header-row { display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .header-title { font-size: 1.1rem; font-weight: 700; }
+        .back-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.05); border: none; border-radius: 10px; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .back-btn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+
+        /* Search */
+        .search-box { margin-top: 12px; position: relative; }
+        .search-input { width: 100%; padding: 12px 16px 12px 42px; background: var(--dark-light); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; color: white; font-size: 0.9rem; font-family: inherit; }
+        .search-input::placeholder { color: var(--gray-light); }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray); }
+
+        /* Stats Bar */
+        .stats-bar { display: flex; gap: 12px; padding: 12px 16px; overflow-x: auto; }
+        .stat-chip { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--dark-light); border: 1px solid rgba(255,255,255,0.05); border-radius: 9999px; font-size: 0.8rem; white-space: nowrap; }
+        .stat-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .stat-chip .dot.total { background: var(--primary); }
+        .stat-chip .dot.online { background: var(--success); }
+        .stat-chip .dot.offline { background: var(--gray); }
+        .stat-chip .count { font-weight: 700; }
+
+        /* Member List */
+        .member-list { padding: 0 16px; }
+        .member-card { background: var(--dark-light); border-radius: 14px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s; }
+        .member-card:active { border-color: var(--primary); transform: scale(0.99); }
+        .member-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
+        .member-info { flex: 1; }
+        .member-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+        .member-title { font-size: 0.7rem; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+        .member-status { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+        .member-status.online { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .member-status.offline { background: rgba(100, 116, 139, 0.15); color: var(--gray); }
+        .member-status .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-light); }
+        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); padding: 8px 16px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 12px; border-radius: 10px; cursor: pointer; color: var(--gray); text-decoration: none; }
+        .nav-item.active { color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+        .nav-item i { font-size: 1.15rem; }
+        .nav-item span { font-size: 0.65rem; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <p style="color: var(--gray-light); font-size: 0.85rem; margin-top: 15px;">Memuat Anggota...</p>
+    </div>
+
+    <!-- App Container -->
+    <div class="app-container" id="mainApp" style="display: none;">
+
+        <header class="header">
+            <div class="header-row">
+                <div class="header-left">
+                    <button class="back-btn" onclick="window.location.href='branda.html'"><i class="fas fa-arrow-left"></i></button>
+                    <div class="header-title">Daftar Anggota</div>
+                </div>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Cari anggota..." id="searchInput" oninput="filterMembers()">
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-chip">
+                <span class="dot total"></span>
+                <span>Total</span>
+                <span class="count" id="statTotal">0</span>
+            </div>
+            <div class="stat-chip">
+                <span class="dot online"></span>
+                <span>Online</span>
+                <span class="count" id="statOnline">0</span>
+            </div>
+            <div class="stat-chip">
+                <span class="dot offline"></span>
+                <span>Offline</span>
+                <span class="count" id="statOffline">0</span>
+            </div>
+        </div>
+
+        <!-- Member List -->
+        <div class="member-list" id="memberList"></div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a class="nav-item" href="branda.html">
+            <i class="fas fa-home"></i>
+            <span>Beranda</span>
+        </a>
+        <a class="nav-item" href="kopdar.html">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Kopdar</span>
+        </a>
+        <a class="nav-item" href="promo.html">
+            <i class="fas fa-tags"></i>
+            <span>Promo</span>
+        </a>
+        <a class="nav-item" href="profil.html">
+            <i class="fas fa-user"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
+            authDomain: "cedar-setup-425414-d7.firebaseapp.com",
+            databaseURL: "https://cedar-setup-425414-d7-default-rtdb.firebaseio.com",
+            projectId: "cedar-setup-425414-d7",
+            storageBucket: "cedar-setup-425414-d7.firebasestorage.app",
+            messagingSenderId: "723545991983",
+            appId: "1:723545991983:web:379548d2b425a502a60fda"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let allMembers = [];
+
+        function checkOnlineStatus(member) {
+            if (!member.currentSessionId) return false;
+            if (member.lastActive) {
+                const lastActive = member.lastActive.toDate ? member.lastActive.toDate() : new Date(member.lastActive);
+                const diff = (new Date() - lastActive) / (1000 * 60);
+                if (diff > 2) return false;
+            }
+            return true;
+        }
+
+        function loadMembers() {
+            db.collection('users').onSnapshot((snapshot) => {
+                allMembers = [];
+                snapshot.forEach(doc => allMembers.push({ id: doc.id, ...doc.data() }));
+                renderMembers();
+                updateStats();
+            });
+        }
+
+        function updateStats() {
+            const total = allMembers.length;
+            const online = allMembers.filter(m => checkOnlineStatus(m)).length;
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statOnline').textContent = online;
+            document.getElementById('statOffline').textContent = total - online;
+        }
+
+        function filterMembers() {
+            renderMembers();
+        }
+
+        function renderMembers() {
+            const list = document.getElementById('memberList');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allMembers;
+
+            if (search) {
+                filtered = allMembers.filter(m => (m.nama || '').toLowerCase().includes(search));
+            }
+
+            // Sort: online first
+            filtered.sort((a, b) => {
+                const aOnline = checkOnlineStatus(a);
+                const bOnline = checkOnlineStatus(b);
+                if (aOnline && !bOnline) return -1;
+                if (!aOnline && bOnline) return 1;
+                return (a.nama || '').localeCompare(b.nama || '');
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <p>Tidak ada anggota ditemukan</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = filtered.map(m => {
+                const isOnline = checkOnlineStatus(m);
+                const avatar = m.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.nama || 'User')}&background=6366f1&color=fff`;
+                return `
+                    <div class="member-card" onclick="showMember('${m.id}')">
+                        <img src="${avatar}" alt="${m.nama}" class="member-avatar" loading="lazy">
+                        <div class="member-info">
+                            <div class="member-name">${m.nama || 'Unknown'}</div>
+                            <div class="member-title"><i class="fas fa-crown"></i> ${m.titel || 'ANGGOTA'}</div>
+                        </div>
+                        <div class="member-status ${isOnline ? 'online' : 'offline'}">
+                            <span class="dot"></span>
+                            ${isOnline ? 'Online' : 'Offline'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showMember(id) {
+            alert('Detail anggota akan segera hadir');
+        }
+
+        function showApp() {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('mainApp').style.display = 'block';
+            loadMembers();
+        }
+
+        // Auth State
+        auth.onAuthStateChanged((user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            showApp();
+        });
+    </script>
+
+</body>
+</html>
