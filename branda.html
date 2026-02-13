@@ -1239,7 +1239,7 @@
             }
         }
 
-        // Check single permission status
+        // Check single permission status using direct access (more reliable)
         async function checkSinglePermissionStatus(permissionId) {
             return new Promise(async (resolve) => {
                 let status = 'waiting';
@@ -1249,15 +1249,60 @@
                 try {
                     switch (permissionId) {
                         case 'camera':
-                            status = await checkPermissionViaAPI('camera');
+                            try {
+                                if (navigator.permissions) {
+                                    const result = await navigator.permissions.query({ name: 'camera' });
+                                    if (result.state === 'granted') {
+                                        status = 'granted';
+                                    } else if (result.state === 'denied') {
+                                        status = 'denied';
+                                    } else {
+                                        status = await testCameraAccess();
+                                    }
+                                } else {
+                                    status = await testCameraAccess();
+                                }
+                            } catch (e) {
+                                status = await testCameraAccess();
+                            }
                             break;
                             
                         case 'microphone':
-                            status = await checkPermissionViaAPI('microphone');
+                            try {
+                                if (navigator.permissions) {
+                                    const result = await navigator.permissions.query({ name: 'microphone' });
+                                    if (result.state === 'granted') {
+                                        status = 'granted';
+                                    } else if (result.state === 'denied') {
+                                        status = 'denied';
+                                    } else {
+                                        status = await testMicrophoneAccess();
+                                    }
+                                } else {
+                                    status = await testMicrophoneAccess();
+                                }
+                            } catch (e) {
+                                status = await testMicrophoneAccess();
+                            }
                             break;
-                            
+                        
                         case 'location':
-                            status = await checkPermissionViaAPI('geolocation');
+                            try {
+                                if (navigator.permissions) {
+                                    const result = await navigator.permissions.query({ name: 'geolocation' });
+                                    if (result.state === 'granted') {
+                                        status = 'granted';
+                                    } else if (result.state === 'denied') {
+                                        status = 'denied';
+                                    } else {
+                                        status = await testLocationAccess();
+                                    }
+                                } else {
+                                    status = await testLocationAccess();
+                                }
+                            } catch (e) {
+                                status = await testLocationAccess();
+                            }
                             break;
                             
                         case 'notifications':
@@ -1275,24 +1320,11 @@
                             break;
                             
                         case 'bluetooth':
-                            if ('bluetooth' in navigator) {
-                                try {
-                                    const available = await navigator.bluetooth.getAvailability();
-                                    status = available ? 'granted' : 'not_applicable';
-                                } catch (e) {
-                                    status = 'not_applicable';
-                                }
-                            } else {
-                                status = 'not_applicable';
-                            }
+                            status = 'not_applicable';
                             break;
                             
                         case 'contacts':
-                            if ('contacts' in navigator && 'ContactsManager' in window) {
-                                status = 'granted';
-                            } else {
-                                status = 'not_applicable';
-                            }
+                            status = 'not_applicable';
                             break;
                             
                         case 'phone':
@@ -1308,70 +1340,55 @@
                     }
                 } catch (error) {
                     console.log(`Permission check error for ${permissionId}:`, error.message);
-                    if (permInfo && !permInfo.webSupport) {
-                        status = 'not_applicable';
-                    } else {
-                        status = 'waiting';
-                    }
+                    status = 'waiting';
                 }
                 
                 resolve(status);
             });
         }
-
-        // Check permission via Permissions API
-        async function checkPermissionViaAPI(permissionName) {
-            return new Promise(async (resolve) => {
-                if (navigator.permissions && navigator.permissions.query) {
-                    try {
-                        const result = await navigator.permissions.query({ name: permissionName });
-                        
-                        if (result.state === 'granted') {
-                            resolve('granted');
-                        } else if (result.state === 'denied') {
+        
+        // Test camera access directly
+        async function testCameraAccess() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream.getTracks().forEach(track => track.stop());
+                return 'granted';
+            } catch (e) {
+                if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                    return 'denied';
+                }
+                return 'granted';
+            }
+        }
+        
+        // Test microphone access directly
+        async function testMicrophoneAccess() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop());
+                return 'granted';
+            } catch (e) {
+                if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                    return 'denied';
+                }
+                return 'granted';
+            }
+        }
+        
+        // Test location access directly
+        async function testLocationAccess() {
+            return new Promise((resolve) => {
+                navigator.geolocation.getCurrentPosition(
+                    () => resolve('granted'),
+                    (error) => {
+                        if (error.code === error.PERMISSION_DENIED) {
                             resolve('denied');
                         } else {
-                            resolve('waiting');
+                            resolve('granted');
                         }
-                        
-                        result.onchange = () => {
-                            permissionStatus[permissionName] = result.state === 'granted' ? 'granted' : 
-                                                               result.state === 'denied' ? 'denied' : 'waiting';
-                            updatePermissionUI();
-                        };
-                    } catch (e) {
-                        resolve(await checkPermissionByRequest(permissionName));
-                    }
-                } else {
-                    resolve(await checkPermissionByRequest(permissionName));
-                }
-            });
-        }
-
-        // Fallback check by trying to use feature
-        async function checkPermissionByRequest(permissionName) {
-            return new Promise(async (resolve) => {
-                try {
-                    if (permissionName === 'camera' || permissionName === 'microphone') {
-                        const constraints = permissionName === 'camera' ? { video: true } : { audio: true };
-                        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                        stream.getTracks().forEach(track => track.stop());
-                        resolve('granted');
-                    } else if (permissionName === 'geolocation') {
-                        await new Promise((res, rej) => {
-                            navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 });
-                        });
-                        resolve('granted');
-                    } else {
-                        resolve('waiting');
-                    }
-                } catch (e) {
-                    if (e.name === 'NotAllowedError' || e.code === 1) {
-                        resolve('denied');
-                    } else {
-                        resolve('waiting');
-                    }
-                }
+                    },
+                    { timeout: 5000, maximumAge: 60000 }
+                );
             });
         }
 
