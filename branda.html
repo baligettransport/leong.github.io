@@ -29,141 +29,217 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow-x: hidden; }
-        body { font-family: 'Poppins', sans-serif; background: var(--dark); color: var(--white); min-height: 100dvh; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%); 
+            color: var(--dark); 
+            min-height: 100dvh; 
+        }
 
-        /* Loading Screen */
-        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
-        .loading-screen.hidden { opacity: 0; pointer-events: none; }
-        .loading-logo { width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; animation: pulse-glow 2s infinite; }
-        .loading-logo i { font-size: 2rem; color: white; }
-        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); } 50% { box-shadow: 0 0 0 20px rgba(99, 102, 241, 0); } }
-        .loading-spinner { width: 35px; height: 35px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: var(--gray-light); font-size: 0.85rem; }
+        /* CSS UNTUK MENYEMBUNYIKAN SCROLLBAR */
+        html, body, .app-container {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE dan Edge */
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar, .app-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
 
-        .app-container { width: 100%; min-height: 100dvh; padding-bottom: 80px; }
+        #bg-video { display: none; }
+        .video-overlay { display: none; }
 
-        /* Header */
-        .header { position: sticky; top: 0; z-index: 100; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .header-title { font-size: 1.1rem; font-weight: 700; }
-        .back-btn, .menu-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.05); border: none; border-radius: 10px; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .back-btn:active, .menu-btn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+        .app-container { width: 100%; min-height: 100dvh; padding-bottom: 90px; overflow-y: auto; padding-top: 60px; /* Padding top agar konten tidak tertutup header fixed */ }
+
+        /* Header - FIXED */
+        .header { 
+            position: fixed; /* Diubah menjadi fixed */
+            top: 0; 
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(15px); 
+            padding: 10px 16px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        
+        .header-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,0,0,0.1); }
+        .header-user-info { display: flex; flex-direction: column; }
+        .header-name { font-size: 0.9rem; font-weight: 600; line-height: 1.1; color: var(--dark); }
+        .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
+        .header-status .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+
         .header-right { display: flex; align-items: center; gap: 8px; }
-        .notif-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.05); border: none; border-radius: 10px; color: white; font-size: 1rem; cursor: pointer; position: relative; }
-        .notif-badge { position: absolute; top: 5px; right: 5px; min-width: 16px; height: 16px; background: var(--danger); border-radius: 50%; font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        
+        /* Tombol Notifikasi & Bantuan - Tanpa Background */
+        .notif-btn { 
+            width: 38px; height: 38px; 
+            background: transparent;
+            border: none; 
+            border-radius: 10px; 
+            color: var(--dark); font-size: 1.1rem; cursor: pointer; 
+            position: relative; 
+            display: flex; align-items: center; justify-content: center; 
+            text-decoration: none; 
+            transition: opacity 0.2s;
+        }
+        .notif-btn:active { opacity: 0.6; }
+        
+        .notif-badge { position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; background: var(--danger); border-radius: 50%; font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; color: white; }
         .notif-badge.hidden { display: none; }
 
-        /* Profile Card */
-        .profile-card { margin: 16px; background: var(--gradient-primary); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; cursor: pointer; }
-        .profile-card::before { content: ''; position: absolute; top: -40%; right: -15%; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; }
-        .profile-content { position: relative; z-index: 1; display: flex; align-items: center; gap: 15px; }
-        .profile-avatar { width: 65px; height: 65px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); object-fit: cover; }
-        .profile-info { flex: 1; }
-        .profile-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 3px; }
-        .profile-title { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; }
-        .profile-status { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: rgba(255,255,255,0.9); }
-        .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .profile-qr { width: 45px; height: 45px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.3rem; }
-
-        /* Quick Stats */
-        .quick-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 16px 16px; }
-        .stat-card { background: var(--dark-light); border-radius: 16px; padding: 12px 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit; }
-        .stat-card:active { border-color: var(--primary); transform: scale(0.98); }
-        .stat-icon { width: 40px; height: 40px; margin: 0 auto 8px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-        .stat-icon.location { background: rgba(16, 185, 129, 0.15); color: var(--success); }
-        .stat-icon.members { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
-        .stat-icon.events { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
-        .stat-value { font-size: 1.1rem; font-weight: 700; }
-        .stat-label { font-size: 0.7rem; color: var(--gray-light); }
-
-        /* Section */
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin-bottom: 12px; }
-        .section-title { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        /* Section Header */
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin-bottom: 12px; margin-top: 10px; }
+        .section-title { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--dark); text-shadow: none; }
         .section-title i { color: var(--primary); }
         .section-link { font-size: 0.8rem; color: var(--primary); text-decoration: none; font-weight: 500; cursor: pointer; }
 
-        /* Feature Menu */
+        /* Feature Menu - Icon Only */
         .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 16px 20px; }
         .feature-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; color: inherit; }
-        .feature-icon { width: 55px; height: 55px; background: var(--dark-light); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; }
-        .feature-item:active .feature-icon { transform: scale(0.95); border-color: var(--primary); }
-        .feature-icon.kopdar { color: #f472b6; }
-        .feature-icon.promo { color: #fbbf24; }
-        .feature-icon.location { color: #34d399; }
-        .feature-icon.chat { color: #60a5fa; }
-        .feature-icon.settings { color: #a78bfa; }
-        .feature-icon.history { color: #fb923c; }
-        .feature-icon.help { color: #2dd4bf; }
-        .feature-icon.share { color: #f87171; }
-        .feature-icon.job { color: #a3e635; }
-        .feature-icon.kas { color: #facc15; }
-        .feature-icon.anggota { color: #38bdf8; }
-        .feature-label { font-size: 0.7rem; color: var(--gray-light); text-align: center; font-weight: 500; }
+        .feature-icon { 
+            width: 55px; height: 55px; 
+            background: transparent;
+            border: none;
+            border-radius: 14px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1.8rem; 
+            transition: all 0.3s; 
+            text-shadow: none;
+        }
+        .feature-item:active .feature-icon { transform: scale(0.9); opacity: 0.8; }
+        .feature-icon.kopdar { color: #ec4899; }
+        .feature-icon.promo { color: #f59e0b; }
+        .feature-icon.location { color: #10b981; }
+        .feature-icon.chat { color: #3b82f6; }
+        .feature-icon.history { color: #f97316; }
+        .feature-icon.kas { color: #eab308; }
+        .feature-icon.anggota { color: #0ea5e9; }
+        .feature-icon.share { color: #ef4444; }
+        .feature-label { font-size: 0.7rem; color: var(--gray); text-align: center; font-weight: 500; text-shadow: none; }
 
         /* Promo Slider */
-        .promo-slider-wrapper { margin: 0 0 20px; overflow: hidden; }
+        .promo-slider-wrapper { margin: 16px 0 20px; overflow: hidden; }
         .promo-slider { display: flex; gap: 12px; padding: 0 16px; animation: autoScroll 20s linear infinite; }
         .promo-slider:hover { animation-play-state: paused; }
         @keyframes autoScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .promo-card { min-width: 280px; height: 160px; border-radius: 18px; padding: 16px; position: relative; overflow: hidden; flex-shrink: 0; cursor: pointer; }
+        
+        .promo-card { 
+            min-width: 280px; height: 160px; border-radius: 18px; padding: 16px; 
+            position: relative; overflow: hidden; flex-shrink: 0; cursor: pointer;
+            background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            color: var(--dark);
+        }
+        .promo-card.promo-1 { background: linear-gradient(135deg, #cffafe 0%, #e0f2fe 100%); }
+        .promo-card.promo-2 { background: linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%); }
+        .promo-card.promo-3 { background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%); }
+        .promo-card.promo-4 { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); }
+
         .promo-card:active { transform: scale(0.98); }
-        .promo-card.promo-1 { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); }
-        .promo-card.promo-2 { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
-        .promo-card.promo-3 { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
-        .promo-card.promo-4 { background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); }
-        .promo-card::before { content: ''; position: absolute; top: -25%; right: -8%; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; }
-        .promo-image { position: absolute; right: 12px; bottom: 12px; width: 85px; height: 85px; border-radius: 12px; object-fit: cover; opacity: 0.9; }
-        .promo-badge { display: inline-block; background: rgba(255,255,255,0.25); padding: 3px 10px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; margin-bottom: 8px; }
-        .promo-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; max-width: 160px; }
-        .promo-desc { font-size: 0.8rem; opacity: 0.9; max-width: 150px; line-height: 1.3; }
+        .promo-card::before { content: ''; position: absolute; top: -25%; right: -8%; width: 120px; height: 120px; background: rgba(255,255,255,0.6); border-radius: 50%; }
+        .promo-image { position: absolute; right: 12px; bottom: 12px; width: 85px; height: 85px; border-radius: 12px; object-fit: cover; opacity: 0.9; border: 2px solid #fff; }
+        .promo-badge { display: inline-block; background: var(--primary); color: white; padding: 3px 10px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; margin-bottom: 8px; }
+        .promo-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; max-width: 160px; color: var(--dark); }
+        .promo-desc { font-size: 0.8rem; color: var(--gray); max-width: 150px; line-height: 1.3; }
 
         /* Kopdar */
         .kopdar-list { margin: 0 16px 20px; }
-        .kopdar-card { background: var(--dark-light); border-radius: 16px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit; }
+        .kopdar-card { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(5px);
+            border-radius: 16px; padding: 12px; margin-bottom: 10px; 
+            display: flex; gap: 12px; 
+            border: 1px solid rgba(0,0,0,0.05); 
+            cursor: pointer; transition: all 0.3s; 
+            text-decoration: none; color: inherit; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        }
         .kopdar-card:active { border-color: var(--primary); transform: scale(0.99); }
         .kopdar-image { width: 75px; height: 75px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
         .kopdar-info { flex: 1; }
-        .kopdar-title { font-weight: 600; margin-bottom: 4px; font-size: 0.95rem; }
+        .kopdar-title { font-weight: 600; margin-bottom: 4px; font-size: 0.95rem; color: var(--dark); }
         .kopdar-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
-        .kopdar-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--gray-light); }
+        .kopdar-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--gray); }
         .kopdar-meta i { font-size: 0.7rem; color: var(--primary); }
-        .kopdar-badge { display: inline-block; background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 3px 8px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
-        .kopdar-badge.soon { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
-        .kopdar-badge.open { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .kopdar-badge { display: inline-block; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 3px 8px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
+        .kopdar-badge.soon { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+        .kopdar-badge.open { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); padding: 8px 16px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 12px; border-radius: 10px; cursor: pointer; color: var(--gray); text-decoration: none; transition: all 0.3s; }
-        .nav-item.active { color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+        /* BOTTOM NAV */
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: #ffffff;
+            display: flex; align-items: center; 
+            border-top: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100; height: 70px; padding: 0 10px;
+        }
+
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; gap: 3px; 
+            padding: 6px 12px; border-radius: 10px; cursor: pointer; 
+            color: var(--gray);
+            text-decoration: none; transition: all 0.3s; 
+        }
+        .nav-item.active { 
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            font-weight: bold; 
+        }
         .nav-item:active { transform: scale(0.95); }
         .nav-item i { font-size: 1.15rem; }
         .nav-item span { font-size: 0.65rem; font-weight: 500; }
 
+        .nav-branda { order: 1; margin-left: -15px; }
+        .nav-kopdar { order: 2; margin-right: 70px; margin-left: 15px; }
+
+        .nav-logo {
+            position: absolute; left: 49%; bottom: 8px; transform: translateX(-50%);
+            z-index: 101; order: 10; width: 100px; top: -15px;
+            background: transparent;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0px; transition: transform 0.2s; cursor: pointer; text-decoration: none;
+        }
+        .nav-logo:active { transform: translateX(-50%) scale(0.9); }
+        .nav-logo img { width: 45px; height: 45px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .nav-logo-text {
+            font-size: 0.65rem; font-weight: 700; color: var(--primary);
+            letter-spacing: 0.5px; text-transform: uppercase; line-height: 1; margin-top: 1px;
+        }
+
+        .nav-promo { order: 4; margin-left: auto; margin-right: 26px; }
+        .nav-profil { order: 5; margin-right: 5px; }
+
         /* Side Menu */
-        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: rgba(0,0,0,0.2); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s; }
         .side-menu-overlay.active { opacity: 1; visibility: visible; }
-        .side-menu { position: fixed; top: 0; left: -280px; width: 280px; height: 100dvh; background: var(--dark-light); z-index: 201; transition: left 0.3s ease; overflow-y: auto; }
+        .side-menu { position: fixed; top: 0; left: -280px; width: 280px; height: 100dvh; background: #ffffff; z-index: 201; transition: left 0.3s ease; overflow-y: auto; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
         .side-menu.active { left: 0; }
         .menu-header { padding: 25px 18px; background: var(--gradient-primary); position: relative; overflow: hidden; }
         .menu-header::before { content: ''; position: absolute; top: -40%; right: -25%; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; }
         .menu-profile { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
         .menu-avatar { width: 55px; height: 55px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); object-fit: cover; }
-        .menu-name { font-weight: 700; font-size: 1rem; }
-        .menu-title { font-size: 0.8rem; opacity: 0.9; }
+        .menu-name { font-weight: 700; font-size: 1rem; color: white; }
+        .menu-title { font-size: 0.8rem; opacity: 0.9; color: white; }
         .menu-close { position: absolute; top: 15px; right: 12px; width: 32px; height: 32px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: white; font-size: 0.9rem; cursor: pointer; }
         .menu-items { padding: 15px 0; }
         .menu-section { padding: 10px 18px; font-size: 0.7rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-        .menu-link { display: flex; align-items: center; gap: 12px; padding: 12px 18px; color: var(--white); text-decoration: none; cursor: pointer; transition: all 0.3s; }
-        .menu-link:active { background: rgba(255,255,255,0.05); }
+        .menu-link { display: flex; align-items: center; gap: 12px; padding: 12px 18px; color: var(--dark); text-decoration: none; cursor: pointer; transition: all 0.3s; }
+        .menu-link:active { background: rgba(0,0,0,0.05); }
         .menu-link i { width: 18px; text-align: center; color: var(--primary); font-size: 0.95rem; }
         .menu-link span { flex: 1; font-size: 0.9rem; }
         .menu-link .arrow { color: var(--gray); font-size: 0.7rem; }
 
         /* Toast */
         .toast-container { position: fixed; top: 70px; right: 12px; left: 12px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-        .toast { background: var(--dark-light); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; animation: slideIn 0.3s ease; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); pointer-events: auto; }
+        .toast { background: #ffffff; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; animation: slideIn 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); pointer-events: auto; color: var(--dark); }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast.hiding { animation: slideOut 0.3s ease forwards; }
         @keyframes slideOut { to { transform: translateY(-20px); opacity: 0; } }
@@ -173,26 +249,22 @@
         .toast-icon.warning { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
         .toast-content { flex: 1; }
         .toast-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; }
-        .toast-message { font-size: 0.75rem; color: var(--gray-light); }
+        .toast-message { font-size: 0.75rem; color: var(--gray); }
         .toast-close { background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <!-- Toast Container -->
+    <video id="bg-video" autoplay loop playsinline muted>
+        <source src="VideoBgt.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-logo"><i class="fas fa-truck"></i></div>
-        <div class="loading-spinner"></div>
-        <p class="loading-text">Memuat BGT-PRO...</p>
-    </div>
-
-    <!-- Side Menu Overlay -->
+    <!-- Side Menu -->
     <div class="side-menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
 
-    <!-- Side Menu -->
     <div class="side-menu" id="sideMenu">
         <div class="menu-header">
             <button class="menu-close" onclick="closeMenu()"><i class="fas fa-times"></i></button>
@@ -224,55 +296,38 @@
         </div>
     </div>
 
-    <!-- App Container -->
-    <div class="app-container" id="mainApp" style="display: none;">
+    <div class="app-container" id="mainApp">
 
         <header class="header">
             <div class="header-left">
-                <button class="menu-btn" onclick="openMenu()"><i class="fas fa-bars"></i></button>
-                <div class="header-title">BGT-PRO</div>
+                <!-- MENU BURGER DIHAPUS -->
+                
+                <div class="header-profile" onclick="window.location.href='profil.html'">
+                    <img src="" alt="Avatar" class="header-avatar" id="headerAvatar">
+                    <div class="header-user-info">
+                        <div class="header-name" id="headerName">Loading...</div>
+                        <div class="header-status">
+                            <span class="status-dot"></span>
+                            <span id="headerStatusText">Online</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="header-right">
+                <a href="bantuan.html" class="notif-btn" title="Bantuan">
+                    <i class="fas fa-headset"></i>
+                </a>
                 <button class="notif-btn" onclick="window.location.href='pesan.html'"><i class="fas fa-bell"></i><span class="notif-badge hidden" id="notifBadge">0</span></button>
             </div>
         </header>
 
-        <!-- Profile Card -->
-        <div class="profile-card" onclick="window.location.href='profil.html'">
-            <div class="profile-content">
-                <img src="" alt="Avatar" class="profile-avatar" id="userAvatar">
-                <div class="profile-info">
-                    <h2 class="profile-name" id="userName">Loading...</h2>
-                    <div class="profile-title"><i class="fas fa-crown"></i><span id="userTitle">-</span></div>
-                    <div class="profile-status"><span class="status-dot"></span><span id="userStatus">ONLINE</span></div>
-                </div>
-                <div class="profile-qr"><i class="fas fa-qrcode"></i></div>
-            </div>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="quick-stats">
-            <a class="stat-card" href="map.html">
-                <div class="stat-icon location"><i class="fas fa-map-marker-alt"></i></div>
-                <div class="stat-value" id="statLocation">-</div>
-                <div class="stat-label">Lokasi</div>
-            </a>
-            <a class="stat-card" href="anggota.html">
-                <div class="stat-icon members"><i class="fas fa-users"></i></div>
-                <div class="stat-value" id="statMembers">0</div>
-                <div class="stat-label">Anggota</div>
-            </a>
-            <a class="stat-card" href="kopdar.html">
-                <div class="stat-icon events"><i class="fas fa-calendar-check"></i></div>
-                <div class="stat-value" id="statEvents">0</div>
-                <div class="stat-label">Event</div>
-            </a>
+        <!-- PROMO SLIDER -->
+        <div class="promo-slider-wrapper">
+            <div class="promo-slider" id="promoSliderHome"></div>
         </div>
 
         <!-- Feature Menu -->
-        <div class="section-header">
-            <h3 class="section-title"><i class="fas fa-th-large"></i> Menu Cepat</h3>
-        </div>
         <div class="feature-grid">
             <a class="feature-item" href="kopdar.html">
                 <div class="feature-icon kopdar"><i class="fas fa-mug-hot"></i></div>
@@ -298,39 +353,14 @@
                 <div class="feature-icon kas"><i class="fas fa-wallet"></i></div>
                 <span class="feature-label">Kas</span>
             </a>
-            <a class="feature-item" href="jopbgtpro.html">
-                <div class="feature-icon job"><i class="fas fa-briefcase"></i></div>
-                <span class="feature-label">Lowongan</span>
-            </a>
-            <a class="feature-item" href="pengaturan.html">
-                <div class="feature-icon settings"><i class="fas fa-cog"></i></div>
-                <span class="feature-label">Pengaturan</span>
-            </a>
             <a class="feature-item" href="anggota.html">
                 <div class="feature-icon anggota"><i class="fas fa-users"></i></div>
                 <span class="feature-label">Anggota</span>
-            </a>
-            <a class="feature-item" href="bantuan.html">
-                <div class="feature-icon help"><i class="fas fa-headset"></i></div>
-                <span class="feature-label">Bantuan</span>
             </a>
             <a class="feature-item" onclick="shareApp()">
                 <div class="feature-icon share"><i class="fas fa-share-alt"></i></div>
                 <span class="feature-label">Bagikan</span>
             </a>
-            <a class="feature-item" href="profil.html">
-                <div class="feature-icon" style="color: #c084fc;"><i class="fas fa-id-card"></i></div>
-                <span class="feature-label">Profil</span>
-            </a>
-        </div>
-
-        <!-- Promo Slider -->
-        <div class="section-header">
-            <h3 class="section-title"><i class="fas fa-fire"></i> Promo Spesial</h3>
-            <a class="section-link" href="promo.html">Lihat Semua</a>
-        </div>
-        <div class="promo-slider-wrapper">
-            <div class="promo-slider" id="promoSliderHome"></div>
         </div>
 
         <!-- Kopdar Section -->
@@ -344,19 +374,27 @@
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a class="nav-item active" href="branda.html">
+        <a class="nav-item nav-branda active" href="branda.html">
             <i class="fas fa-home"></i>
             <span>Beranda</span>
         </a>
-        <a class="nav-item" href="kopdar.html">
+
+        <a class="nav-item nav-kopdar" href="kopdar.html">
             <i class="fas fa-calendar-alt"></i>
             <span>Kopdar</span>
         </a>
-        <a class="nav-item" href="promo.html">
+
+        <a class="nav-logo" href="jopbgtpro.html">
+            <img src="512B.png" alt="Logo BGT">
+            <span class="nav-logo-text">Job BGT</span>
+        </a>
+
+        <a class="nav-item nav-promo" href="promo.html">
             <i class="fas fa-tags"></i>
             <span>Promo</span>
         </a>
-        <a class="nav-item" href="profil.html">
+
+        <a class="nav-item nav-profil" href="profil.html">
             <i class="fas fa-user"></i>
             <span>Profil</span>
         </a>
@@ -463,29 +501,21 @@
             document.getElementById('kopdarListHome').innerHTML = html;
         }
 
-        async function loadMemberCount() {
-            try {
-                const snapshot = await db.collection('users').get();
-                document.getElementById('statMembers').textContent = snapshot.size;
-                document.getElementById('statEvents').textContent = kopdarData.length;
-            } catch (e) { console.error(e); }
-        }
-
         function showUserData(data) {
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('mainApp').style.display = 'block';
             const avatar = data.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nama)}&background=6366f1&color=fff&size=200`;
-            document.getElementById('userAvatar').src = avatar;
+            
+            // Update Header
+            document.getElementById('headerAvatar').src = avatar;
+            document.getElementById('headerName').textContent = data.nama || 'Pengguna';
+            document.getElementById('headerStatusText').textContent = 'Online';
+            
+            // Update Side Menu
             document.getElementById('menuAvatar').src = avatar;
-            document.getElementById('userName').textContent = data.nama || '-';
             document.getElementById('menuName').textContent = data.nama || '-';
-            document.getElementById('userTitle').textContent = data.titel || 'ANGGOTA';
             document.getElementById('menuTitle').textContent = data.titel || 'ANGGOTA';
-            document.getElementById('userStatus').textContent = 'ONLINE';
-            document.getElementById('statLocation').textContent = data.latitude ? 'Aktif' : 'Off';
+            
             loadPromoData();
             loadKopdarData();
-            loadMemberCount();
         }
 
         async function handleLogout() {
