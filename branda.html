@@ -1014,6 +1014,8 @@
         };
 
         // Required Permissions List
+        // webSupport: true = bisa diminta di web browser
+        // webSupport: false = tidak ada di web browser (status MENUNGGU)
         const REQUIRED_PERMISSIONS = [
             { id: 'camera', name: 'Kamera', icon: 'fa-camera', webSupport: true },
             { id: 'contacts', name: 'Kontak', icon: 'fa-address-book', webSupport: false },
@@ -1021,8 +1023,8 @@
             { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone', webSupport: true },
             { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell', webSupport: true },
             { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower', webSupport: false },
-            { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt', webSupport: true },
-            { id: 'photos', name: 'Foto dan Video', icon: 'fa-images', webSupport: true }
+            { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt', webSupport: false },
+            { id: 'photos', name: 'Foto dan Video', icon: 'fa-images', webSupport: false }
         ];
 
         // Firebase Config
@@ -1214,10 +1216,12 @@
             
             btn.disabled = false;
             
-            const grantedCount = Object.values(permissionStatus).filter(s => s === 'granted' || s === 'not_applicable').length;
-            const deniedCount = Object.values(permissionStatus).filter(s => s === 'denied').length;
+            // Hitung hanya izin yang DIDUKUNG web (webSupport: true)
+            const supportedPerms = REQUIRED_PERMISSIONS.filter(p => p.webSupport);
+            const supportedGranted = supportedPerms.filter(p => permissionStatus[p.id] === 'granted').length;
+            const supportedDenied = supportedPerms.filter(p => permissionStatus[p.id] === 'denied').length;
             
-            if (grantedCount === REQUIRED_PERMISSIONS.length) {
+            if (supportedGranted === supportedPerms.length) {
                 btnText.textContent = 'Semua Izin Aktif ✓';
                 btn.classList.add('success');
                 safeSetItem('permissionsGranted', 'true');
@@ -1225,7 +1229,7 @@
                 setTimeout(() => {
                     hidePermissionOverlay();
                 }, 1000);
-            } else if (deniedCount > 0) {
+            } else if (supportedDenied > 0) {
                 btnText.textContent = 'Buka Pengaturan';
                 btn.classList.add('danger');
                 document.getElementById('btnOpenSettings').classList.add('show');
@@ -1233,57 +1237,79 @@
                 const warningEl = document.getElementById('permissionWarning');
                 const warningText = document.getElementById('warningText');
                 warningEl.classList.add('show');
-                warningText.textContent = `${deniedCount} izin DITOLAK. Buka pengaturan HP!`;
+                warningText.textContent = `${supportedDenied} izin DITOLAK. Buka pengaturan HP!`;
             } else {
                 btnText.textContent = 'Periksa Ulang Izin';
             }
         }
 
         // Check single permission status - NON INTRUSIVE (no popup)
+        // Jika izin TIDAK DIDUKUNG browser → status 'waiting' (MENUNGGU)
+        // Jika izin DIDUKUNG → cek status sebenarnya
         async function checkSinglePermissionStatus(permissionId) {
             return new Promise(async (resolve) => {
                 let status = 'waiting';
                 
+                // Cek apakah permission ini didukung di web
+                const permInfo = REQUIRED_PERMISSIONS.find(p => p.id === permissionId);
+                if (permInfo && !permInfo.webSupport) {
+                    // Tidak didukung di web - status MENUNGGU
+                    resolve('waiting');
+                    return;
+                }
+                
                 try {
                     switch (permissionId) {
                         case 'camera':
-                            try {
-                                if (navigator.permissions) {
-                                    const result = await navigator.permissions.query({ name: 'camera' });
-                                    status = result.state === 'granted' ? 'granted' : 
-                                             result.state === 'denied' ? 'denied' : 'waiting';
-                                } else {
+                            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                                try {
+                                    if (navigator.permissions) {
+                                        const result = await navigator.permissions.query({ name: 'camera' });
+                                        status = result.state === 'granted' ? 'granted' : 
+                                                 result.state === 'denied' ? 'denied' : 'waiting';
+                                    } else {
+                                        status = 'waiting';
+                                    }
+                                } catch (e) {
                                     status = 'waiting';
                                 }
-                            } catch (e) {
+                            } else {
                                 status = 'waiting';
                             }
                             break;
                             
                         case 'microphone':
-                            try {
-                                if (navigator.permissions) {
-                                    const result = await navigator.permissions.query({ name: 'microphone' });
-                                    status = result.state === 'granted' ? 'granted' : 
-                                             result.state === 'denied' ? 'denied' : 'waiting';
-                                } else {
+                            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                                try {
+                                    if (navigator.permissions) {
+                                        const result = await navigator.permissions.query({ name: 'microphone' });
+                                        status = result.state === 'granted' ? 'granted' : 
+                                                 result.state === 'denied' ? 'denied' : 'waiting';
+                                    } else {
+                                        status = 'waiting';
+                                    }
+                                } catch (e) {
                                     status = 'waiting';
                                 }
-                            } catch (e) {
+                            } else {
                                 status = 'waiting';
                             }
                             break;
                         
                         case 'location':
-                            try {
-                                if (navigator.permissions) {
-                                    const result = await navigator.permissions.query({ name: 'geolocation' });
-                                    status = result.state === 'granted' ? 'granted' : 
-                                             result.state === 'denied' ? 'denied' : 'waiting';
-                                } else {
+                            if (navigator.geolocation) {
+                                try {
+                                    if (navigator.permissions) {
+                                        const result = await navigator.permissions.query({ name: 'geolocation' });
+                                        status = result.state === 'granted' ? 'granted' : 
+                                                 result.state === 'denied' ? 'denied' : 'waiting';
+                                    } else {
+                                        status = 'waiting';
+                                    }
+                                } catch (e) {
                                     status = 'waiting';
                                 }
-                            } catch (e) {
+                            } else {
                                 status = 'waiting';
                             }
                             break;
@@ -1293,24 +1319,17 @@
                                 status = Notification.permission === 'granted' ? 'granted' : 
                                          Notification.permission === 'denied' ? 'denied' : 'waiting';
                             } else {
-                                status = 'not_applicable';
+                                // Tidak ada Notification API - MENUNGGU
+                                status = 'waiting';
                             }
                             break;
                             
                         case 'bluetooth':
-                            status = 'not_applicable';
-                            break;
-                            
                         case 'contacts':
-                            status = 'not_applicable';
-                            break;
-                            
                         case 'phone':
-                            status = 'granted';
-                            break;
-                            
                         case 'photos':
-                            status = 'granted';
+                            // Izin ini tidak ada di web browser - status MENUNGGU
+                            status = 'waiting';
                             break;
                             
                         default:
@@ -1371,6 +1390,7 @@
         }
 
         // Update UI
+        // MENUNGGU = jam icon, DISETUJUI = centang hijau, DITOLAK = silang merah
         function updatePermissionUI() {
             let grantedCount = 0;
             let deniedCount = 0;
@@ -1389,12 +1409,6 @@
                         itemEl.classList.add('granted');
                         statusEl.innerHTML = '<i class="fas fa-check"></i>';
                         grantedCount++;
-                    } else if (status === 'not_applicable') {
-                        // Permission not applicable on web - show as granted
-                        statusEl.classList.add('granted');
-                        itemEl.classList.add('granted');
-                        statusEl.innerHTML = '<i class="fas fa-check"></i>';
-                        grantedCount++;
                     } else if (status === 'denied') {
                         statusEl.classList.add('denied');
                         itemEl.classList.add('denied');
@@ -1405,18 +1419,23 @@
                         itemEl.classList.add('current');
                         statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                     } else {
+                        // waiting atau status lain - tampilkan jam (MENUNGGU)
                         statusEl.classList.add('waiting');
                         statusEl.innerHTML = '<i class="fas fa-clock"></i>';
                     }
                 }
             });
             
+            // Hitung hanya izin yang didukung browser untuk progress
+            const supportedPerms = REQUIRED_PERMISSIONS.filter(p => p.webSupport);
+            const supportedGranted = supportedPerms.filter(p => permissionStatus[p.id] === 'granted').length;
+            const percentage = (supportedGranted / supportedPerms.length) * 100;
+            
             const progressFill = document.getElementById('progressFill');
             const progressText = document.getElementById('progressText');
-            const percentage = (grantedCount / REQUIRED_PERMISSIONS.length) * 100;
             
             if (progressFill) progressFill.style.width = `${percentage}%`;
-            if (progressText) progressText.textContent = `${grantedCount} dari ${REQUIRED_PERMISSIONS.length} izin aktif`;
+            if (progressText) progressText.textContent = `${supportedGranted} dari ${supportedPerms.length} izin aktif`;
         }
 
         function openAppSettings() {
