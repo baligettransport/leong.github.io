@@ -251,6 +251,439 @@
         .toast-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; }
         .toast-message { font-size: 0.75rem; color: var(--gray); }
         .toast-close { background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px; font-size: 0.8rem; }
+
+        /* ============================================
+           KEAMANAN: SESSION KICK OVERLAY
+           ============================================ */
+        .session-kick-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .session-kick-overlay.active {
+            display: flex;
+        }
+
+        .kick-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #f59e0b, #e67e22);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            animation: shakeIcon 0.5s ease-in-out;
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+        }
+
+        .kick-icon i {
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        .kick-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .kick-message {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            max-width: 300px;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .kick-device-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .kick-device-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0.3rem 0;
+        }
+
+        .kick-device-info strong {
+            color: #f59e0b;
+        }
+
+        .btn-kick-ok {
+            padding: 0.9rem 2.5rem;
+            background: linear-gradient(135deg, #f59e0b, #e67e22);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-kick-ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(243, 156, 18, 0.5);
+        }
+
+        @keyframes shakeIcon {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        /* ============================================
+           KEAMANAN: PERMISSION REQUEST OVERLAY
+           ============================================ */
+        .permission-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%);
+            z-index: 100000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .permission-overlay.active {
+            display: flex;
+        }
+
+        .permission-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .permission-header .shield-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1.5rem;
+            animation: pulseShield 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .permission-header .shield-icon i {
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        .permission-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .permission-header p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        .permission-list {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .permission-item {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            padding: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .permission-item.granted {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .permission-item.denied {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .permission-item.current {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+        }
+
+        .permission-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .permission-item[data-type="camera"] .permission-icon {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .permission-item[data-type="contacts"] .permission-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .permission-item[data-type="location"] .permission-icon {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .permission-item[data-type="microphone"] .permission-icon {
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+        }
+
+        .permission-item[data-type="notifications"] .permission-icon {
+            background: linear-gradient(135deg, #f39c12, #d68910);
+        }
+
+        .permission-item[data-type="bluetooth"] .permission-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .permission-item[data-type="phone"] .permission-icon {
+            background: linear-gradient(135deg, #27ae60, #1e8449);
+        }
+
+        .permission-item[data-type="photos"] .permission-icon {
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+        }
+
+        .permission-icon i {
+            color: #fff;
+        }
+
+        .permission-info {
+            flex: 1;
+        }
+
+        .permission-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 2px;
+        }
+
+        .permission-info p {
+            font-size: 0.7rem;
+            color: var(--gray);
+        }
+
+        .permission-status {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        .permission-status.waiting {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .permission-status.waiting i {
+            color: var(--gray-light);
+        }
+
+        .permission-status.granted {
+            background: var(--success);
+        }
+
+        .permission-status.granted i {
+            color: #fff;
+        }
+
+        .permission-status.denied {
+            background: var(--danger);
+        }
+
+        .permission-status.denied i {
+            color: #fff;
+        }
+
+        .permission-status.loading {
+            background: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        .permission-progress {
+            width: 100%;
+            max-width: 380px;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 8px;
+        }
+
+        .permission-buttons {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-permission {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-permission:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-permission:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-permission.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .btn-permission.danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+
+        .btn-settings {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--dark);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-settings:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-settings.show {
+            display: flex;
+        }
+
+        .permission-warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-width: 380px;
+            width: 100%;
+            display: none;
+        }
+
+        .permission-warning.show {
+            display: block;
+        }
+
+        .permission-warning p {
+            color: var(--danger);
+            font-size: 0.8rem;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .permission-warning p i {
+            margin-right: 5px;
+        }
+
+        @keyframes pulseShield {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(99, 102, 241, 0.6); }
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -261,6 +694,172 @@
     <div class="video-overlay"></div>
 
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- KEAMANAN: SESSION KICK OVERLAY -->
+    <div id="sessionKickOverlay" class="session-kick-overlay">
+        <div class="kick-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2 class="kick-title">SESI ANDA BERAKHIR</h2>
+        <p class="kick-message">Akun Anda telah login di perangkat lain. Hanya satu perangkat yang dapat mengakses akun pada satu waktu.</p>
+        <div class="kick-device-info">
+            <p><i class="fas fa-mobile-alt"></i> <strong>Login Baru Terdeteksi</strong></p>
+            <p id="kickDeviceInfo">Perangkat lain</p>
+        </div>
+        <button class="btn-kick-ok" onclick="handleSessionKick()">
+            <i class="fas fa-check"></i> Mengerti
+        </button>
+    </div>
+
+    <!-- KEAMANAN: PERMISSION REQUEST OVERLAY -->
+    <div id="permissionOverlay" class="permission-overlay">
+        <div class="permission-header">
+            <div class="shield-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>Izin Perangkat Diperlukan</h2>
+            <p>Aktifkan semua izin berikut untuk melanjutkan menggunakan aplikasi</p>
+        </div>
+
+        <div class="permission-progress">
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">0 dari 8 izin diaktifkan</p>
+        </div>
+
+        <div class="permission-list">
+            <!-- Kamera -->
+            <div class="permission-item" data-type="camera" data-permission="camera">
+                <div class="permission-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Kamera</h4>
+                    <p>Untuk foto profil dan verifikasi</p>
+                </div>
+                <div class="permission-status waiting" id="status-camera">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Kontak -->
+            <div class="permission-item" data-type="contacts" data-permission="contacts">
+                <div class="permission-icon">
+                    <i class="fas fa-address-book"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Kontak</h4>
+                    <p>Untuk komunikasi anggota</p>
+                </div>
+                <div class="permission-status waiting" id="status-contacts">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Lokasi -->
+            <div class="permission-item" data-type="location" data-permission="location">
+                <div class="permission-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Lokasi</h4>
+                    <p>Untuk tracking dan navigasi</p>
+                </div>
+                <div class="permission-status waiting" id="status-location">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Mikrofon -->
+            <div class="permission-item" data-type="microphone" data-permission="microphone">
+                <div class="permission-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Mikrofon</h4>
+                    <p>Untuk panggilan suara</p>
+                </div>
+                <div class="permission-status waiting" id="status-microphone">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Notifikasi -->
+            <div class="permission-item" data-type="notifications" data-permission="notifications">
+                <div class="permission-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Notifikasi</h4>
+                    <p>Untuk informasi penting</p>
+                </div>
+                <div class="permission-status waiting" id="status-notifications">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Perangkat di Sekitar (Bluetooth) -->
+            <div class="permission-item" data-type="bluetooth" data-permission="bluetooth">
+                <div class="permission-icon">
+                    <i class="fas fa-broadcast-tower"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Perangkat di Sekitar</h4>
+                    <p>Untuk koneksi bluetooth</p>
+                </div>
+                <div class="permission-status waiting" id="status-bluetooth">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Ponsel -->
+            <div class="permission-item" data-type="phone" data-permission="phone">
+                <div class="permission-icon">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Ponsel</h4>
+                    <p>Untuk panggilan darurat</p>
+                </div>
+                <div class="permission-status waiting" id="status-phone">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Foto dan Video -->
+            <div class="permission-item" data-type="photos" data-permission="photos">
+                <div class="permission-icon">
+                    <i class="fas fa-images"></i>
+                </div>
+                <div class="permission-info">
+                    <h4>Foto dan Video</h4>
+                    <p>Untuk upload dan berbagi media</p>
+                </div>
+                <div class="permission-status waiting" id="status-photos">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="permission-buttons">
+            <button class="btn-permission" id="btnRequestPermission" onclick="requestAllPermissions()">
+                <i class="fas fa-check-circle"></i>
+                <span id="btnPermissionText">Aktifkan Semua Izin</span>
+            </button>
+            <button class="btn-settings" id="btnOpenSettings" onclick="openAppSettings()">
+                <i class="fas fa-cog"></i>
+                Buka Pengaturan Manual
+            </button>
+        </div>
+
+        <div class="permission-warning" id="permissionWarning">
+            <p>
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="warningText">Semua izin harus diaktifkan untuk melanjutkan</span>
+            </p>
+        </div>
+    </div>
 
     <!-- Side Menu -->
     <div class="side-menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
@@ -406,6 +1005,26 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
+        // ============================================
+        // KEAMANAN: KONFIGURASI
+        // ============================================
+        const SECURITY_CONFIG = {
+            SESSION_CHECK_INTERVAL: 3000,
+            REQUIRE_ALL_PERMISSIONS: true
+        };
+
+        // Required Permissions List
+        const REQUIRED_PERMISSIONS = [
+            { id: 'camera', name: 'Kamera', icon: 'fa-camera' },
+            { id: 'contacts', name: 'Kontak', icon: 'fa-address-book' },
+            { id: 'location', name: 'Lokasi', icon: 'fa-map-marker-alt' },
+            { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone' },
+            { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell' },
+            { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower' },
+            { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt' },
+            { id: 'photos', name: 'Foto dan Video', icon: 'fa-images' }
+        ];
+
         // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
@@ -421,6 +1040,14 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // ============================================
+        // KEAMANAN: STATE MANAGEMENT
+        // ============================================
+        let sessionUnsubscribe = null;
+        let currentUserId = null;
+        let localSessionId = null;
+        let permissionStatus = {};
+
         // Sample Data
         const promoData = [
             { id: 1, title: 'Kopdar Bulanan', desc: 'Diskon 20% untuk anggota BGT!', badge: 'HOT', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', gradient: 'promo-1', date: '25 Jan 2025' },
@@ -434,7 +1061,367 @@
             { id: 2, title: 'Makan Malam Bersama', date: '01 Feb 2025', time: '19:00 - 22:00', location: 'Jimbaran Beach Cafe', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', status: 'open', attendees: 32 }
         ];
 
-        // Functions
+        // ============================================
+        // KEAMANAN: LOCAL STORAGE FUNCTIONS
+        // ============================================
+        function safeSetItem(key, value) {
+            try {
+                localStorage.setItem(key, value);
+                return true;
+            } catch (e) {
+                console.log('localStorage error:', e.message);
+                return false;
+            }
+        }
+
+        function safeGetItem(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ============================================
+        // KEAMANAN: SESSION KICK FUNCTIONS
+        // ============================================
+        function showSessionKick(deviceInfo) {
+            const overlay = document.getElementById('sessionKickOverlay');
+            const deviceInfoEl = document.getElementById('kickDeviceInfo');
+            
+            if (deviceInfo) {
+                deviceInfoEl.textContent = deviceInfo;
+            }
+            
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function handleSessionKick() {
+            // Clear all session data
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Unsubscribe from session listener
+            if (sessionUnsubscribe) {
+                sessionUnsubscribe();
+                sessionUnsubscribe = null;
+            }
+            
+            // Sign out from Firebase
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch(() => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        // ============================================
+        // KEAMANAN: SESSION MONITORING
+        // ============================================
+        function startSessionMonitor(userId) {
+            currentUserId = userId;
+            localSessionId = safeGetItem('userSessionId');
+            
+            if (sessionUnsubscribe) {
+                sessionUnsubscribe();
+            }
+            
+            // Listen to user document for session changes
+            sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
+                (doc) => {
+                    if (!doc.exists) {
+                        handleSessionKick();
+                        return;
+                    }
+                    
+                    const data = doc.data();
+                    const serverSessionId = data.currentSessionId;
+                    const serverDevice = data.currentDevice;
+                    
+                    // If session ID changed and doesn't match local
+                    if (serverSessionId && localSessionId && serverSessionId !== localSessionId) {
+                        console.log('Session mismatch detected - another device logged in');
+                        
+                        // Stop monitoring
+                        if (sessionUnsubscribe) {
+                            sessionUnsubscribe();
+                            sessionUnsubscribe = null;
+                        }
+                        
+                        // Show kick notification
+                        showSessionKick(serverDevice || 'Perangkat lain');
+                    }
+                },
+                (error) => {
+                    console.error('Session monitor error:', error);
+                }
+            );
+        }
+
+        function stopSessionMonitor() {
+            if (sessionUnsubscribe) {
+                sessionUnsubscribe();
+                sessionUnsubscribe = null;
+            }
+            currentUserId = null;
+        }
+
+        // ============================================
+        // KEAMANAN: PERMISSION MANAGEMENT
+        // ============================================
+        
+        function showPermissionOverlay() {
+            const overlay = document.getElementById('permissionOverlay');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Reset all permission status
+            permissionStatus = {};
+            REQUIRED_PERMISSIONS.forEach(perm => {
+                permissionStatus[perm.id] = 'waiting';
+            });
+            
+            updatePermissionUI();
+        }
+
+        function hidePermissionOverlay() {
+            const overlay = document.getElementById('permissionOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updatePermissionUI() {
+            let grantedCount = 0;
+            let deniedCount = 0;
+            
+            REQUIRED_PERMISSIONS.forEach(perm => {
+                const status = permissionStatus[perm.id] || 'waiting';
+                const statusEl = document.getElementById(`status-${perm.id}`);
+                const itemEl = document.querySelector(`.permission-item[data-permission="${perm.id}"]`);
+                
+                if (statusEl && itemEl) {
+                    statusEl.classList.remove('waiting', 'granted', 'denied', 'loading');
+                    itemEl.classList.remove('granted', 'denied', 'current');
+                    
+                    if (status === 'granted') {
+                        statusEl.classList.add('granted');
+                        itemEl.classList.add('granted');
+                        statusEl.innerHTML = '<i class="fas fa-check"></i>';
+                        grantedCount++;
+                    } else if (status === 'denied') {
+                        statusEl.classList.add('denied');
+                        itemEl.classList.add('denied');
+                        statusEl.innerHTML = '<i class="fas fa-times"></i>';
+                        deniedCount++;
+                    } else if (status === 'loading') {
+                        statusEl.classList.add('loading');
+                        itemEl.classList.add('current');
+                        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    } else {
+                        statusEl.classList.add('waiting');
+                        statusEl.innerHTML = '<i class="fas fa-clock"></i>';
+                    }
+                }
+            });
+            
+            // Update progress bar
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const percentage = (grantedCount / REQUIRED_PERMISSIONS.length) * 100;
+            
+            if (progressFill) progressFill.style.width = `${percentage}%`;
+            if (progressText) progressText.textContent = `${grantedCount} dari ${REQUIRED_PERMISSIONS.length} izin diaktifkan`;
+            
+            // Update button state
+            const btn = document.getElementById('btnRequestPermission');
+            const btnText = document.getElementById('btnPermissionText');
+            const btnSettings = document.getElementById('btnOpenSettings');
+            const warningEl = document.getElementById('permissionWarning');
+            const warningText = document.getElementById('warningText');
+            
+            if (grantedCount === REQUIRED_PERMISSIONS.length) {
+                if (btn) {
+                    btn.classList.remove('danger');
+                    btn.classList.add('success');
+                    btn.disabled = false;
+                }
+                if (btnText) btnText.textContent = 'Semua Izin Diaktifkan ✓';
+                if (btnSettings) btnSettings.classList.remove('show');
+                if (warningEl) warningEl.classList.remove('show');
+                
+                safeSetItem('permissionsGranted', 'true');
+                
+                setTimeout(() => {
+                    hidePermissionOverlay();
+                }, 1000);
+            } else if (deniedCount > 0) {
+                if (btn) {
+                    btn.classList.remove('success');
+                    btn.classList.add('danger');
+                    btn.disabled = false;
+                }
+                if (btnText) btnText.textContent = 'Coba Lagi';
+                if (btnSettings) btnSettings.classList.add('show');
+                if (warningEl) {
+                    warningEl.classList.add('show');
+                    if (warningText) {
+                        warningText.textContent = `${deniedCount} izin ditolak. Buka pengaturan untuk mengaktifkan secara manual.`;
+                    }
+                }
+            } else {
+                if (btn) {
+                    btn.classList.remove('success', 'danger');
+                    btn.disabled = false;
+                }
+                if (btnText) btnText.textContent = 'Aktifkan Semua Izin';
+                if (btnSettings) btnSettings.classList.remove('show');
+                if (warningEl) warningEl.classList.remove('show');
+            }
+        }
+
+        async function requestPermission(permissionId) {
+            return new Promise(async (resolve) => {
+                permissionStatus[permissionId] = 'loading';
+                updatePermissionUI();
+                
+                try {
+                    let result = 'denied';
+                    
+                    switch (permissionId) {
+                        case 'camera':
+                            try {
+                                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                                stream.getTracks().forEach(track => track.stop());
+                                result = 'granted';
+                            } catch (e) { result = 'denied'; }
+                            break;
+                            
+                        case 'microphone':
+                            try {
+                                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                                stream.getTracks().forEach(track => track.stop());
+                                result = 'granted';
+                            } catch (e) { result = 'denied'; }
+                            break;
+                            
+                        case 'location':
+                            try {
+                                await new Promise((res, rej) => {
+                                    navigator.geolocation.getCurrentPosition(res, rej, {
+                                        timeout: 10000,
+                                        enableHighAccuracy: true
+                                    });
+                                });
+                                result = 'granted';
+                            } catch (e) { result = 'denied'; }
+                            break;
+                            
+                        case 'notifications':
+                            if ('Notification' in window) {
+                                const permission = await Notification.requestPermission();
+                                result = permission === 'granted' ? 'granted' : 'denied';
+                            } else { result = 'granted'; }
+                            break;
+                            
+                        case 'bluetooth':
+                            if ('bluetooth' in navigator) {
+                                try {
+                                    await navigator.bluetooth.getAvailability();
+                                    result = 'granted';
+                                } catch (e) { result = 'granted'; }
+                            } else { result = 'granted'; }
+                            break;
+                            
+                        case 'contacts':
+                            if ('contacts' in navigator && 'ContactsManager' in window) {
+                                try {
+                                    await navigator.contacts.getProperties();
+                                    result = 'granted';
+                                } catch (e) { result = 'denied'; }
+                            } else { result = 'granted'; }
+                            break;
+                            
+                        case 'phone':
+                            result = 'granted';
+                            break;
+                            
+                        case 'photos':
+                            try {
+                                const stream = await navigator.mediaDevices.getUserMedia({ 
+                                    video: { facingMode: 'environment' } 
+                                });
+                                stream.getTracks().forEach(track => track.stop());
+                                result = 'granted';
+                            } catch (e) { result = 'granted'; }
+                            break;
+                            
+                        default:
+                            result = 'granted';
+                    }
+                    
+                    permissionStatus[permissionId] = result;
+                    updatePermissionUI();
+                    resolve(result);
+                    
+                } catch (error) {
+                    console.error(`Permission error for ${permissionId}:`, error);
+                    permissionStatus[permissionId] = 'denied';
+                    updatePermissionUI();
+                    resolve('denied');
+                }
+            });
+        }
+
+        async function requestAllPermissions() {
+            const btn = document.getElementById('btnRequestPermission');
+            const btnText = document.getElementById('btnPermissionText');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Meminta Izin...';
+            
+            for (const perm of REQUIRED_PERMISSIONS) {
+                if (permissionStatus[perm.id] !== 'granted') {
+                    await requestPermission(perm.id);
+                    await new Promise(r => setTimeout(r, 300));
+                }
+            }
+            
+            const allGranted = REQUIRED_PERMISSIONS.every(p => permissionStatus[p.id] === 'granted');
+            
+            if (!allGranted) {
+                document.getElementById('btnOpenSettings').classList.add('show');
+            }
+        }
+
+        function openAppSettings() {
+            const instructions = `Untuk mengaktifkan izin secara manual:
+
+1. Buka Pengaturan browser/perangkat
+2. Cari aplikasi/website ini
+3. Aktifkan semua izin:
+   - Kamera
+   - Lokasi
+   - Mikrofon
+   - Notifikasi
+   - dll
+
+Setelah selesai, kembali dan tap "Coba Lagi".`;
+            
+            alert(instructions);
+            
+            setTimeout(() => {
+                requestAllPermissions();
+            }, 1000);
+        }
+
+        function checkPermissionsGranted() {
+            return safeGetItem('permissionsGranted') === 'true';
+        }
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
         function openMenu() {
             document.getElementById('sideMenu').classList.add('active');
             document.getElementById('menuOverlay').classList.add('active');
@@ -504,12 +1491,10 @@
         function showUserData(data) {
             const avatar = data.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nama)}&background=6366f1&color=fff&size=200`;
             
-            // Update Header
             document.getElementById('headerAvatar').src = avatar;
             document.getElementById('headerName').textContent = data.nama || 'Pengguna';
             document.getElementById('headerStatusText').textContent = 'Online';
             
-            // Update Side Menu
             document.getElementById('menuAvatar').src = avatar;
             document.getElementById('menuName').textContent = data.nama || '-';
             document.getElementById('menuTitle').textContent = data.titel || 'ANGGOTA';
@@ -522,31 +1507,58 @@
             if (!confirm('Apakah Anda yakin ingin keluar?')) return;
             try {
                 localStorage.removeItem('userSessionId');
+                localStorage.removeItem('permissionsGranted');
+                stopSessionMonitor();
                 await auth.signOut();
                 window.location.href = 'index.html';
             } catch (e) { console.error(e); }
         }
 
-        // Auth State
+        // ============================================
+        // AUTH STATE LISTENER WITH SECURITY
+        // ============================================
         auth.onAuthStateChanged(async (user) => {
-            if (!user) { window.location.href = 'index.html'; return; }
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
             try {
                 const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    const sessionId = localStorage.getItem('userSessionId');
-                    if (data.currentSessionId && sessionId && data.currentSessionId !== sessionId) {
-                        localStorage.removeItem('userSessionId');
-                        await auth.signOut();
-                        window.location.href = 'index.html';
-                        return;
-                    }
-                    showUserData(data);
-                } else {
+                
+                if (!doc.exists) {
                     await auth.signOut();
                     window.location.href = 'index.html';
+                    return;
                 }
-            } catch (e) { console.error(e); }
+                
+                const data = doc.data();
+                const sessionId = safeGetItem('userSessionId');
+                
+                // Check if session is valid
+                if (data.currentSessionId && sessionId && data.currentSessionId !== sessionId) {
+                    // Session mismatch - another device is logged in
+                    localStorage.removeItem('userSessionId');
+                    localStorage.removeItem('permissionsGranted');
+                    await auth.signOut();
+                    showSessionKick(data.currentDevice || 'Perangkat lain');
+                    return;
+                }
+                
+                // Start session monitoring
+                startSessionMonitor(user.uid);
+                
+                // Show user data
+                showUserData(data);
+                
+                // Check permissions
+                if (!checkPermissionsGranted()) {
+                    showPermissionOverlay();
+                }
+                
+            } catch (e) {
+                console.error('Auth state error:', e);
+            }
         });
     </script>
 
