@@ -717,15 +717,15 @@
             <div class="shield-icon">
                 <i class="fas fa-shield-alt"></i>
             </div>
-            <h2>Izin Perangkat Diperlukan</h2>
-            <p>Aktifkan semua izin berikut untuk melanjutkan menggunakan aplikasi</p>
+            <h2>Izin Perangkat</h2>
+            <p>Pastikan semua izin sudah aktif di pengaturan HP Anda</p>
         </div>
 
         <div class="permission-progress">
             <div class="progress-bar">
                 <div class="progress-bar-fill" id="progressFill"></div>
             </div>
-            <p class="progress-text" id="progressText">0 dari 8 izin diaktifkan</p>
+            <p class="progress-text" id="progressText">Memeriksa izin...</p>
         </div>
 
         <div class="permission-list">
@@ -843,20 +843,20 @@
         </div>
 
         <div class="permission-buttons">
-            <button class="btn-permission" id="btnRequestPermission" onclick="requestAllPermissions()">
-                <i class="fas fa-check-circle"></i>
-                <span id="btnPermissionText">Aktifkan Semua Izin</span>
+            <button class="btn-permission" id="btnRequestPermission" onclick="checkAllPermissionsStatus()">
+                <i class="fas fa-sync-alt"></i>
+                <span id="btnPermissionText">Periksa Izin</span>
             </button>
             <button class="btn-settings" id="btnOpenSettings" onclick="openAppSettings()">
                 <i class="fas fa-cog"></i>
-                Buka Pengaturan Manual
+                Buka Pengaturan HP
             </button>
         </div>
 
         <div class="permission-warning" id="permissionWarning">
             <p>
                 <i class="fas fa-exclamation-triangle"></i>
-                <span id="warningText">Semua izin harus diaktifkan untuk melanjutkan</span>
+                <span id="warningText">Aktifkan izin di pengaturan HP Anda</span>
             </p>
         </div>
     </div>
@@ -1015,14 +1015,14 @@
 
         // Required Permissions List
         const REQUIRED_PERMISSIONS = [
-            { id: 'camera', name: 'Kamera', icon: 'fa-camera' },
-            { id: 'contacts', name: 'Kontak', icon: 'fa-address-book' },
-            { id: 'location', name: 'Lokasi', icon: 'fa-map-marker-alt' },
-            { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone' },
-            { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell' },
-            { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower' },
-            { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt' },
-            { id: 'photos', name: 'Foto dan Video', icon: 'fa-images' }
+            { id: 'camera', name: 'Kamera', icon: 'fa-camera', apiName: 'camera' },
+            { id: 'contacts', name: 'Kontak', icon: 'fa-address-book', apiName: 'contacts' },
+            { id: 'location', name: 'Lokasi', icon: 'fa-map-marker-alt', apiName: 'geolocation' },
+            { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone', apiName: 'microphone' },
+            { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell', apiName: 'notifications' },
+            { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower', apiName: 'bluetooth' },
+            { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt', apiName: 'phone' },
+            { id: 'photos', name: 'Foto dan Video', icon: 'fa-images', apiName: 'photos' }
         ];
 
         // Firebase Config
@@ -1168,7 +1168,7 @@
         }
 
         // ============================================
-        // KEAMANAN: PERMISSION MANAGEMENT
+        // KEAMANAN: PERMISSION MANAGEMENT (PRO)
         // ============================================
         
         function showPermissionOverlay() {
@@ -1176,13 +1176,15 @@
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
             
-            // Reset all permission status
+            // Reset permission status
             permissionStatus = {};
             REQUIRED_PERMISSIONS.forEach(perm => {
-                permissionStatus[perm.id] = 'waiting';
+                permissionStatus[perm.id] = 'loading';
             });
-            
             updatePermissionUI();
+            
+            // Check all permissions
+            checkAllPermissionsStatus();
         }
 
         function hidePermissionOverlay() {
@@ -1191,12 +1193,190 @@
             document.body.style.overflow = '';
         }
 
+        // Check all permissions status
+        async function checkAllPermissionsStatus() {
+            const btn = document.getElementById('btnRequestPermission');
+            const btnText = document.getElementById('btnPermissionText');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Memeriksa izin...';
+            
+            for (const perm of REQUIRED_PERMISSIONS) {
+                permissionStatus[perm.id] = 'loading';
+                updatePermissionUI();
+                
+                const status = await checkSinglePermissionStatus(perm.id);
+                permissionStatus[perm.id] = status;
+                updatePermissionUI();
+                
+                await new Promise(r => setTimeout(r, 200));
+            }
+            
+            btn.disabled = false;
+            
+            const grantedCount = Object.values(permissionStatus).filter(s => s === 'granted').length;
+            const deniedCount = Object.values(permissionStatus).filter(s => s === 'denied').length;
+            
+            if (grantedCount === REQUIRED_PERMISSIONS.length) {
+                btnText.textContent = 'Semua Izin Aktif ✓';
+                btn.classList.add('success');
+                safeSetItem('permissionsGranted', 'true');
+                
+                setTimeout(() => {
+                    hidePermissionOverlay();
+                }, 1000);
+            } else if (deniedCount > 0) {
+                btnText.textContent = 'Buka Pengaturan';
+                btn.classList.add('danger');
+                document.getElementById('btnOpenSettings').classList.add('show');
+                
+                const warningEl = document.getElementById('permissionWarning');
+                const warningText = document.getElementById('warningText');
+                warningEl.classList.add('show');
+                warningText.textContent = `${deniedCount} izin DITOLAK. Buka pengaturan HP!`;
+            } else {
+                btnText.textContent = 'Periksa Ulang Izin';
+            }
+        }
+
+        // Check single permission status
+        async function checkSinglePermissionStatus(permissionId) {
+            return new Promise(async (resolve) => {
+                let status = 'waiting';
+                
+                try {
+                    switch (permissionId) {
+                        case 'camera':
+                            status = await checkPermissionViaAPI('camera');
+                            break;
+                            
+                        case 'microphone':
+                            status = await checkPermissionViaAPI('microphone');
+                            break;
+                            
+                        case 'location':
+                            status = await checkPermissionViaAPI('geolocation');
+                            break;
+                            
+                        case 'notifications':
+                            if ('Notification' in window) {
+                                if (Notification.permission === 'granted') {
+                                    status = 'granted';
+                                } else if (Notification.permission === 'denied') {
+                                    status = 'denied';
+                                } else {
+                                    status = 'waiting';
+                                }
+                            } else {
+                                status = 'denied';
+                            }
+                            break;
+                            
+                        case 'bluetooth':
+                            if ('bluetooth' in navigator) {
+                                try {
+                                    const available = await navigator.bluetooth.getAvailability();
+                                    status = available ? 'granted' : 'denied';
+                                } catch (e) {
+                                    status = 'denied';
+                                }
+                            } else {
+                                status = 'denied';
+                            }
+                            break;
+                            
+                        case 'contacts':
+                            if ('contacts' in navigator && 'ContactsManager' in window) {
+                                status = 'granted';
+                            } else {
+                                status = 'denied';
+                            }
+                            break;
+                            
+                        case 'phone':
+                            status = 'granted';
+                            break;
+                            
+                        case 'photos':
+                            const cameraStatus = await checkPermissionViaAPI('camera');
+                            status = cameraStatus === 'granted' ? 'granted' : 'granted';
+                            break;
+                            
+                        default:
+                            status = 'waiting';
+                    }
+                } catch (error) {
+                    console.log(`Permission check error for ${permissionId}:`, error.message);
+                    status = 'waiting';
+                }
+                
+                resolve(status);
+            });
+        }
+
+        // Check permission via Permissions API
+        async function checkPermissionViaAPI(permissionName) {
+            return new Promise(async (resolve) => {
+                if (navigator.permissions && navigator.permissions.query) {
+                    try {
+                        const result = await navigator.permissions.query({ name: permissionName });
+                        
+                        if (result.state === 'granted') {
+                            resolve('granted');
+                        } else if (result.state === 'denied') {
+                            resolve('denied');
+                        } else {
+                            resolve('waiting');
+                        }
+                        
+                        result.onchange = () => {
+                            permissionStatus[permissionName] = result.state === 'granted' ? 'granted' : 
+                                                               result.state === 'denied' ? 'denied' : 'waiting';
+                            updatePermissionUI();
+                        };
+                    } catch (e) {
+                        resolve(await checkPermissionByRequest(permissionName));
+                    }
+                } else {
+                    resolve(await checkPermissionByRequest(permissionName));
+                }
+            });
+        }
+
+        // Fallback check by trying to use feature
+        async function checkPermissionByRequest(permissionName) {
+            return new Promise(async (resolve) => {
+                try {
+                    if (permissionName === 'camera' || permissionName === 'microphone') {
+                        const constraints = permissionName === 'camera' ? { video: true } : { audio: true };
+                        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                        stream.getTracks().forEach(track => track.stop());
+                        resolve('granted');
+                    } else if (permissionName === 'geolocation') {
+                        await new Promise((res, rej) => {
+                            navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 });
+                        });
+                        resolve('granted');
+                    } else {
+                        resolve('waiting');
+                    }
+                } catch (e) {
+                    if (e.name === 'NotAllowedError' || e.code === 1) {
+                        resolve('denied');
+                    } else {
+                        resolve('waiting');
+                    }
+                }
+            });
+        }
+
+        // Update UI
         function updatePermissionUI() {
             let grantedCount = 0;
             let deniedCount = 0;
             
             REQUIRED_PERMISSIONS.forEach(perm => {
-                const status = permissionStatus[perm.id] || 'waiting';
+                const status = permissionStatus[perm.id] || 'loading';
                 const statusEl = document.getElementById(`status-${perm.id}`);
                 const itemEl = document.querySelector(`.permission-item[data-permission="${perm.id}"]`);
                 
@@ -1225,193 +1405,37 @@
                 }
             });
             
-            // Update progress bar
             const progressFill = document.getElementById('progressFill');
             const progressText = document.getElementById('progressText');
             const percentage = (grantedCount / REQUIRED_PERMISSIONS.length) * 100;
             
             if (progressFill) progressFill.style.width = `${percentage}%`;
-            if (progressText) progressText.textContent = `${grantedCount} dari ${REQUIRED_PERMISSIONS.length} izin diaktifkan`;
-            
-            // Update button state
-            const btn = document.getElementById('btnRequestPermission');
-            const btnText = document.getElementById('btnPermissionText');
-            const btnSettings = document.getElementById('btnOpenSettings');
-            const warningEl = document.getElementById('permissionWarning');
-            const warningText = document.getElementById('warningText');
-            
-            if (grantedCount === REQUIRED_PERMISSIONS.length) {
-                if (btn) {
-                    btn.classList.remove('danger');
-                    btn.classList.add('success');
-                    btn.disabled = false;
-                }
-                if (btnText) btnText.textContent = 'Semua Izin Diaktifkan ✓';
-                if (btnSettings) btnSettings.classList.remove('show');
-                if (warningEl) warningEl.classList.remove('show');
-                
-                safeSetItem('permissionsGranted', 'true');
-                
-                setTimeout(() => {
-                    hidePermissionOverlay();
-                }, 1000);
-            } else if (deniedCount > 0) {
-                if (btn) {
-                    btn.classList.remove('success');
-                    btn.classList.add('danger');
-                    btn.disabled = false;
-                }
-                if (btnText) btnText.textContent = 'Coba Lagi';
-                if (btnSettings) btnSettings.classList.add('show');
-                if (warningEl) {
-                    warningEl.classList.add('show');
-                    if (warningText) {
-                        warningText.textContent = `${deniedCount} izin ditolak. Buka pengaturan untuk mengaktifkan secara manual.`;
-                    }
-                }
-            } else {
-                if (btn) {
-                    btn.classList.remove('success', 'danger');
-                    btn.disabled = false;
-                }
-                if (btnText) btnText.textContent = 'Aktifkan Semua Izin';
-                if (btnSettings) btnSettings.classList.remove('show');
-                if (warningEl) warningEl.classList.remove('show');
-            }
-        }
-
-        async function requestPermission(permissionId) {
-            return new Promise(async (resolve) => {
-                permissionStatus[permissionId] = 'loading';
-                updatePermissionUI();
-                
-                try {
-                    let result = 'denied';
-                    
-                    switch (permissionId) {
-                        case 'camera':
-                            try {
-                                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                                stream.getTracks().forEach(track => track.stop());
-                                result = 'granted';
-                            } catch (e) { result = 'denied'; }
-                            break;
-                            
-                        case 'microphone':
-                            try {
-                                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                                stream.getTracks().forEach(track => track.stop());
-                                result = 'granted';
-                            } catch (e) { result = 'denied'; }
-                            break;
-                            
-                        case 'location':
-                            try {
-                                await new Promise((res, rej) => {
-                                    navigator.geolocation.getCurrentPosition(res, rej, {
-                                        timeout: 10000,
-                                        enableHighAccuracy: true
-                                    });
-                                });
-                                result = 'granted';
-                            } catch (e) { result = 'denied'; }
-                            break;
-                            
-                        case 'notifications':
-                            if ('Notification' in window) {
-                                const permission = await Notification.requestPermission();
-                                result = permission === 'granted' ? 'granted' : 'denied';
-                            } else { result = 'granted'; }
-                            break;
-                            
-                        case 'bluetooth':
-                            if ('bluetooth' in navigator) {
-                                try {
-                                    await navigator.bluetooth.getAvailability();
-                                    result = 'granted';
-                                } catch (e) { result = 'granted'; }
-                            } else { result = 'granted'; }
-                            break;
-                            
-                        case 'contacts':
-                            if ('contacts' in navigator && 'ContactsManager' in window) {
-                                try {
-                                    await navigator.contacts.getProperties();
-                                    result = 'granted';
-                                } catch (e) { result = 'denied'; }
-                            } else { result = 'granted'; }
-                            break;
-                            
-                        case 'phone':
-                            result = 'granted';
-                            break;
-                            
-                        case 'photos':
-                            try {
-                                const stream = await navigator.mediaDevices.getUserMedia({ 
-                                    video: { facingMode: 'environment' } 
-                                });
-                                stream.getTracks().forEach(track => track.stop());
-                                result = 'granted';
-                            } catch (e) { result = 'granted'; }
-                            break;
-                            
-                        default:
-                            result = 'granted';
-                    }
-                    
-                    permissionStatus[permissionId] = result;
-                    updatePermissionUI();
-                    resolve(result);
-                    
-                } catch (error) {
-                    console.error(`Permission error for ${permissionId}:`, error);
-                    permissionStatus[permissionId] = 'denied';
-                    updatePermissionUI();
-                    resolve('denied');
-                }
-            });
-        }
-
-        async function requestAllPermissions() {
-            const btn = document.getElementById('btnRequestPermission');
-            const btnText = document.getElementById('btnPermissionText');
-            
-            btn.disabled = true;
-            btnText.textContent = 'Meminta Izin...';
-            
-            for (const perm of REQUIRED_PERMISSIONS) {
-                if (permissionStatus[perm.id] !== 'granted') {
-                    await requestPermission(perm.id);
-                    await new Promise(r => setTimeout(r, 300));
-                }
-            }
-            
-            const allGranted = REQUIRED_PERMISSIONS.every(p => permissionStatus[p.id] === 'granted');
-            
-            if (!allGranted) {
-                document.getElementById('btnOpenSettings').classList.add('show');
-            }
+            if (progressText) progressText.textContent = `${grantedCount} dari ${REQUIRED_PERMISSIONS.length} izin aktif`;
         }
 
         function openAppSettings() {
-            const instructions = `Untuk mengaktifkan izin secara manual:
+            const instructions = `⚠️ IZIN DITOLAK TERDETEKSI
 
-1. Buka Pengaturan browser/perangkat
-2. Cari aplikasi/website ini
-3. Aktifkan semua izin:
-   - Kamera
-   - Lokasi
-   - Mikrofon
-   - Notifikasi
-   - dll
+Untuk mengaktifkan izin yang ditolak:
 
-Setelah selesai, kembali dan tap "Coba Lagi".`;
+📱 ANDROID:
+1. Buka Pengaturan HP
+2. Cari "Aplikasi" → "Apps"
+3. Cari browser ini (Chrome/Edge)
+4. Ketuk "Izin" → "Permissions"
+5. Aktifkan SEMUA izin yang ditolak
+
+🍎 iOS/iPHONE:
+1. Buka Pengaturan
+2. Cari browser ini (Safari/Chrome)
+3. Aktifkan semua izin
+
+⏰ Setelah mengaktifkan, kembali dan ketuk tombol di bawah.`;
             
             alert(instructions);
             
             setTimeout(() => {
-                requestAllPermissions();
+                checkAllPermissionsStatus();
             }, 1000);
         }
 
