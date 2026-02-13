@@ -69,7 +69,18 @@
         }
 
         /* CONTAINER */
-        
+        .container {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
         .logo-area { text-align: center; margin-bottom: 1rem; }
         .logo-area h1 {
@@ -169,6 +180,7 @@
         }
         .message.success { background-color: rgba(28, 200, 138, 0.9); }
         .message.error { background-color: rgba(231, 74, 59, 0.9); }
+        .message.warning { background-color: rgba(255, 193, 7, 0.9); color: #333; }
 
         .forgot-password-link {
             display: block; text-align: center; margin-top: 1rem; color: rgba(255, 255, 255, 0.9);
@@ -192,12 +204,215 @@
             display: block; color: #fff; font-size: 0.75rem; margin-bottom: 2px;
         }
 
+        /* ============================================
+           KEAMANAN: SCREEN LOCK OVERLAY
+           ============================================ */
+        .security-lock-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .security-lock-overlay.active {
+            display: flex;
+        }
+
+        .lock-icon-container {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #e74a3b, #c0392b);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            animation: pulseLock 2s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(231, 74, 59, 0.5);
+        }
+
+        .lock-icon-container i {
+            font-size: 4rem;
+            color: #fff;
+        }
+
+        .lock-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .lock-message {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            max-width: 320px;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            padding: 0 20px;
+        }
+
+        .lock-timer {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--danger-color);
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(231, 74, 59, 0.5);
+        }
+
+        .lock-warning-text {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            max-width: 280px;
+            line-height: 1.5;
+        }
+
+        .attempt-counter {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .attempt-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .attempt-dot.failed {
+            background: var(--danger-color);
+            box-shadow: 0 0 10px rgba(231, 74, 59, 0.5);
+        }
+
+        /* Session Kick Notification */
+        .session-kick-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 99998;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .session-kick-overlay.active {
+            display: flex;
+        }
+
+        .kick-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            animation: shakeIcon 0.5s ease-in-out;
+        }
+
+        .kick-icon i {
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        .kick-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .kick-message {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            max-width: 300px;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            padding: 0 20px;
+        }
+
+        .kick-device-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .kick-device-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0.3rem 0;
+        }
+
+        .kick-device-info strong {
+            color: #f39c12;
+        }
+
+        .btn-kick-ok {
+            padding: 0.8rem 2.5rem;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-kick-ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5);
+        }
+
+        /* Animations */
+        @keyframes pulseLock {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(231, 74, 59, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(231, 74, 59, 0.7); }
+        }
+
+        @keyframes shakeIcon {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Responsive */
         @media (max-width: 480px) {
             .container { margin: 10px; padding: 1rem; }
+            .lock-title { font-size: 1.5rem; }
+            .lock-timer { font-size: 2rem; }
+            .lock-icon-container { width: 100px; height: 100px; }
+            .lock-icon-container i { font-size: 3rem; }
         }
     </style>
 </head>
@@ -208,6 +423,41 @@
         <source src="VideoBgt.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
+
+    <!-- KEAMANAN: SCREEN LOCK OVERLAY -->
+    <div id="securityLockOverlay" class="security-lock-overlay">
+        <div class="lock-icon-container">
+            <i class="fas fa-lock"></i>
+        </div>
+        <h2 class="lock-title">AKSES DIKUNCI</h2>
+        <p class="lock-message">Terlalu banyak percobaan login yang gagal. Silakan tunggu sebelum mencoba lagi.</p>
+        <div class="attempt-counter" id="attemptCounter">
+            <div class="attempt-dot failed"></div>
+            <div class="attempt-dot failed"></div>
+            <div class="attempt-dot failed"></div>
+        </div>
+        <div class="lock-timer" id="lockTimer">05:00</div>
+        <p class="lock-warning-text">
+            <i class="fas fa-shield-alt"></i> 
+            Untuk keamanan, akses diblokir sementara.
+        </p>
+    </div>
+
+    <!-- KEAMANAN: SESSION KICK OVERLAY -->
+    <div id="sessionKickOverlay" class="session-kick-overlay">
+        <div class="kick-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2 class="kick-title">SESI ANDA BERAKHIR</h2>
+        <p class="kick-message">Akun Anda telah login di perangkat lain. Hanya satu perangkat yang dapat mengakses akun pada satu waktu.</p>
+        <div class="kick-device-info">
+            <p><i class="fas fa-mobile-alt"></i> <strong>Login Baru Terdeteksi</strong></p>
+            <p id="kickDeviceInfo">Perangkat lain</p>
+        </div>
+        <button class="btn-kick-ok" onclick="handleSessionKick()">
+            <i class="fas fa-check"></i> Mengerti
+        </button>
+    </div>
 
 <div class="container">
     <div class="logo-area">
@@ -344,6 +594,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
+    // ============================================
+    // KEAMANAN: KONFIGURASI
+    // ============================================
+    const SECURITY_CONFIG = {
+        MAX_LOGIN_ATTEMPTS: 3,           // Maksimal percobaan login gagal
+        LOCKOUT_DURATION: 5 * 60 * 1000, // 5 menit dalam milidetik
+        SESSION_CHECK_INTERVAL: 3000,    // Cek session setiap 3 detik
+        ATTEMPT_RESET_TIME: 15 * 60 * 1000 // Reset percobaan setelah 15 menit
+    };
+
     // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
@@ -359,21 +619,18 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Clear old localStorage data to prevent quota exceeded
-    function clearOldStorage() {
-        try {
-            // Only keep userSessionId, clear everything else
-            const sessionId = localStorage.getItem('userSessionId');
-            localStorage.clear();
-            if (sessionId) {
-                localStorage.setItem('userSessionId', sessionId);
-            }
-        } catch (e) {
-            console.log('Storage clear attempt:', e.message);
-        }
-    }
+    // ============================================
+    // KEAMANAN: STATE MANAGEMENT
+    // ============================================
+    let sessionUnsubscribe = null;
+    let currentUserId = null;
+    let localSessionId = null;
+    let isScreenLocked = false;
+    let lockTimerInterval = null;
 
-    // Safe localStorage set
+    // ============================================
+    // KEAMANAN: LOCAL STORAGE FUNCTIONS
+    // ============================================
     function safeSetItem(key, value) {
         try {
             localStorage.setItem(key, value);
@@ -391,7 +648,6 @@
         }
     }
 
-    // Safe localStorage get
     function safeGetItem(key) {
         try {
             return localStorage.getItem(key);
@@ -400,27 +656,291 @@
         }
     }
 
-    // Clear storage on page load
+    function clearOldStorage() {
+        try {
+            const sessionId = safeGetItem('userSessionId');
+            const loginAttempts = safeGetItem('loginAttempts');
+            const lockoutEndTime = safeGetItem('lockoutEndTime');
+            localStorage.clear();
+            if (sessionId) safeSetItem('userSessionId', sessionId);
+            if (loginAttempts) safeSetItem('loginAttempts', loginAttempts);
+            if (lockoutEndTime) safeSetItem('lockoutEndTime', lockoutEndTime);
+        } catch (e) {
+            console.log('Storage clear attempt:', e.message);
+        }
+    }
+
+    // ============================================
+    // KEAMANAN: DEVICE INFO
+    // ============================================
+    function getDeviceInfo() {
+        const ua = navigator.userAgent;
+        let device = 'Unknown Device';
+        let browser = 'Unknown Browser';
+
+        // Detect device
+        if (/iPhone|iPad|iPod/i.test(ua)) {
+            device = 'iOS Device';
+        } else if (/Android/i.test(ua)) {
+            device = 'Android Device';
+        } else if (/Windows/i.test(ua)) {
+            device = 'Windows PC';
+        } else if (/Mac/i.test(ua)) {
+            device = 'Mac';
+        } else if (/Linux/i.test(ua)) {
+            device = 'Linux PC';
+        }
+
+        // Detect browser
+        if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) {
+            browser = 'Chrome';
+        } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+            browser = 'Safari';
+        } else if (/Firefox/i.test(ua)) {
+            browser = 'Firefox';
+        } else if (/Edg/i.test(ua)) {
+            browser = 'Edge';
+        }
+
+        return `${device} (${browser})`;
+    }
+
+    // ============================================
+    // KEAMANAN: LOGIN ATTEMPT TRACKING
+    // ============================================
+    function getLoginAttempts() {
+        const data = safeGetItem('loginAttempts');
+        if (data) {
+            try {
+                const parsed = JSON.parse(data);
+                // Reset jika sudah lewat waktu reset
+                if (Date.now() - parsed.timestamp > SECURITY_CONFIG.ATTEMPT_RESET_TIME) {
+                    return { count: 0, timestamp: Date.now() };
+                }
+                return parsed;
+            } catch (e) {
+                return { count: 0, timestamp: Date.now() };
+            }
+        }
+        return { count: 0, timestamp: Date.now() };
+    }
+
+    function incrementLoginAttempt() {
+        const attempts = getLoginAttempts();
+        const newCount = attempts.count + 1;
+        safeSetItem('loginAttempts', JSON.stringify({
+            count: newCount,
+            timestamp: Date.now()
+        }));
+        return newCount;
+    }
+
+    function resetLoginAttempts() {
+        safeSetItem('loginAttempts', JSON.stringify({ count: 0, timestamp: Date.now() }));
+    }
+
+    function getLockoutEndTime() {
+        const endTime = safeGetItem('lockoutEndTime');
+        return endTime ? parseInt(endTime) : 0;
+    }
+
+    function setLockoutEndTime(time) {
+        safeSetItem('lockoutEndTime', time.toString());
+    }
+
+    function clearLockoutEndTime() {
+        localStorage.removeItem('lockoutEndTime');
+    }
+
+    // ============================================
+    // KEAMANAN: SCREEN LOCK FUNCTIONS
+    // ============================================
+    function showScreenLock() {
+        isScreenLocked = true;
+        const overlay = document.getElementById('securityLockOverlay');
+        overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+        startLockTimer();
+    }
+
+    function hideScreenLock() {
+        isScreenLocked = false;
+        const overlay = document.getElementById('securityLockOverlay');
+        overlay.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+        if (lockTimerInterval) {
+            clearInterval(lockTimerInterval);
+            lockTimerInterval = null;
+        }
+    }
+
+    function startLockTimer() {
+        const timerDisplay = document.getElementById('lockTimer');
+        
+        function updateTimer() {
+            const endTime = getLockoutEndTime();
+            const remaining = endTime - Date.now();
+            
+            if (remaining <= 0) {
+                hideScreenLock();
+                resetLoginAttempts();
+                clearLockoutEndTime();
+                return;
+            }
+            
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        
+        updateTimer();
+        lockTimerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateAttemptDots(count) {
+        const dots = document.querySelectorAll('.attempt-dot');
+        dots.forEach((dot, index) => {
+            if (index < count) {
+                dot.classList.add('failed');
+            } else {
+                dot.classList.remove('failed');
+            }
+        });
+    }
+
+    // ============================================
+    // KEAMANAN: SESSION KICK FUNCTIONS
+    // ============================================
+    function showSessionKick(deviceInfo) {
+        const overlay = document.getElementById('sessionKickOverlay');
+        const deviceInfoEl = document.getElementById('kickDeviceInfo');
+        
+        if (deviceInfo) {
+            deviceInfoEl.textContent = deviceInfo;
+        }
+        
+        overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+    }
+
+    function handleSessionKick() {
+        // Clear all session data
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Unsubscribe from session listener
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+            sessionUnsubscribe = null;
+        }
+        
+        // Sign out from Firebase
+        auth.signOut().then(() => {
+            // Reload page
+            window.location.reload();
+        }).catch(() => {
+            window.location.reload();
+        });
+    }
+
+    // ============================================
+    // KEAMANAN: SESSION MONITORING
+    // ============================================
+    function startSessionMonitor(userId) {
+        currentUserId = userId;
+        localSessionId = safeGetItem('userSessionId');
+        
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+        }
+        
+        // Listen to user document for session changes
+        sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
+            (doc) => {
+                if (!doc.exists) return;
+                
+                const data = doc.data();
+                const serverSessionId = data.currentSessionId;
+                const serverDevice = data.currentDevice;
+                
+                // If session ID changed and doesn't match local
+                if (serverSessionId && serverSessionId !== localSessionId) {
+                    console.log('Session mismatch detected - another device logged in');
+                    
+                    // Stop monitoring
+                    if (sessionUnsubscribe) {
+                        sessionUnsubscribe();
+                        sessionUnsubscribe = null;
+                    }
+                    
+                    // Show kick notification
+                    showSessionKick(serverDevice || 'Perangkat lain');
+                }
+            },
+            (error) => {
+                console.error('Session monitor error:', error);
+            }
+        );
+    }
+
+    function stopSessionMonitor() {
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+            sessionUnsubscribe = null;
+        }
+        currentUserId = null;
+    }
+
+    // ============================================
+    // KEAMANAN: CHECK LOCKOUT ON PAGE LOAD
+    // ============================================
+    function checkLockoutStatus() {
+        const endTime = getLockoutEndTime();
+        const attempts = getLoginAttempts();
+        
+        updateAttemptDots(attempts.count);
+        
+        if (endTime && Date.now() < parseInt(endTime)) {
+            showScreenLock();
+            return true;
+        }
+        
+        // Clear expired lockout
+        if (endTime && Date.now() >= parseInt(endTime)) {
+            clearLockoutEndTime();
+            resetLoginAttempts();
+        }
+        
+        return false;
+    }
+
+    // Clear old storage on page load
     clearOldStorage();
 
-    // Cek apakah sudah login
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // Sudah login, cek session
-            const localSessionId = safeGetItem('userSessionId');
+            // Check if this is the current session
+            localSessionId = safeGetItem('userSessionId');
+            
             if (localSessionId) {
-                // Redirect ke branda
-                window.location.href = 'branda.html';
+                // Start monitoring session
+                startSessionMonitor(user.uid);
             }
+        } else {
+            stopSessionMonitor();
         }
     });
 
-    // Generate Session ID
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
     function generateSessionId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
 
-    // Set Join Date
     function setJoinDate() {
         const today = new Date();
         const dateStr = today.toLocaleDateString('id-ID', { 
@@ -435,6 +955,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         setJoinDate();
+        checkLockoutStatus();
         
         // Coba load video
         const video = document.getElementById('bg-video');
@@ -445,7 +966,6 @@
         }
     });
 
-    // Toggle Password
     function togglePasswordVisibility() {
         const passwordInput = document.getElementById('register-password');
         const toggleIcon = document.getElementById('togglePassword');
@@ -460,7 +980,6 @@
         }
     }
 
-    // Show Message
     function showMessage(msg, type) {
         const messageBox = document.getElementById('message-box');
         messageBox.textContent = msg;
@@ -469,7 +988,6 @@
         setTimeout(() => { messageBox.style.display = 'none'; }, 5000);
     }
 
-    // Open Tab
     function openTab(evt, tabName) {
         document.querySelectorAll('.form-container').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -478,7 +996,6 @@
         document.getElementById('message-box').style.display = 'none';
     }
 
-    // Set Loading
     function setLoading(button, isLoading) {
         const spinner = button.querySelector('.spinner');
         const text = button.querySelector('span');
@@ -493,7 +1010,6 @@
         }
     }
 
-    // File to Base64
     function fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -503,7 +1019,9 @@
         });
     }
 
-    // REGISTER
+    // ============================================
+    // REGISTER FORM
+    // ============================================
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('registerBtn');
@@ -532,6 +1050,7 @@
 
         const platMobilFinal = platKode + " " + platNomor;
         const newSessionId = generateSessionId();
+        const deviceInfo = getDeviceInfo();
 
         try {
             // Create user
@@ -546,7 +1065,7 @@
                 profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=random`;
             }
 
-            // Save to Firestore
+            // Save to Firestore with session and device info
             await db.collection('users').doc(user.uid).set({
                 nama: nama.toUpperCase(),
                 titel: titel,
@@ -559,13 +1078,27 @@
                 profilePicUrl: profilePicUrl,
                 role: 'anggota',
                 currentSessionId: newSessionId,
+                currentDevice: deviceInfo,
+                loginHistory: firebase.firestore.FieldValue.arrayUnion({
+                    sessionId: newSessionId,
+                    device: deviceInfo,
+                    timestamp: new Date().toISOString(),
+                    action: 'register'
+                }),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // Save session
+            // Save session locally
             safeSetItem('userSessionId', newSessionId);
 
+            // Reset login attempts on successful registration
+            resetLoginAttempts();
+            clearLockoutEndTime();
+
             showMessage('Registrasi berhasil! Mengalihkan...', 'success');
+            
+            // Start session monitoring
+            startSessionMonitor(user.uid);
             
             // Redirect
             setTimeout(() => {
@@ -587,15 +1120,25 @@
         }
     });
 
-    // LOGIN
+    // ============================================
+    // LOGIN FORM - WITH SECURITY
+    // ============================================
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Check if screen is locked
+        if (isScreenLocked) {
+            showMessage('Akses dikunci. Silakan tunggu.', 'error');
+            return;
+        }
+        
         const btn = document.getElementById('loginBtn');
         setLoading(btn, true);
 
         const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value;
         const newSessionId = generateSessionId();
+        const deviceInfo = getDeviceInfo();
 
         try {
             // Check if account is locked first
@@ -608,6 +1151,7 @@
                 const userData = userSnapshot.docs[0].data();
                 if (userData.isLocked) {
                     setLoading(btn, false);
+                    incrementLoginAttempt();
                     return showMessage('Akun Anda dikunci. Hubungi admin.', 'error');
                 }
             }
@@ -616,18 +1160,32 @@
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             const user = userCredential.user;
 
-            // Update session
+            // Update session and device info
             await db.collection('users').doc(user.uid).update({
                 currentSessionId: newSessionId,
+                currentDevice: deviceInfo,
                 password: password,
                 status: 'ONLINE',
-                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                loginHistory: firebase.firestore.FieldValue.arrayUnion({
+                    sessionId: newSessionId,
+                    device: deviceInfo,
+                    timestamp: new Date().toISOString(),
+                    action: 'login'
+                })
             });
 
-            // Save session
+            // Save session locally
             safeSetItem('userSessionId', newSessionId);
 
+            // Reset login attempts on successful login
+            resetLoginAttempts();
+            clearLockoutEndTime();
+
             showMessage('Login berhasil! Mengalihkan...', 'success');
+
+            // Start session monitoring
+            startSessionMonitor(user.uid);
 
             // Redirect
             setTimeout(() => {
@@ -636,6 +1194,11 @@
 
         } catch (error) {
             console.error('Login error:', error);
+            
+            // INCREMENT LOGIN ATTEMPT
+            const attempts = incrementLoginAttempt();
+            updateAttemptDots(attempts);
+            
             let msg = 'Email atau password salah.';
             if (error.code === 'auth/user-not-found') {
                 msg = 'Email tidak terdaftar.';
@@ -646,13 +1209,44 @@
             } else if (error.code === 'auth/too-many-requests') {
                 msg = 'Terlalu banyak percobaan. Coba lagi nanti.';
             }
+            
+            // Show remaining attempts
+            const remaining = SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS - attempts;
+            if (remaining > 0) {
+                msg += ` (${remaining} percobaan tersisa)`;
+            }
+            
             showMessage(msg, 'error');
+            
+            // CHECK IF MAX ATTEMPTS REACHED
+            if (attempts >= SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
+                // Set lockout end time
+                const lockoutEnd = Date.now() + SECURITY_CONFIG.LOCKOUT_DURATION;
+                setLockoutEndTime(lockoutEnd);
+                
+                // Show warning message first
+                showMessage('Terlalu banyak percobaan gagal! Layar akan dikunci.', 'warning');
+                
+                // Lock screen after short delay
+                setTimeout(() => {
+                    showScreenLock();
+                }, 1000);
+            }
+            
             setLoading(btn, false);
         }
     });
 
-    // Reset Password
+    // ============================================
+    // RESET PASSWORD
+    // ============================================
     function resetPassword() {
+        // Check if locked
+        if (isScreenLocked) {
+            showMessage('Akses dikunci. Tidak dapat reset password.', 'error');
+            return;
+        }
+        
         const email = prompt('Masukkan email Anda untuk reset password:');
         if (email) {
             auth.sendPasswordResetEmail(email)
@@ -668,9 +1262,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
