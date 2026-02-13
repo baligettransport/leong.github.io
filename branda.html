@@ -1239,12 +1239,10 @@
             }
         }
 
-        // Check single permission status using direct access (more reliable)
+        // Check single permission status - NON INTRUSIVE (no popup)
         async function checkSinglePermissionStatus(permissionId) {
             return new Promise(async (resolve) => {
                 let status = 'waiting';
-                
-                const permInfo = REQUIRED_PERMISSIONS.find(p => p.id === permissionId);
                 
                 try {
                     switch (permissionId) {
@@ -1252,18 +1250,13 @@
                             try {
                                 if (navigator.permissions) {
                                     const result = await navigator.permissions.query({ name: 'camera' });
-                                    if (result.state === 'granted') {
-                                        status = 'granted';
-                                    } else if (result.state === 'denied') {
-                                        status = 'denied';
-                                    } else {
-                                        status = await testCameraAccess();
-                                    }
+                                    status = result.state === 'granted' ? 'granted' : 
+                                             result.state === 'denied' ? 'denied' : 'waiting';
                                 } else {
-                                    status = await testCameraAccess();
+                                    status = 'waiting';
                                 }
                             } catch (e) {
-                                status = await testCameraAccess();
+                                status = 'waiting';
                             }
                             break;
                             
@@ -1271,18 +1264,13 @@
                             try {
                                 if (navigator.permissions) {
                                     const result = await navigator.permissions.query({ name: 'microphone' });
-                                    if (result.state === 'granted') {
-                                        status = 'granted';
-                                    } else if (result.state === 'denied') {
-                                        status = 'denied';
-                                    } else {
-                                        status = await testMicrophoneAccess();
-                                    }
+                                    status = result.state === 'granted' ? 'granted' : 
+                                             result.state === 'denied' ? 'denied' : 'waiting';
                                 } else {
-                                    status = await testMicrophoneAccess();
+                                    status = 'waiting';
                                 }
                             } catch (e) {
-                                status = await testMicrophoneAccess();
+                                status = 'waiting';
                             }
                             break;
                         
@@ -1290,30 +1278,20 @@
                             try {
                                 if (navigator.permissions) {
                                     const result = await navigator.permissions.query({ name: 'geolocation' });
-                                    if (result.state === 'granted') {
-                                        status = 'granted';
-                                    } else if (result.state === 'denied') {
-                                        status = 'denied';
-                                    } else {
-                                        status = await testLocationAccess();
-                                    }
+                                    status = result.state === 'granted' ? 'granted' : 
+                                             result.state === 'denied' ? 'denied' : 'waiting';
                                 } else {
-                                    status = await testLocationAccess();
+                                    status = 'waiting';
                                 }
                             } catch (e) {
-                                status = await testLocationAccess();
+                                status = 'waiting';
                             }
                             break;
                             
                         case 'notifications':
                             if ('Notification' in window) {
-                                if (Notification.permission === 'granted') {
-                                    status = 'granted';
-                                } else if (Notification.permission === 'denied') {
-                                    status = 'denied';
-                                } else {
-                                    status = 'waiting';
-                                }
+                                status = Notification.permission === 'granted' ? 'granted' : 
+                                         Notification.permission === 'denied' ? 'denied' : 'waiting';
                             } else {
                                 status = 'not_applicable';
                             }
