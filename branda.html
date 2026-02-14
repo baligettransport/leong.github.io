@@ -213,6 +213,26 @@
             font-size: 0.65rem; font-weight: 700; color: var(--primary);
             letter-spacing: 0.5px; text-transform: uppercase; line-height: 1; margin-top: 1px;
         }
+        
+        /* Badge untuk Job counter */
+        .job-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            min-width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 50%;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+            z-index: 102;
+        }
+        .job-badge.hidden { display: none; }
 
         .nav-promo { order: 4; margin-left: auto; margin-right: 26px; }
         .nav-profil { order: 5; margin-right: 5px; }
@@ -711,155 +731,7 @@
         </button>
     </div>
 
-    <!-- KEAMANAN: PERMISSION REQUEST OVERLAY -->
-    <div id="permissionOverlay" class="permission-overlay">
-        <div class="permission-header">
-            <div class="shield-icon">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <h2>Izin Perangkat</h2>
-            <p>Pastikan semua izin sudah aktif di pengaturan HP Anda</p>
-        </div>
-
-        <div class="permission-progress">
-            <div class="progress-bar">
-                <div class="progress-bar-fill" id="progressFill"></div>
-            </div>
-            <p class="progress-text" id="progressText">Memeriksa izin...</p>
-        </div>
-
-        <div class="permission-list">
-            <!-- Kamera -->
-            <div class="permission-item" data-type="camera" data-permission="camera">
-                <div class="permission-icon">
-                    <i class="fas fa-camera"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Kamera</h4>
-                    <p>Untuk foto profil dan verifikasi</p>
-                </div>
-                <div class="permission-status waiting" id="status-camera">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Kontak -->
-            <div class="permission-item" data-type="contacts" data-permission="contacts">
-                <div class="permission-icon">
-                    <i class="fas fa-address-book"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Kontak</h4>
-                    <p>Untuk komunikasi anggota</p>
-                </div>
-                <div class="permission-status waiting" id="status-contacts">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Lokasi -->
-            <div class="permission-item" data-type="location" data-permission="location">
-                <div class="permission-icon">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Lokasi</h4>
-                    <p>Untuk tracking dan navigasi</p>
-                </div>
-                <div class="permission-status waiting" id="status-location">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Mikrofon -->
-            <div class="permission-item" data-type="microphone" data-permission="microphone">
-                <div class="permission-icon">
-                    <i class="fas fa-microphone"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Mikrofon</h4>
-                    <p>Untuk panggilan suara</p>
-                </div>
-                <div class="permission-status waiting" id="status-microphone">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Notifikasi -->
-            <div class="permission-item" data-type="notifications" data-permission="notifications">
-                <div class="permission-icon">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Notifikasi</h4>
-                    <p>Untuk informasi penting</p>
-                </div>
-                <div class="permission-status waiting" id="status-notifications">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Perangkat di Sekitar (Bluetooth) -->
-            <div class="permission-item" data-type="bluetooth" data-permission="bluetooth">
-                <div class="permission-icon">
-                    <i class="fas fa-broadcast-tower"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Perangkat di Sekitar</h4>
-                    <p>Untuk koneksi bluetooth</p>
-                </div>
-                <div class="permission-status waiting" id="status-bluetooth">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Ponsel -->
-            <div class="permission-item" data-type="phone" data-permission="phone">
-                <div class="permission-icon">
-                    <i class="fas fa-phone-alt"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Ponsel</h4>
-                    <p>Untuk panggilan darurat</p>
-                </div>
-                <div class="permission-status waiting" id="status-phone">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Foto dan Video -->
-            <div class="permission-item" data-type="photos" data-permission="photos">
-                <div class="permission-icon">
-                    <i class="fas fa-images"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Foto dan Video</h4>
-                    <p>Untuk upload dan berbagi media</p>
-                </div>
-                <div class="permission-status waiting" id="status-photos">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="permission-buttons">
-            <button class="btn-permission" id="btnRequestPermission" onclick="checkAllPermissionsStatus()">
-                <i class="fas fa-sync-alt"></i>
-                <span id="btnPermissionText">Periksa Izin</span>
-            </button>
-            <button class="btn-settings" id="btnOpenSettings" onclick="openAppSettings()">
-                <i class="fas fa-cog"></i>
-                Buka Pengaturan HP
-            </button>
-        </div>
-
-        <div class="permission-warning" id="permissionWarning">
-            <p>
-                <i class="fas fa-exclamation-triangle"></i>
-                <span id="warningText">Aktifkan izin di pengaturan HP Anda</span>
-            </p>
-        </div>
-    </div>
+    <!-- Permission overlay DIHAPUS - langsung masuk tanpa cek izin -->
 
     <!-- Side Menu -->
     <div class="side-menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
@@ -918,6 +790,7 @@
                     <i class="fas fa-headset"></i>
                 </a>
                 <button class="notif-btn" onclick="window.location.href='pesan.html'"><i class="fas fa-bell"></i><span class="notif-badge hidden" id="notifBadge">0</span></button>
+                <button class="notif-btn" onclick="window.location.href='jopbgtpro.html'"><i class="fas fa-briefcase"></i><span class="notif-badge hidden" id="jobNotifBadge">0</span></button>
             </div>
         </header>
 
@@ -986,6 +859,7 @@
         <a class="nav-logo" href="jopbgtpro.html">
             <img src="512B.png" alt="Logo BGT">
             <span class="nav-logo-text">Job BGT</span>
+            <span class="job-badge hidden" id="jobBadge">0</span>
         </a>
 
         <a class="nav-item nav-promo" href="promo.html">
@@ -1003,6 +877,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <script>
         // ============================================
@@ -1762,6 +1637,81 @@ Untuk mengaktifkan izin yang ditolak:
                 window.speechSynthesis.getVoices();
             };
         }
+
+        // ============================================
+        // ORDER NOTIFICATION - REALTIME LISTENER
+        // ============================================
+        const rtdb = firebase.database();
+        let previousOrderCount = 0;
+        let hasInitialized = false;
+
+        // Fungsi untuk bicara "Ada job baru"
+        function speakNewJob() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const message = 'Ada job baru';
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'id-ID';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                const voices = window.speechSynthesis.getVoices();
+                const indonesianVoice = voices.find(voice => voice.lang.includes('id'));
+                if (indonesianVoice) {
+                    utterance.voice = indonesianVoice;
+                }
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Listener untuk order baru
+        const ordersRef = rtdb.ref('orders');
+        ordersRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            let newOrderCount = 0;
+            
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    const item = data[key];
+                    if (item && item.status === 'order' && key !== 'undefined') {
+                        newOrderCount++;
+                    }
+                });
+            }
+            
+            // Update badge
+            const jobBadge = document.getElementById('jobBadge');
+            const jobNotifBadge = document.getElementById('jobNotifBadge');
+            
+            if (jobBadge) {
+                if (newOrderCount > 0) {
+                    jobBadge.textContent = newOrderCount;
+                    jobBadge.classList.remove('hidden');
+                } else {
+                    jobBadge.classList.add('hidden');
+                }
+            }
+            
+            if (jobNotifBadge) {
+                if (newOrderCount > 0) {
+                    jobNotifBadge.textContent = newOrderCount;
+                    jobNotifBadge.classList.remove('hidden');
+                } else {
+                    jobNotifBadge.classList.add('hidden');
+                }
+            }
+            
+            // Notifikasi suara jika ada order baru
+            if (hasInitialized && newOrderCount > previousOrderCount) {
+                speakNewJob();
+                console.log('Ada job baru! Total:', newOrderCount);
+            }
+            
+            previousOrderCount = newOrderCount;
+            hasInitialized = true;
+        });
     </script>
 
 </body>
