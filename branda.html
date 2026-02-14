@@ -1720,10 +1720,7 @@ Untuk mengaktifkan izin yang ditolak:
                     sessionStorage.setItem('welcomeSpoken', 'true');
                 }
                 
-                // Check permissions
-                if (!checkPermissionsGranted()) {
-                    showPermissionOverlay();
-                }
+                // TIDAK ADA CEK IZIN - LANGSUNG MASUK
                 
             } catch (e) {
                 console.error('Auth state error:', e);
