@@ -39,18 +39,39 @@
         .back-btn:active { background: #e0f2fe; transform: scale(0.95); }
 
         /* Filter Tabs */
-        .filter-tabs { display: flex; gap: 8px; padding: 0 16px 12px; overflow-x: auto; }
+        .filter-tabs { display: flex; gap: 8px; padding: 8px 16px 12px; overflow-x: auto; margin-top: 4px; }
         .filter-tab { 
             padding: 8px 16px; background: var(--bg-card); 
             border: 1px solid var(--border-light); border-radius: 9999px; 
             font-size: 0.8rem; font-weight: 500; color: var(--text-gray); 
             cursor: pointer; white-space: nowrap; transition: all 0.3s; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            position: relative;
         }
         .filter-tab.active { 
             background: var(--gradient-primary); border-color: transparent; 
             color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); 
         }
+        
+        /* Badge counter di tab */
+        .tab-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 50%;
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.3);
+            z-index: 10;
+        }
+        .tab-badge.hidden { display: none; }
 
         /* Order List */
         .order-list { padding: 0 16px; }
@@ -219,7 +240,7 @@
 
         <div class="filter-tabs">
             <div class="filter-tab active" onclick="filterOrders('all')">Semua</div>
-            <div class="filter-tab" onclick="filterOrders('order')">Order</div>
+            <div class="filter-tab" onclick="filterOrders('order')">Order <span class="tab-badge hidden" id="orderTabBadge">0</span></div>
             <div class="filter-tab" onclick="filterOrders('berjalan')">Berjalan</div>
             <div class="filter-tab" onclick="filterOrders('selesai')">Selesai</div>
         </div>
@@ -456,6 +477,38 @@
         }
 
         // --- FUNGSI DATABASE REALTIME ---
+        
+        // Variable untuk tracking notifikasi
+        let previousOrderCount = 0;
+        let hasInitializedNotif = false;
+
+        // Fungsi untuk bicara "Ada job baru"
+        function speakNewJob() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const message = 'Ada job baru';
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'id-ID';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                const voices = window.speechSynthesis.getVoices();
+                const indonesianVoice = voices.find(voice => voice.lang.includes('id'));
+                if (indonesianVoice) {
+                    utterance.voice = indonesianVoice;
+                }
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Load voices saat halaman dimuat
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
 
         // 1. Membaca Data Secara Realtime
         const ordersRef = db.ref('orders');
@@ -463,6 +516,7 @@
             const data = snapshot.val();
             console.log('Data dari Firebase:', data);
             orderData = [];
+            let newOrderCount = 0;
             
             if (data) {
                 // Ubah object menjadi array dengan key sebagai ID fallback
@@ -475,10 +529,35 @@
                         item.id = key;
                     }
                     orderData.push(item);
+                    
+                    // Count order baru
+                    if (item.status === 'order') {
+                        newOrderCount++;
+                    }
                 });
                 // Sort berdasarkan timestamp (terbaru di atas)
                 orderData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             }
+            
+            // Update badge di tab Order
+            const orderTabBadge = document.getElementById('orderTabBadge');
+            if (orderTabBadge) {
+                if (newOrderCount > 0) {
+                    orderTabBadge.textContent = newOrderCount;
+                    orderTabBadge.classList.remove('hidden');
+                } else {
+                    orderTabBadge.classList.add('hidden');
+                }
+            }
+            
+            // Notifikasi suara jika ada order baru
+            if (hasInitializedNotif && newOrderCount > previousOrderCount) {
+                speakNewJob();
+                console.log('Ada job baru! Total:', newOrderCount);
+            }
+            
+            previousOrderCount = newOrderCount;
+            hasInitializedNotif = true;
             
             console.log('Order data:', orderData);
             console.log('Current filter:', currentFilter);
