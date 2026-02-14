@@ -119,6 +119,127 @@
             color: var(--text-gray);
             margin-left: 20px;
         }
+        
+        /* Split Info - Customer & Driver Side by Side */
+        .split-info {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .info-box {
+            flex: 1;
+            background: rgba(255,255,255,0.8);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+        .info-box.customer {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-color: #bae6fd;
+        }
+        .info-box.driver {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-color: #86efac;
+        }
+        .info-header {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .info-box.customer .info-header {
+            color: var(--primary);
+        }
+        .info-box.driver .info-header {
+            color: #15803d;
+        }
+        .info-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.65rem;
+        }
+        .info-box.customer .info-avatar {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        .info-box.driver .info-avatar {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        .info-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-phone {
+            font-size: 0.7rem;
+            color: var(--text-gray);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+        .info-phone a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        /* Driver Info Box (fallback - single column) */
+        .driver-info {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .driver-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .driver-details {
+            flex: 1;
+        }
+        .driver-label {
+            font-size: 0.6rem;
+            color: #15803d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .driver-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .driver-plate {
+            font-size: 0.7rem;
+            color: #15803d;
+            font-weight: 500;
+        }
         .keterangan-box {
             background: rgba(239, 68, 68, 0.05);
             border: 1px solid rgba(239, 68, 68, 0.2);
@@ -255,6 +376,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
         // Firebase Config
@@ -271,6 +393,9 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
+        const firestore = firebase.firestore();
+        
+        let currentUserData = null; // Untuk menyimpan data user yang login
 
         let orderData = [];
         let currentFilter = 'all';
@@ -416,17 +541,46 @@
                     </div>
                 ` : '';
 
-                return `
-                <div class="order-card">
-                    <div class="order-content">
-                        <div class="order-header">
-                            <span class="order-id">#${o.id}</span>
-                            <span class="order-badge ${badgeClass}">${badgeText}</span>
+                // DRIVER INFO - untuk status berjalan atau selesai (di tab Semua)
+                const driverName = o.driverName || o.driver || '';
+                const driverPlate = o.driverPlate || o.nopol || o.plat || '';
+                const driverPhone = o.driverPhone || '';
+                
+                // Debug log
+                if (currentFilter === 'all') {
+                    console.log('Order:', o.id, '| Status:', o.status, '| Driver:', driverName, driverPhone, driverPlate);
+                }
+                
+                // Cek apakah ada driver info
+                const hasDriverInfo = (driverName || driverPlate);
+                
+                // Jika di tab Semua dan ada driver, tampil split view
+                let infoSectionHtml = '';
+                if (currentFilter === 'all' && hasDriverInfo) {
+                    // Split view: Customer | Driver
+                    infoSectionHtml = `
+                        <div class="split-info">
+                            <!-- Customer -->
+                            <div class="info-box customer">
+                                <div class="info-header"><div class="info-avatar"><i class="fas fa-user"></i></div> Customer</div>
+                                <div class="info-name">${namaCustomer}</div>
+                                ${teleponCustomer ? `<div class="info-phone"><a href="tel:${teleponCustomer}"><i class="fas fa-phone"></i> ${teleponCustomer}</a></div>` : ''}
+                            </div>
+                            <!-- Driver -->
+                            <div class="info-box driver">
+                                <div class="info-header"><div class="info-avatar"><i class="fas fa-user-tie"></i></div> Driver</div>
+                                <div class="info-name">${driverName || 'Driver'} ${driverPhone ? `<a href="tel:${driverPhone}" style="color: #15803d;"><i class="fas fa-phone"></i></a>` : ''}</div>
+                                ${driverPhone ? `<div class="info-phone"><i class="fas fa-phone"></i> ${driverPhone}</div>` : ''}
+                                ${driverPlate ? `<div class="info-phone"><i class="fas fa-car"></i> ${driverPlate}</div>` : ''}
+                            </div>
                         </div>
-                        
-                        ${imgHtml}
-
-                        <!-- NAMA & KETERANGAN CUSTOMER -->
+                        ${deskripsiHtml}
+                        ${koperHtml}
+                        ${keteranganHtml}
+                    `;
+                } else {
+                    // Normal view: hanya customer
+                    infoSectionHtml = `
                         <div class="customer-info">
                             <div class="customer-name">
                                 <i class="fas fa-user-circle"></i>
@@ -437,6 +591,21 @@
                             ${koperHtml}
                             ${keteranganHtml}
                         </div>
+                    `;
+                }
+
+                return `
+                <div class="order-card">
+                    <div class="order-content">
+                        <div class="order-header">
+                            <span class="order-id">#${o.id}</span>
+                            <span class="order-badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        
+                        ${imgHtml}
+
+                        <!-- INFO SECTION - Customer & Driver -->
+                        ${infoSectionHtml}
 
                         <div class="route-wrapper">
                             <div class="route-line"></div>
@@ -565,7 +734,7 @@
         });
 
         // 2. Ambil Order (Update status di Database)
-        function takeOrder(e, id) {
+        async function takeOrder(e, id) {
             e.preventDefault();
             const btn = e.target.closest('button');
             const originalText = btn.innerHTML;
@@ -574,17 +743,81 @@
             
             console.log('Mengambil order ID:', id);
             
-            db.ref('orders/' + id).update({
-                status: 'berjalan'
-            }).then(() => {
+            // Ambil data user yang login
+            const user = auth.currentUser;
+            console.log('Current Firebase user:', user);
+            
+            let driverName = 'Driver';
+            let driverPhone = '-';
+            let driverPlate = '-';
+            
+            try {
+                if (user) {
+                    // Ambil data user dari Firestore
+                    const userDoc = await firestore.collection('users').doc(user.uid).get();
+                    const userData = userDoc.exists ? userDoc.data() : null;
+                    console.log('User data dari Firestore:', userData);
+                    
+                    if (userData) {
+                        driverName = userData.nama || userData.name || userData.displayName || 'Driver';
+                        driverPhone = userData.nohp || userData.phone || userData.telepon || userData.hp || '-';
+                        driverPlate = userData.nopol || userData.plat || userData.nomorPolisi || '-';
+                    }
+                }
+                
+                // Fallback: cek localStorage untuk data user
+                const localUserData = localStorage.getItem('userData');
+                if (localUserData) {
+                    try {
+                        const parsed = JSON.parse(localUserData);
+                        console.log('User data dari localStorage:', parsed);
+                        if (driverName === 'Driver') {
+                            driverName = parsed.nama || parsed.name || 'Driver';
+                        }
+                        if (driverPhone === '-') {
+                            driverPhone = parsed.nohp || parsed.phone || parsed.telepon || '-';
+                        }
+                        if (driverPlate === '-') {
+                            driverPlate = parsed.nopol || parsed.plat || '-';
+                        }
+                    } catch(e) {
+                        console.log('Error parsing localStorage:', e);
+                    }
+                }
+                
+                // Jika masih belum ada nama driver, tanya manual
+                if (driverName === 'Driver') {
+                    const inputName = prompt('Masukkan nama Anda:', '');
+                    if (inputName) {
+                        driverName = inputName;
+                    }
+                }
+                
+                console.log('Driver info yang akan disimpan:', { driverName, driverPhone, driverPlate });
+                
+                // Siapkan data driver
+                const driverData = {
+                    status: 'berjalan',
+                    driverId: user?.uid || 'unknown',
+                    driverName: driverName,
+                    driverPhone: driverPhone,
+                    driverPlate: driverPlate,
+                    takenAt: firebase.database.ServerValue.TIMESTAMP
+                };
+                
+                // Update order dengan info driver
+                await db.ref('orders/' + id).update(driverData);
+                
                 console.log('Order berhasil diambil:', id);
-                alert('Order berhasil diambil!');
-            }).catch(err => {
+                console.log('Driver data tersimpan:', driverData);
+                alert('Order berhasil diambil oleh ' + driverName + '!');
+                
+            } catch (err) {
                 console.error("Gagal mengambil order:", err);
                 alert("Gagal mengambil order: " + err.message);
                 btn.disabled = false;
                 btn.innerHTML = originalText;
-            });
+            }
         }
 
         // 3. Selesaikan Order (Update status di Database)
