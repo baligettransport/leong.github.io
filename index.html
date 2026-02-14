@@ -562,11 +562,11 @@
         }
 
         .permission-status.waiting {
-            background: rgba(255, 255, 255, 0.1);
+            background: #f39c12;
         }
 
         .permission-status.waiting i {
-            color: rgba(255, 255, 255, 0.5);
+            color: #fff;
         }
 
         .permission-status.granted {
@@ -758,155 +758,7 @@
     </video>
     <div class="video-overlay"></div>
 
-    <!-- KEAMANAN: PERMISSION REQUEST OVERLAY -->
-    <div id="permissionOverlay" class="permission-overlay">
-        <div class="permission-header">
-            <div class="shield-icon">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <h2>Izin Perangkat Diperlukan</h2>
-            <p>Aktifkan semua izin berikut untuk melanjutkan menggunakan aplikasi</p>
-        </div>
-
-        <div class="permission-progress">
-            <div class="progress-bar">
-                <div class="progress-bar-fill" id="progressFill"></div>
-            </div>
-            <p class="progress-text" id="progressText">0 dari 8 izin diaktifkan</p>
-        </div>
-
-        <div class="permission-list">
-            <!-- Kamera -->
-            <div class="permission-item" data-type="camera" data-permission="camera">
-                <div class="permission-icon">
-                    <i class="fas fa-camera"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Kamera</h4>
-                    <p>Untuk foto profil dan verifikasi</p>
-                </div>
-                <div class="permission-status waiting" id="status-camera">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Kontak -->
-            <div class="permission-item" data-type="contacts" data-permission="contacts">
-                <div class="permission-icon">
-                    <i class="fas fa-address-book"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Kontak</h4>
-                    <p>Untuk komunikasi anggota</p>
-                </div>
-                <div class="permission-status waiting" id="status-contacts">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Lokasi -->
-            <div class="permission-item" data-type="location" data-permission="location">
-                <div class="permission-icon">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Lokasi</h4>
-                    <p>Untuk tracking dan navigasi</p>
-                </div>
-                <div class="permission-status waiting" id="status-location">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Mikrofon -->
-            <div class="permission-item" data-type="microphone" data-permission="microphone">
-                <div class="permission-icon">
-                    <i class="fas fa-microphone"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Mikrofon</h4>
-                    <p>Untuk panggilan suara</p>
-                </div>
-                <div class="permission-status waiting" id="status-microphone">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Notifikasi -->
-            <div class="permission-item" data-type="notifications" data-permission="notifications">
-                <div class="permission-icon">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Notifikasi</h4>
-                    <p>Untuk informasi penting</p>
-                </div>
-                <div class="permission-status waiting" id="status-notifications">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Perangkat di Sekitar (Bluetooth) -->
-            <div class="permission-item" data-type="bluetooth" data-permission="bluetooth">
-                <div class="permission-icon">
-                    <i class="fas fa-broadcast-tower"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Perangkat di Sekitar</h4>
-                    <p>Untuk koneksi bluetooth</p>
-                </div>
-                <div class="permission-status waiting" id="status-bluetooth">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Ponsel -->
-            <div class="permission-item" data-type="phone" data-permission="phone">
-                <div class="permission-icon">
-                    <i class="fas fa-phone-alt"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Ponsel</h4>
-                    <p>Untuk panggilan darurat</p>
-                </div>
-                <div class="permission-status waiting" id="status-phone">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Foto dan Video -->
-            <div class="permission-item" data-type="photos" data-permission="photos">
-                <div class="permission-icon">
-                    <i class="fas fa-images"></i>
-                </div>
-                <div class="permission-info">
-                    <h4>Foto dan Video</h4>
-                    <p>Untuk upload dan berbagi media</p>
-                </div>
-                <div class="permission-status waiting" id="status-photos">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="permission-buttons">
-            <button class="btn-permission" id="btnRequestPermission" onclick="requestAllPermissions()">
-                <i class="fas fa-check-circle"></i>
-                <span id="btnPermissionText">Aktifkan Semua Izin</span>
-            </button>
-            <button class="btn-settings" id="btnOpenSettings" onclick="openAppSettings()">
-                <i class="fas fa-cog"></i>
-                Buka Pengaturan Manual
-            </button>
-        </div>
-
-        <div class="permission-warning" id="permissionWarning">
-            <p>
-                <i class="fas fa-exclamation-triangle"></i>
-                <span id="warningText">Semua izin harus diaktifkan untuk melanjutkan</span>
-            </p>
-        </div>
-    </div>
+    <!-- Permission overlay DIHAPUS - langsung masuk tanpa cek izin -->
 
     <!-- KEAMANAN: SCREEN LOCK OVERLAY -->
     <div id="securityLockOverlay" class="security-lock-overlay">
@@ -1089,16 +941,18 @@
         REQUIRE_ALL_PERMISSIONS: true    // Wajib semua izin
     };
 
-    // Required Permissions List
+    // Required Permissions List - with web support info
+    // webSupport: true = bisa diminta di web browser
+    // webSupport: false = tidak ada di web browser (status MENUNGGU)
     const REQUIRED_PERMISSIONS = [
-        { id: 'camera', name: 'Kamera', icon: 'fa-camera' },
-        { id: 'contacts', name: 'Kontak', icon: 'fa-address-book' },
-        { id: 'location', name: 'Lokasi', icon: 'fa-map-marker-alt' },
-        { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone' },
-        { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell' },
-        { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower' },
-        { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt' },
-        { id: 'photos', name: 'Foto dan Video', icon: 'fa-images' }
+        { id: 'camera', name: 'Kamera', icon: 'fa-camera', webSupport: true },
+        { id: 'contacts', name: 'Kontak', icon: 'fa-address-book', webSupport: false },
+        { id: 'location', name: 'Lokasi', icon: 'fa-map-marker-alt', webSupport: true },
+        { id: 'microphone', name: 'Mikrofon', icon: 'fa-microphone', webSupport: true },
+        { id: 'notifications', name: 'Notifikasi', icon: 'fa-bell', webSupport: true },
+        { id: 'bluetooth', name: 'Perangkat di Sekitar', icon: 'fa-broadcast-tower', webSupport: false },
+        { id: 'phone', name: 'Ponsel', icon: 'fa-phone-alt', webSupport: false },
+        { id: 'photos', name: 'Foto dan Video', icon: 'fa-images', webSupport: false }
     ];
 
     // Firebase Config
@@ -1416,7 +1270,7 @@
     }
 
     // ============================================
-    // KEAMANAN: PERMISSION MANAGEMENT
+    // KEAMANAN: PERMISSION MANAGEMENT (PRO)
     // ============================================
     
     // Show Permission Overlay
@@ -1425,13 +1279,21 @@
         overlay.classList.add('active');
         document.body.classList.add('no-scroll');
         
-        // Reset all permission status
+        // Reset all permission status - SEMUA AWALNYA MENUNGGU
+        // Tidak cek status dulu karena Permissions API tidak konsisten di mobile
         permissionStatus = {};
         REQUIRED_PERMISSIONS.forEach(perm => {
+            // Izin yang didukung = waiting (akan diminta saat klik tombol)
+            // Izin yang tidak didukung = waiting (tetap menunggu)
             permissionStatus[perm.id] = 'waiting';
         });
         
         updatePermissionUI();
+        
+        // Jangan cek status otomatis - biarkan user klik tombol
+        // Nanti saat klik tombol akan muncul popup izin
+        const btnText = document.getElementById('btnPermissionText');
+        btnText.textContent = 'Aktifkan Semua Izin';
     }
 
     // Hide Permission Overlay
@@ -1441,20 +1303,207 @@
         document.body.classList.remove('no-scroll');
     }
 
+    // ============================================
+    // CEK STATUS PERMISSION DENGAN PERMISSIONS API
+    // ============================================
+    
+    async function checkAllPermissionsStatus() {
+        const btn = document.getElementById('btnRequestPermission');
+        const btnText = document.getElementById('btnPermissionText');
+        
+        btn.disabled = true;
+        btnText.textContent = 'Memeriksa izin...';
+        
+        // Check each permission
+        for (const perm of REQUIRED_PERMISSIONS) {
+            permissionStatus[perm.id] = 'loading';
+            updatePermissionUI();
+            
+            const status = await checkSinglePermissionStatus(perm.id);
+            permissionStatus[perm.id] = status;
+            updatePermissionUI();
+            
+            // Small delay between checks
+            await new Promise(r => setTimeout(r, 200));
+        }
+        
+        btn.disabled = false;
+        
+        // Hitung hanya izin yang DIDUKUNG web (webSupport: true)
+        const supportedPerms = REQUIRED_PERMISSIONS.filter(p => p.webSupport);
+        const supportedGranted = supportedPerms.filter(p => permissionStatus[p.id] === 'granted').length;
+        const supportedDenied = supportedPerms.filter(p => permissionStatus[p.id] === 'denied').length;
+        const supportedWaiting = supportedPerms.filter(p => permissionStatus[p.id] === 'waiting').length;
+        
+        // Update button text based on results
+        if (supportedGranted === supportedPerms.length) {
+            // Semua izin yang didukung sudah aktif
+            btnText.textContent = 'Semua Izin Aktif ✓';
+            btn.classList.add('success');
+            safeSetItem('permissionsGranted', 'true');
+            
+            setTimeout(() => {
+                hidePermissionOverlay();
+                if (pendingRedirect) {
+                    window.location.href = 'branda.html';
+                }
+            }, 1000);
+        } else if (supportedDenied > 0) {
+            btnText.textContent = 'Buka Pengaturan';
+            btn.classList.add('danger');
+            document.getElementById('btnOpenSettings').classList.add('show');
+            
+            const warningEl = document.getElementById('permissionWarning');
+            const warningText = document.getElementById('warningText');
+            warningEl.classList.add('show');
+            warningText.textContent = `${supportedDenied} izin DITOLAK. Buka pengaturan HP untuk mengaktifkan.`;
+        } else {
+            btnText.textContent = 'Aktifkan Semua Izin';
+            document.getElementById('btnOpenSettings').classList.remove('show');
+        }
+    }
+
+    // Check single permission status - NON INTRUSIVE (no popup)
+    // Jika izin TIDAK DIDUKUNG browser → status 'waiting' (MENUNGGU)
+    // Jika izin DIDUKUNG → cek status sebenarnya dengan direct test
+    async function checkSinglePermissionStatus(permissionId) {
+        return new Promise(async (resolve) => {
+            let status = 'waiting';
+            
+            // Cek apakah permission ini didukung di web
+            const permInfo = REQUIRED_PERMISSIONS.find(p => p.id === permissionId);
+            if (permInfo && !permInfo.webSupport) {
+                // Tidak didukung di web - status MENUNGGU
+                resolve('waiting');
+                return;
+            }
+            
+            try {
+                switch (permissionId) {
+                    case 'camera':
+                        // Gunakan Notification.permission style check untuk kamera
+                        // Cek dengan mencoba akses tanpa memunculkan popup (cek sudah granted saja)
+                        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                            // Cek via Permissions API dulu
+                            try {
+                                if (navigator.permissions) {
+                                    const result = await navigator.permissions.query({ name: 'camera' });
+                                    if (result.state === 'granted') {
+                                        status = 'granted';
+                                    } else if (result.state === 'denied') {
+                                        status = 'denied';
+                                    } else {
+                                        // prompt - belum ditanya, status waiting
+                                        status = 'waiting';
+                                    }
+                                } else {
+                                    status = 'waiting';
+                                }
+                            } catch (e) {
+                                // Permissions API tidak support, default waiting
+                                status = 'waiting';
+                            }
+                        } else {
+                            status = 'waiting';
+                        }
+                        break;
+                        
+                    case 'microphone':
+                        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                            try {
+                                if (navigator.permissions) {
+                                    const result = await navigator.permissions.query({ name: 'microphone' });
+                                    if (result.state === 'granted') {
+                                        status = 'granted';
+                                    } else if (result.state === 'denied') {
+                                        status = 'denied';
+                                    } else {
+                                        status = 'waiting';
+                                    }
+                                } else {
+                                    status = 'waiting';
+                                }
+                            } catch (e) {
+                                status = 'waiting';
+                            }
+                        } else {
+                            status = 'waiting';
+                        }
+                        break;
+                    
+                    case 'location':
+                        if (navigator.geolocation) {
+                            try {
+                                if (navigator.permissions) {
+                                    const result = await navigator.permissions.query({ name: 'geolocation' });
+                                    if (result.state === 'granted') {
+                                        status = 'granted';
+                                    } else if (result.state === 'denied') {
+                                        status = 'denied';
+                                    } else {
+                                        status = 'waiting';
+                                    }
+                                } else {
+                                    status = 'waiting';
+                                }
+                            } catch (e) {
+                                status = 'waiting';
+                            }
+                        } else {
+                            status = 'waiting';
+                        }
+                        break;
+                        
+                    case 'notifications':
+                        if ('Notification' in window) {
+                            if (Notification.permission === 'granted') {
+                                status = 'granted';
+                            } else if (Notification.permission === 'denied') {
+                                status = 'denied';
+                            } else {
+                                status = 'waiting';
+                            }
+                        } else {
+                            status = 'waiting';
+                        }
+                        break;
+                        
+                    case 'bluetooth':
+                    case 'contacts':
+                    case 'phone':
+                    case 'photos':
+                        // Izin ini tidak ada di web browser - status MENUNGGU
+                        status = 'waiting';
+                        break;
+                        
+                    default:
+                        status = 'waiting';
+                }
+            } catch (error) {
+                console.log(`Permission check error for ${permissionId}:`, error.message);
+                status = 'waiting';
+            }
+            
+            resolve(status);
+        });
+    }
+
     // Update Permission UI
+    // MENUNGGU = jam icon, DISETUJUI = centang hijau, DITOLAK = silang merah
     function updatePermissionUI() {
         let grantedCount = 0;
         let deniedCount = 0;
+        let waitingCount = 0;
         
         REQUIRED_PERMISSIONS.forEach(perm => {
-            const status = permissionStatus[perm.id] || 'waiting';
+            const status = permissionStatus[perm.id] || 'loading';
             const statusEl = document.getElementById(`status-${perm.id}`);
             const itemEl = document.querySelector(`.permission-item[data-permission="${perm.id}"]`);
             
             if (statusEl && itemEl) {
                 // Remove all status classes
-                statusEl.classList.remove('waiting', 'granted', 'denied', 'loading');
-                itemEl.classList.remove('granted', 'denied', 'current');
+                statusEl.classList.remove('waiting', 'granted', 'denied', 'loading', 'not_applicable');
+                itemEl.classList.remove('granted', 'denied', 'current', 'not_supported');
                 
                 if (status === 'granted') {
                     statusEl.classList.add('granted');
@@ -1471,8 +1520,10 @@
                     itemEl.classList.add('current');
                     statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                 } else {
+                    // waiting atau status lain - tampilkan jam (MENUNGGU)
                     statusEl.classList.add('waiting');
                     statusEl.innerHTML = '<i class="fas fa-clock"></i>';
+                    waitingCount++;
                 }
             }
         });
@@ -1480,251 +1531,199 @@
         // Update progress bar
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
-        const percentage = (grantedCount / REQUIRED_PERMISSIONS.length) * 100;
+        // Hitung hanya izin yang didukung browser
+        const supportedPerms = REQUIRED_PERMISSIONS.filter(p => p.webSupport);
+        const supportedGranted = supportedPerms.filter(p => permissionStatus[p.id] === 'granted').length;
+        const percentage = (supportedGranted / supportedPerms.length) * 100;
         
         if (progressFill) {
             progressFill.style.width = `${percentage}%`;
         }
         if (progressText) {
-            progressText.textContent = `${grantedCount} dari ${REQUIRED_PERMISSIONS.length} izin diaktifkan`;
-        }
-        
-        // Update button state
-        const btn = document.getElementById('btnRequestPermission');
-        const btnText = document.getElementById('btnPermissionText');
-        const btnSettings = document.getElementById('btnOpenSettings');
-        const warningEl = document.getElementById('permissionWarning');
-        const warningText = document.getElementById('warningText');
-        
-        if (grantedCount === REQUIRED_PERMISSIONS.length) {
-            // All granted
-            if (btn) {
-                btn.classList.remove('danger');
-                btn.classList.add('success');
-                btn.disabled = false;
-            }
-            if (btnText) btnText.textContent = 'Semua Izin Diaktifkan ✓';
-            if (btnSettings) btnSettings.classList.remove('show');
-            if (warningEl) warningEl.classList.remove('show');
-            
-            // Save permission status and redirect
-            safeSetItem('permissionsGranted', 'true');
-            
-            setTimeout(() => {
-                hidePermissionOverlay();
-                if (pendingRedirect) {
-                    window.location.href = 'branda.html';
-                }
-            }, 1000);
-        } else if (deniedCount > 0) {
-            // Some denied
-            if (btn) {
-                btn.classList.remove('success');
-                btn.classList.add('danger');
-                btn.disabled = false;
-            }
-            if (btnText) btnText.textContent = 'Coba Lagi';
-            if (btnSettings) btnSettings.classList.add('show');
-            if (warningEl) {
-                warningEl.classList.add('show');
-                if (warningText) {
-                    warningText.textContent = `${deniedCount} izin ditolak. Buka pengaturan untuk mengaktifkan secara manual.`;
-                }
-            }
-        } else {
-            // Still requesting
-            if (btn) {
-                btn.classList.remove('success', 'danger');
-                btn.disabled = false;
-            }
-            if (btnText) btnText.textContent = 'Aktifkan Semua Izin';
-            if (btnSettings) btnSettings.classList.remove('show');
-            if (warningEl) warningEl.classList.remove('show');
+            progressText.textContent = `${supportedGranted} dari ${supportedPerms.length} izin aktif`;
         }
     }
 
-    // Request individual permission
-    async function requestPermission(permissionId) {
-        return new Promise(async (resolve) => {
-            permissionStatus[permissionId] = 'loading';
-            updatePermissionUI();
-            
-            try {
-                let result = 'denied';
-                
-                switch (permissionId) {
-                    case 'camera':
-                        try {
-                            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                            stream.getTracks().forEach(track => track.stop());
-                            result = 'granted';
-                        } catch (e) {
-                            result = 'denied';
-                        }
-                        break;
-                        
-                    case 'microphone':
-                        try {
-                            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                            stream.getTracks().forEach(track => track.stop());
-                            result = 'granted';
-                        } catch (e) {
-                            result = 'denied';
-                        }
-                        break;
-                        
-                    case 'location':
-                        try {
-                            const position = await new Promise((res, rej) => {
-                                navigator.geolocation.getCurrentPosition(res, rej, {
-                                    timeout: 10000,
-                                    enableHighAccuracy: true
-                                });
-                            });
-                            result = 'granted';
-                        } catch (e) {
-                            result = 'denied';
-                        }
-                        break;
-                        
-                    case 'notifications':
-                        if ('Notification' in window) {
-                            const permission = await Notification.requestPermission();
-                            result = permission === 'granted' ? 'granted' : 'denied';
-                        } else {
-                            result = 'denied';
-                        }
-                        break;
-                        
-                    case 'bluetooth':
-                        // Bluetooth permission (for nearby devices)
-                        if ('bluetooth' in navigator) {
-                            try {
-                                // Just check if bluetooth is available
-                                const availability = await navigator.bluetooth.getAvailability();
-                                result = availability ? 'granted' : 'denied';
-                            } catch (e) {
-                                // For browsers that require user gesture for bluetooth
-                                result = 'granted'; // Assume granted on supported browsers
-                            }
-                        } else {
-                            // Not supported - mark as granted to not block
-                            result = 'granted';
-                        }
-                        break;
-                        
-                    case 'contacts':
-                        // Contact Picker API (limited support)
-                        if ('contacts' in navigator && 'ContactsManager' in window) {
-                            try {
-                                const props = await navigator.contacts.getProperties();
-                                result = 'granted';
-                            } catch (e) {
-                                result = 'denied';
-                            }
-                        } else {
-                            // Not supported - mark as granted to not block
-                            result = 'granted';
-                        }
-                        break;
-                        
-                    case 'phone':
-                        // Telephone API - check if tel: protocol works
-                        result = 'granted'; // Always available on mobile browsers
-                        break;
-                        
-                    case 'photos':
-                        // Photos/Videos - try to access media devices
-                        try {
-                            // Test camera access which covers photos/videos
-                            const stream = await navigator.mediaDevices.getUserMedia({ 
-                                video: { facingMode: 'environment' } 
-                            });
-                            stream.getTracks().forEach(track => track.stop());
-                            
-                            // Also check for file system access if available
-                            if ('showOpenFilePicker' in window) {
-                                result = 'granted';
-                            } else {
-                                result = 'granted'; // Basic file input always works
-                            }
-                        } catch (e) {
-                            result = 'granted'; // File input fallback always available
-                        }
-                        break;
-                        
-                    default:
-                        result = 'granted';
-                }
-                
-                permissionStatus[permissionId] = result;
-                updatePermissionUI();
-                resolve(result);
-                
-            } catch (error) {
-                console.error(`Permission error for ${permissionId}:`, error);
-                permissionStatus[permissionId] = 'denied';
-                updatePermissionUI();
-                resolve('denied');
-            }
-        });
-    }
-
-    // Request all permissions
+    // ============================================
+    // REQUEST PERMISSIONS (ketika user klik tombol)
+    // SELALU minta izin - akan muncul popup di HP
+    // Jika denied, ubah ke waiting (orange) dan tetap bisa masuk
+    // ============================================
+    
     async function requestAllPermissions() {
         const btn = document.getElementById('btnRequestPermission');
         const btnText = document.getElementById('btnPermissionText');
         
         btn.disabled = true;
-        btnText.textContent = 'Meminta Izin...';
         
-        for (const perm of REQUIRED_PERMISSIONS) {
-            if (permissionStatus[perm.id] !== 'granted') {
-                await requestPermission(perm.id);
-                // Small delay between requests
-                await new Promise(r => setTimeout(r, 300));
-            }
-        }
+        // SELALU minta semua izin yang didukung - tidak cek status dulu
+        // Ini akan memunculkan popup izin di HP
         
-        // Check if all granted
-        const allGranted = REQUIRED_PERMISSIONS.every(p => permissionStatus[p.id] === 'granted');
+        // 1. Request Camera
+        btnText.textContent = 'Meminta izin Kamera...';
+        permissionStatus['camera'] = 'loading';
+        updatePermissionUI();
+        const cameraResult = await requestCameraPermission();
+        // Jika denied, ubah ke waiting (orange) - tetap bisa masuk
+        permissionStatus['camera'] = cameraResult === 'denied' ? 'waiting' : cameraResult;
+        updatePermissionUI();
         
-        if (!allGranted) {
-            // Show settings button for manual permission
-            const btnSettings = document.getElementById('btnOpenSettings');
-            btnSettings.classList.add('show');
-        }
-    }
-
-    // Open app settings (manual)
-    function openAppSettings() {
-        // Try to open browser/app settings
-        // For PWA, this might open system settings
+        // 2. Request Microphone
+        btnText.textContent = 'Meminta izin Mikrofon...';
+        permissionStatus['microphone'] = 'loading';
+        updatePermissionUI();
+        const micResult = await requestMicrophonePermission();
+        permissionStatus['microphone'] = micResult === 'denied' ? 'waiting' : micResult;
+        updatePermissionUI();
         
-        // Show alert with instructions
-        const instructions = `
-Untuk mengaktifkan izin secara manual:
-
-1. Buka Pengaturan browser/perangkat
-2. Cari aplikasi/website ini
-3. Aktifkan semua izin:
-   - Kamera
-   - Lokasi
-   - Mikrofon
-   - Notifikasi
-   - dll
-
-Setelah selesai, kembali ke aplikasi dan tap "Coba Lagi".`;
+        // 3. Request Location
+        btnText.textContent = 'Meminta izin Lokasi...';
+        permissionStatus['location'] = 'loading';
+        updatePermissionUI();
+        const locResult = await requestLocationPermission();
+        permissionStatus['location'] = locResult === 'denied' ? 'waiting' : locResult;
+        updatePermissionUI();
         
-        alert(instructions);
+        // 4. Request Notifications
+        btnText.textContent = 'Meminta izin Notifikasi...';
+        permissionStatus['notifications'] = 'loading';
+        updatePermissionUI();
+        const notifResult = await requestNotificationPermission();
+        permissionStatus['notifications'] = notifResult === 'denied' ? 'waiting' : notifResult;
+        updatePermissionUI();
         
-        // Try to trigger permission prompt again
+        // Izin yang TIDAK DIDUKUNG browser tetap status MENUNGGU (jam)
+        // bluetooth, contacts, phone, photos - sudah 'waiting' dari awal
+        
+        btn.disabled = false;
+        
+        // SELALU IZINKAN MASUK - tidak peduli status izin
+        btnText.textContent = 'Lanjutkan ✓';
+        btn.classList.add('success');
+        btn.classList.remove('danger');
+        safeSetItem('permissionsGranted', 'true');
+        
         setTimeout(() => {
-            requestAllPermissions();
+            hidePermissionOverlay();
+            if (pendingRedirect) {
+                window.location.href = 'branda.html';
+            }
         }, 1000);
     }
 
-    // Check if permissions were already granted
+    // Request Camera Permission - MUST be called from user click
+    async function requestCameraPermission() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            // Stop the stream immediately
+            stream.getTracks().forEach(track => track.stop());
+            return 'granted';
+        } catch (e) {
+            console.log('Camera permission error:', e.name, e.message);
+            if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                return 'denied';
+            } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
+                // No camera hardware - but permission would be granted if existed
+                return 'granted';
+            } else if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
+                // Camera in use - permission is granted
+                return 'granted';
+            }
+            return 'denied';
+        }
+    }
+
+    // Request Microphone Permission
+    async function requestMicrophonePermission() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            return 'granted';
+        } catch (e) {
+            console.log('Microphone permission error:', e.name, e.message);
+            if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                return 'denied';
+            } else if (e.name === 'NotFoundError') {
+                return 'granted';
+            }
+            return 'denied';
+        }
+    }
+
+    // Request Location Permission
+    async function requestLocationPermission() {
+        return new Promise((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve('granted');
+                },
+                (error) => {
+                    console.log('Location permission error:', error.code, error.message);
+                    if (error.code === error.PERMISSION_DENIED) {
+                        resolve('denied');
+                    } else {
+                        // Timeout or position unavailable - permission granted but no location
+                        resolve('granted');
+                    }
+                },
+                {
+                    enableHighAccuracy: false,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        });
+    }
+
+    // Request Notification Permission
+    async function requestNotificationPermission() {
+        if (!('Notification' in window)) {
+            return 'not_applicable';
+        }
+        
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                return 'granted';
+            } else if (permission === 'denied') {
+                return 'denied';
+            } else {
+                return 'waiting';
+            }
+        } catch (e) {
+            console.log('Notification permission error:', e);
+            return 'denied';
+        }
+    }
+
+    // Open app settings
+    function openAppSettings() {
+        const instructions = `⚠️ IZIN DITOLAK TERDETEKSI
+
+Untuk mengaktifkan izin yang ditolak:
+
+📱 ANDROID:
+1. Buka Pengaturan HP
+2. Cari "Aplikasi" → "Apps"
+3. Cari browser ini (Chrome/Edge)
+4. Ketuk "Izin" → "Permissions"
+5. Aktifkan SEMUA izin yang ditolak
+
+🍎 iOS/iPHONE:
+1. Buka Pengaturan
+2. Cari browser ini (Safari/Chrome)
+3. Aktifkan semua izin
+
+⏰ Setelah mengaktifkan, kembali ke aplikasi dan ketuk tombol di bawah untuk memeriksa ulang.`;
+        
+        alert(instructions);
+        
+        // Re-check after user returns
+        setTimeout(() => {
+            checkAllPermissionsStatus();
+        }, 1000);
+    }
+
     function checkPermissionsGranted() {
         return safeGetItem('permissionsGranted') === 'true';
     }
@@ -1910,6 +1909,7 @@ Setelah selesai, kembali ke aplikasi dan tap "Coba Lagi".`;
 
             // Save session locally
             safeSetItem('userSessionId', newSessionId);
+            safeSetItem('userName', nama.toUpperCase());
 
             // Reset login attempts on successful registration
             resetLoginAttempts();
@@ -1917,21 +1917,16 @@ Setelah selesai, kembali ke aplikasi dan tap "Coba Lagi".`;
 
             showMessage('Registrasi berhasil! Mengalihkan...', 'success');
             
+            // Speak welcome message
+            speakWelcome(nama);
+            
             // Start session monitoring
             startSessionMonitor(user.uid);
             
-            // Set pending redirect and show permission overlay
-            pendingRedirect = true;
-            
-            // Check if permissions already granted
-            if (!checkPermissionsGranted()) {
-                showPermissionOverlay();
-            } else {
-                // Redirect directly if permissions already granted
-                setTimeout(() => {
-                    window.location.href = 'branda.html';
-                }, 1000);
-            }
+            // LANGSUNG MASUK - tanpa cek izin
+            setTimeout(() => {
+                window.location.href = 'branda.html';
+            }, 1500);
 
         } catch (error) {
             console.error('Register error:', error);
@@ -1988,6 +1983,11 @@ Setelah selesai, kembali ke aplikasi dan tap "Coba Lagi".`;
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             const user = userCredential.user;
 
+            // Get user data untuk mendapatkan nama
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userData = userDoc.data();
+            const userName = userData ? userData.nama : '';
+
             // Update session and device info
             await db.collection('users').doc(user.uid).update({
                 currentSessionId: newSessionId,
@@ -2005,28 +2005,24 @@ Setelah selesai, kembali ke aplikasi dan tap "Coba Lagi".`;
 
             // Save session locally
             safeSetItem('userSessionId', newSessionId);
+            safeSetItem('userName', userName);
 
             // Reset login attempts on successful login
             resetLoginAttempts();
             clearLockoutEndTime();
 
             showMessage('Login berhasil! Mengalihkan...', 'success');
+            
+            // Speak welcome message
+            speakWelcome(userName);
 
             // Start session monitoring
             startSessionMonitor(user.uid);
             
-            // Set pending redirect
-            pendingRedirect = true;
-            
-            // Check if permissions already granted
-            if (!checkPermissionsGranted()) {
-                showPermissionOverlay();
-            } else {
-                // Redirect directly if permissions already granted
-                setTimeout(() => {
-                    window.location.href = 'branda.html';
-                }, 1000);
-            }
+            // LANGSUNG MASUK - tanpa cek izin
+            setTimeout(() => {
+                window.location.href = 'branda.html';
+            }, 1500);
 
         } catch (error) {
             console.error('Login error:', error);
@@ -2093,6 +2089,42 @@ Setelah selesai, kembali ke aplikasi dan tap "Coba Lagi".`;
                     showMessage(error.message, 'error');
                 });
         }
+    }
+
+    // ============================================
+    // TEXT-TO-SPEECH WELCOME MESSAGE
+    // ============================================
+    function speakWelcome(nama) {
+        if ('speechSynthesis' in window) {
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+            
+            // Buat pesan sambutan
+            const namaClean = nama ? nama.trim() : 'Anggota';
+            const message = `Halo ${namaClean}, selamat bergabung di komunitas Bali Global Trans. Semoga hari Anda menyenangkan.`;
+            
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+            
+            // Cari voice bahasa Indonesia jika ada
+            const voices = window.speechSynthesis.getVoices();
+            const indonesianVoice = voices.find(voice => voice.lang.includes('id'));
+            if (indonesianVoice) {
+                utterance.voice = indonesianVoice;
+            }
+            
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // Load voices saat halaman dimuat
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        };
     }
 </script>
 
