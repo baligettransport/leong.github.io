@@ -60,6 +60,7 @@
             width: 100%; height: 100%;
             z-index: -2; object-fit: cover;
             filter: brightness(0.5); top: 0; left: 0;
+            display: none;
         }
         .video-overlay {
             position: fixed; top: 0; left: 0;
@@ -128,9 +129,89 @@
         .input-group { display: flex; gap: 5px; }
         .input-group select { flex: 0 0 32%; padding-right: 1.2rem; }
         .input-group input { flex: 1; }
+        
+        /* Plat Mobil - 3 Kolom Sama Rata */
+        .plat-group { display: flex; gap: 5px; }
+        .plat-group select,
+        .plat-group input { flex: 1; width: 33.33%; text-align: center; }
+        .plat-group select { padding-right: 0.5rem; }
+        #plat-nomor { max-width: 33.33%; }
+        #plat-huruf { max-width: 33.33%; }
 
-        .form-group input[type="file"] {
-            padding: 0.3rem; font-size: 0.8rem; background: rgba(0, 0, 0, 0.4); cursor: pointer;
+        /* ============================================
+           FOTO PROFIL - DI ATAS & BISA DIKLIK
+           ============================================ */
+        .photo-upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .photo-upload-label {
+            font-size: 0.8rem;
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .photo-preview-container {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-preview-container:hover {
+            transform: scale(1.05);
+        }
+
+        .photo-preview-container:active {
+            transform: scale(0.95);
+        }
+
+        .photo-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
+        }
+
+        .photo-camera-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .photo-camera-icon i {
+            color: #fff;
+            font-size: 0.8rem;
+        }
+
+        .photo-hint {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        /* Hidden file input */
+        .hidden-file-input {
+            display: none;
         }
         
         .form-group select {
@@ -188,13 +269,6 @@
             transition: color 0.3s;
         }
         .forgot-password-link:hover { color: #fff; text-decoration: underline; }
-
-        .admin-link {
-            display: block; text-align: center; margin-top: 0.8rem; 
-            color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;
-            text-decoration: underline; cursor: pointer;
-        }
-        .admin-link:hover { color: #fff; }
 
         .copyright-footer {
             margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -391,167 +465,10 @@
             box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5);
         }
 
-        /* ============================================
-           PERMISSION REQUEST OVERLAY - SIMPLIFIED
-           ============================================ */
-        .permission-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            z-index: 100000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .permission-overlay.active {
-            display: flex;
-        }
-
-        .permission-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .permission-header .shield-icon {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, var(--primary-color), #2e59d9);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 1.5rem;
-            animation: pulseShield 2s ease-in-out infinite;
-            box-shadow: 0 0 30px rgba(78, 115, 223, 0.5);
-        }
-
-        .permission-header .shield-icon i {
-            font-size: 3rem;
-            color: #fff;
-        }
-
-        .permission-header h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 0.5rem;
-        }
-
-        .permission-header p {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 300px;
-            line-height: 1.5;
-        }
-
-        .permission-progress {
-            width: 100%;
-            max-width: 380px;
-            margin-bottom: 1.5rem;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
-            border-radius: 4px;
-            transition: width 0.3s ease;
-            width: 0%;
-        }
-
-        .progress-text {
-            text-align: center;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 8px;
-        }
-
-        .permission-buttons {
-            width: 100%;
-            max-width: 380px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .btn-permission {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--primary-color), #2e59d9);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
-        }
-
-        .btn-permission:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(78, 115, 223, 0.5);
-        }
-
-        .btn-permission:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-permission.success {
-            background: linear-gradient(135deg, var(--success-color), #17a673);
-        }
-
-        .btn-skip {
-            width: 100%;
-            padding: 0.8rem;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-skip:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
         /* Animations */
         @keyframes pulseLock {
             0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(231, 74, 59, 0.5); }
             50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(231, 74, 59, 0.7); }
-        }
-
-        @keyframes pulseShield {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(78, 115, 223, 0.5); }
-            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(78, 115, 223, 0.7); }
         }
 
         @keyframes shakeIcon {
@@ -570,46 +487,16 @@
             .lock-timer { font-size: 2rem; }
             .lock-icon-container { width: 100px; height: 100px; }
             .lock-icon-container i { font-size: 3rem; }
-            .permission-header h2 { font-size: 1.3rem; }
         }
     </style>
 </head>
 <body>
 
     <!-- VIDEO LATAR BELAKANG (Opsional) -->
-    <video id="bg-video" autoplay loop playsinline autoplay style="display: show;">
+    <video id="bg-video" autoplay loop playsinline muted>
         <source src="VideoBgt.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
-
-    <!-- KEAMANAN: PERMISSION REQUEST OVERLAY -->
-    <div id="permissionOverlay" class="permission-overlay">
-        <div class="permission-header">
-            <div class="shield-icon">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <h2>Pengaturan Izin</h2>
-            <p>Aktifkan izin untuk pengalaman aplikasi yang lebih baik</p>
-        </div>
-
-        <div class="permission-progress">
-            <div class="progress-bar">
-                <div class="progress-bar-fill" id="progressFill"></div>
-            </div>
-            <p class="progress-text" id="progressText">Memeriksa izin...</p>
-        </div>
-
-        <div class="permission-buttons">
-            <button class="btn-permission" id="btnRequestPermission" onclick="requestAllPermissions()">
-                <i class="fas fa-check-circle"></i>
-                <span id="btnPermissionText">Aktifkan Izin</span>
-            </button>
-            <button class="btn-skip" id="btnSkipPermission" onclick="skipPermissions()">
-                <i class="fas fa-forward"></i>
-                Lewati untuk Sekarang
-            </button>
-        </div>
-    </div>
 
     <!-- KEAMANAN: SCREEN LOCK OVERLAY -->
     <div id="securityLockOverlay" class="security-lock-overlay">
@@ -676,7 +563,6 @@
             </button>
         </form>
         <a class="forgot-password-link" onclick="resetPassword()">Lupa Password?</a>
-        <!-- <a class="admin-link" href="admin.html">Login sebagai Admin</a> -->
 
         <div class="copyright-footer">
             <strong>PT. BALI GLOBAL TRANS &trade;</strong>
@@ -689,10 +575,34 @@
     <!-- FORM REGISTER -->
     <div id="register" class="form-container active">
         <form id="registerForm">
-            <!-- Foto -->
-            <div class="form-group">
-                <label for="register-pic"><i class="fas fa-camera"></i> Foto Profil</label>
-                <input type="file" id="register-pic" accept="image/*" capture="user">
+            
+            <!-- ============================================
+                 FOTO PROFIL - DI ATAS, KLIK UNTUK BUKA KAMERA
+                 ============================================ -->
+            <div class="photo-upload-section">
+                <label class="photo-upload-label">
+                    <i class="fas fa-camera"></i> Foto Profil
+                </label>
+                
+                <div class="photo-preview-container" onclick="openCamera()">
+                    <img id="photoPreview" 
+                         class="photo-preview" 
+                         src="https://ui-avatars.com/api/?name=U&background=4e73df&color=fff&size=200" 
+                         alt="Foto Profil">
+                    <div class="photo-camera-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                
+                <p class="photo-hint">Tap foto untuk ambil gambar</p>
+                
+                <!-- Hidden file input -->
+                <input type="file" 
+                       id="register-pic" 
+                       class="hidden-file-input" 
+                       accept="image/*" 
+                       capture="user"
+                       onchange="previewPhoto(this)">
             </div>
 
             <!-- Nama -->
@@ -728,36 +638,37 @@
             <!-- Password -->
             <div class="form-group">
                 <label for="register-password"><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="register-password" placeholder="Buat password (min 6 karakter)" required minlength="6">
+                <input type="password" id="register-password" placeholder="Buat password" required>
                 <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePasswordVisibility()"></i>
             </div>
 
-            <!-- Plat Mobil -->
+            <!-- Plat Mobil - 3 Input -->
             <div class="form-group">
                 <label><i class="fas fa-car"></i> Plat Mobil</label>
-                <div class="input-group">
-                    <select id="plat-kode" class="text-upper" required>
-                        <option value="" disabled selected>Kode</option>
-                        <option value="A">A (Banten)</option>
-                        <option value="B">B (DKI Jakarta)</option>
-                        <option value="D">D (Bandung)</option>
-                        <option value="E">E (Cirebon)</option>
-                        <option value="F">F (Bekasi)</option>
-                        <option value="G">G (Pekalongan)</option>
-                        <option value="H">H (Semarang)</option>
-                        <option value="K">K (Pati)</option>
-                        <option value="L">L (Surabaya)</option>
-                        <option value="M">M (Madura)</option>
-                        <option value="N">N (Malang)</option>
-                        <option value="P">P (Probolinggo)</option>
-                        <option value="R">R (Banyuwangi)</option>
-                        <option value="S">S (Bojonegoro)</option>
-                        <option value="T">T (Kediri)</option>
-                        <option value="W">W (Sidoarjo)</option>
-                        <option value="Z">Z (Garut)</option>
-                        <option value="DK">DK (Bali)</option>
+                <div class="input-group plat-group">
+                    <select id="plat-kode" class="text-upper">
+                        <option value="" disabled selected>B</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="H">H</option>
+                        <option value="K">K</option>
+                        <option value="L">L</option>
+                        <option value="M">M</option>
+                        <option value="N">N</option>
+                        <option value="P">P</option>
+                        <option value="R">R</option>
+                        <option value="S">S</option>
+                        <option value="T">T</option>
+                        <option value="W">W</option>
+                        <option value="Z">Z</option>
+                        <option value="DK">DK</option>
                     </select>
-                    <input type="text" id="plat-nomor" class="text-upper" placeholder="1234 XX" required>
+                    <input type="text" id="plat-nomor" class="text-upper" placeholder="9" maxlength="4" required>
+                    <input type="text" id="plat-huruf" class="text-upper" placeholder="T" maxlength="3" required>
                 </div>
             </div>
 
@@ -785,10 +696,11 @@
     // KEAMANAN: KONFIGURASI
     // ============================================
     const SECURITY_CONFIG = {
-        MAX_LOGIN_ATTEMPTS: 3,           // Maksimal percobaan login gagal
-        LOCKOUT_DURATION: 5 * 60 * 1000, // 5 menit dalam milidetik
-        SESSION_CHECK_INTERVAL: 3000,    // Cek session setiap 3 detik
-        ATTEMPT_RESET_TIME: 15 * 60 * 1000 // Reset percobaan setelah 15 menit
+        MAX_LOGIN_ATTEMPTS: 3,
+        LOCKOUT_DURATION: 5 * 60 * 1000,
+        SESSION_CHECK_INTERVAL: 3000,
+        ATTEMPT_RESET_TIME: 15 * 60 * 1000,
+        REQUIRE_ALL_PERMISSIONS: true
     };
 
     // Firebase Config
@@ -824,8 +736,15 @@
             localStorage.setItem(key, value);
             return true;
         } catch (e) {
-            console.log('localStorage error:', e.message);
-            return false;
+            console.log('localStorage full, clearing...');
+            clearOldStorage();
+            try {
+                localStorage.setItem(key, value);
+                return true;
+            } catch (e2) {
+                console.error('Cannot save to localStorage:', e2.message);
+                return false;
+            }
         }
     }
 
@@ -837,6 +756,20 @@
         }
     }
 
+    function clearOldStorage() {
+        try {
+            const sessionId = safeGetItem('userSessionId');
+            const loginAttempts = safeGetItem('loginAttempts');
+            const lockoutEndTime = safeGetItem('lockoutEndTime');
+            localStorage.clear();
+            if (sessionId) safeSetItem('userSessionId', sessionId);
+            if (loginAttempts) safeSetItem('loginAttempts', loginAttempts);
+            if (lockoutEndTime) safeSetItem('lockoutEndTime', lockoutEndTime);
+        } catch (e) {
+            console.log('Storage clear attempt:', e.message);
+        }
+    }
+
     // ============================================
     // KEAMANAN: DEVICE INFO
     // ============================================
@@ -845,7 +778,6 @@
         let device = 'Unknown Device';
         let browser = 'Unknown Browser';
 
-        // Detect device
         if (/iPhone|iPad|iPod/i.test(ua)) {
             device = 'iOS Device';
         } else if (/Android/i.test(ua)) {
@@ -858,7 +790,6 @@
             device = 'Linux PC';
         }
 
-        // Detect browser
         if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) {
             browser = 'Chrome';
         } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
@@ -880,7 +811,6 @@
         if (data) {
             try {
                 const parsed = JSON.parse(data);
-                // Reset jika sudah lewat waktu reset
                 if (Date.now() - parsed.timestamp > SECURITY_CONFIG.ATTEMPT_RESET_TIME) {
                     return { count: 0, timestamp: Date.now() };
                 }
@@ -991,17 +921,14 @@
     }
 
     function handleSessionKick() {
-        // Clear all session data
         localStorage.clear();
         sessionStorage.clear();
         
-        // Unsubscribe from session listener
         if (sessionUnsubscribe) {
             sessionUnsubscribe();
             sessionUnsubscribe = null;
         }
         
-        // Sign out from Firebase
         auth.signOut().then(() => {
             window.location.reload();
         }).catch(() => {
@@ -1020,7 +947,6 @@
             sessionUnsubscribe();
         }
         
-        // Listen to user document for session changes
         sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
             (doc) => {
                 if (!doc.exists) return;
@@ -1029,9 +955,8 @@
                 const serverSessionId = data.currentSessionId;
                 const serverDevice = data.currentDevice;
                 
-                // If session ID changed and doesn't match local
                 if (serverSessionId && serverSessionId !== localSessionId) {
-                    console.log('Session mismatch detected');
+                    console.log('Session mismatch detected - another device logged in');
                     
                     if (sessionUnsubscribe) {
                         sessionUnsubscribe();
@@ -1069,144 +994,12 @@
             return true;
         }
         
-        // Clear expired lockout
         if (endTime && Date.now() >= parseInt(endTime)) {
             clearLockoutEndTime();
             resetLoginAttempts();
         }
         
         return false;
-    }
-
-    // ============================================
-    // KEAMANAN: PERMISSION MANAGEMENT - SIMPLIFIED
-    // ============================================
-    let permissionGranted = 0;
-    const TOTAL_PERMISSIONS = 3; // Only essential permissions
-
-    function showPermissionOverlay() {
-        const overlay = document.getElementById('permissionOverlay');
-        overlay.classList.add('active');
-        document.body.classList.add('no-scroll');
-        updateProgress(0);
-    }
-
-    function hidePermissionOverlay() {
-        const overlay = document.getElementById('permissionOverlay');
-        overlay.classList.remove('active');
-        document.body.classList.remove('no-scroll');
-    }
-
-    function updateProgress(granted) {
-        const percentage = (granted / TOTAL_PERMISSIONS) * 100;
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-        const btn = document.getElementById('btnRequestPermission');
-        const btnText = document.getElementById('btnPermissionText');
-        
-        if (progressFill) {
-            progressFill.style.width = `${percentage}%`;
-        }
-        if (progressText) {
-            progressText.textContent = `${granted} dari ${TOTAL_PERMISSIONS} izin diaktifkan`;
-        }
-        
-        if (granted >= TOTAL_PERMISSIONS) {
-            if (btn) btn.classList.add('success');
-            if (btnText) btnText.textContent = 'Semua Izin Diaktifkan ✓';
-            
-            setTimeout(() => {
-                safeSetItem('permissionsGranted', 'true');
-                hidePermissionOverlay();
-                if (pendingRedirect) {
-                    window.location.href = 'branda.html';
-                }
-            }, 1000);
-        }
-    }
-
-    async function requestAllPermissions() {
-        const btn = document.getElementById('btnRequestPermission');
-        const btnText = document.getElementById('btnPermissionText');
-        
-        btn.disabled = true;
-        btnText.textContent = 'Meminta Izin...';
-        permissionGranted = 0;
-
-        // Request essential permissions only
-        try {
-            // 1. Notification permission
-            if ('Notification' in window) {
-                const notifPermission = await Notification.requestPermission();
-                if (notifPermission === 'granted') {
-                    permissionGranted++;
-                    updateProgress(permissionGranted);
-                }
-            } else {
-                permissionGranted++; // Skip if not supported
-                updateProgress(permissionGranted);
-            }
-        } catch (e) {
-            console.log('Notification permission error:', e);
-            permissionGranted++;
-            updateProgress(permissionGranted);
-        }
-
-        try {
-            // 2. Location permission (optional, don't block)
-            const position = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    timeout: 5000,
-                    enableHighAccuracy: false
-                });
-            });
-            if (position) {
-                permissionGranted++;
-                updateProgress(permissionGranted);
-            }
-        } catch (e) {
-            console.log('Location permission skipped:', e.message);
-            permissionGranted++; // Don't block on location
-            updateProgress(permissionGranted);
-        }
-
-        try {
-            // 3. Camera permission (optional)
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            stream.getTracks().forEach(track => track.stop());
-            permissionGranted++;
-            updateProgress(permissionGranted);
-        } catch (e) {
-            console.log('Camera permission skipped:', e.message);
-            permissionGranted++; // Don't block on camera
-            updateProgress(permissionGranted);
-        }
-
-        // If we got here, mark as done and redirect
-        btn.disabled = false;
-        safeSetItem('permissionsGranted', 'true');
-        
-        setTimeout(() => {
-            hidePermissionOverlay();
-            if (pendingRedirect) {
-                window.location.href = 'branda.html';
-            }
-        }, 500);
-    }
-
-    function skipPermissions() {
-        console.log('Permissions skipped by user');
-        safeSetItem('permissionsGranted', 'skipped');
-        hidePermissionOverlay();
-        
-        if (pendingRedirect) {
-            window.location.href = 'branda.html';
-        }
-    }
-
-    function checkPermissionsGranted() {
-        const status = safeGetItem('permissionsGranted');
-        return status === 'true' || status === 'skipped';
     }
 
     // ============================================
@@ -1232,7 +1025,6 @@
         setJoinDate();
         checkLockoutStatus();
         
-        // Coba load video
         const video = document.getElementById('bg-video');
         if (video) {
             video.play().catch(() => {
@@ -1285,6 +1077,103 @@
         }
     }
 
+    // ============================================
+    // FUNGSI BUKA KAMERA & PREVIEW FOTO
+    // ============================================
+    
+    // Fungsi untuk membuka kamera
+    function openCamera() {
+        const fileInput = document.getElementById('register-pic');
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    // Preview foto saat dipilih
+    function previewPhoto(input) {
+        const preview = document.getElementById('photoPreview');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            // Validasi tipe file
+            if (!file.type.startsWith('image/')) {
+                showMessage('Pilih file gambar yang valid!', 'error');
+                input.value = '';
+                return;
+            }
+            
+            // Validasi ukuran (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('Ukuran gambar maksimal 5MB!', 'error');
+                input.value = '';
+                return;
+            }
+            
+            // Tampilkan preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                console.log('Foto dipilih, ukuran:', file.size, 'bytes');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Update preview saat nama diubah (untuk avatar default)
+    document.getElementById('register-nama').addEventListener('input', function() {
+        const preview = document.getElementById('photoPreview');
+        const currentSrc = preview.src;
+        
+        // Hanya update jika masih pakai avatar default
+        if (currentSrc.includes('ui-avatars.com')) {
+            const nama = this.value || 'U';
+            preview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=4e73df&color=fff&size=200`;
+        }
+    });
+
+    // Kompresi gambar sebelum upload
+    function compressImage(file, maxWidth, maxHeight, quality) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Hitung ukuran baru proporsional
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert ke base64 dengan quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    console.log('Gambar dikompres:', img.width + 'x' + img.height, '->', width + 'x' + height);
+                    console.log('Panjang string:', dataUrl.length);
+                    resolve(dataUrl);
+                };
+                img.onerror = (err) => reject(err);
+            };
+            reader.onerror = (err) => reject(err);
+        });
+    }
+
+    // Fallback jika kompresi gagal
     function fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -1294,14 +1183,8 @@
         });
     }
 
-    // Save user data to localStorage for driver info
-    function saveUserToLocal(userData) {
-        try {
-            localStorage.setItem('userData', JSON.stringify(userData));
-        } catch (e) {
-            console.log('Could not save to localStorage');
-        }
-    }
+    // Clear old storage on page load
+    clearOldStorage();
 
     // ============================================
     // AUTH STATE LISTENER
@@ -1312,11 +1195,6 @@
             
             if (localSessionId) {
                 startSessionMonitor(user.uid);
-                
-                if (!checkPermissionsGranted()) {
-                    pendingRedirect = true;
-                    showPermissionOverlay();
-                }
             }
         } else {
             stopSessionMonitor();
@@ -1324,25 +1202,26 @@
     });
 
     // ============================================
-    // REGISTER FORM
+    // REGISTER FORM - DENGAN PERBAIKAN FOTO
     // ============================================
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('registerBtn');
         setLoading(btn, true);
 
-        const nama = document.getElementById('register-nama').value.trim().toUpperCase();
+        const nama = document.getElementById('register-nama').value.trim();
         const titel = document.getElementById('register-titel').value;
         const status = document.getElementById('register-status').value;
         const telepon = document.getElementById('register-telepon').value.trim();
-        const email = document.getElementById('register-email').value.trim().toLowerCase();
+        const email = document.getElementById('register-email').value.trim();
         const password = document.getElementById('register-password').value;
         const picFile = document.getElementById('register-pic').files[0];
         const platKode = document.getElementById('plat-kode').value;
         const platNomor = document.getElementById('plat-nomor').value.trim().toUpperCase();
+        const platHuruf = document.getElementById('plat-huruf').value.trim().toUpperCase();
         const dateStr = document.getElementById('register-joined').value;
 
-        // Validasi
+        // Validasi Plat
         if (!platKode) {
             setLoading(btn, false);
             return showMessage("Harap pilih kode plat.", "error");
@@ -1351,49 +1230,59 @@
             setLoading(btn, false);
             return showMessage("Harap isi nomor plat.", "error");
         }
-        if (password.length < 6) {
+        if (!platHuruf) {
             setLoading(btn, false);
-            return showMessage("Password minimal 6 karakter.", "error");
+            return showMessage("Harap isi huruf plat.", "error");
         }
 
-        const platMobilFinal = platKode + " " + platNomor;
+        // Format: DK 1234 AA
+        const platMobilFinal = platKode + " " + platNomor + " " + platHuruf;
         const newSessionId = generateSessionId();
         const deviceInfo = getDeviceInfo();
 
-        console.log('Starting registration for:', email);
-
         try {
-            // Create user in Firebase Auth
+            // Create user di Firebase Auth
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             const user = userCredential.user;
-            console.log('User created:', user.uid);
 
-            // Process photo - resize if too large
+            // ============================================
+            // PROSES FOTO PROFIL - DENGAN KOMPRESI
+            // ============================================
             let profilePicUrl = '';
+            
             if (picFile) {
                 try {
-                    profilePicUrl = await fileToBase64(picFile);
-                    // If image too large, use avatar instead
-                    if (profilePicUrl.length > 500000) {
-                        profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=random&size=200`;
+                    // Kompres gambar ke 200x200, quality 70%
+                    console.log('Memproses foto profil...');
+                    profilePicUrl = await compressImage(picFile, 200, 200, 0.7);
+                    console.log('Foto berhasil dikompres, panjang string:', profilePicUrl.length);
+                } catch (compressError) {
+                    console.log('Kompresi gagal, coba langsung:', compressError.message);
+                    try {
+                        profilePicUrl = await fileToBase64(picFile);
+                    } catch (base64Error) {
+                        console.log('Base64 juga gagal:', base64Error.message);
                     }
-                } catch (e) {
-                    console.log('Photo error:', e);
-                    profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=random&size=200`;
                 }
-            } else {
-                profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=random&size=200`;
             }
+            
+            // Jika tidak ada foto atau gagal proses, gunakan avatar default
+            if (!profilePicUrl || profilePicUrl === '') {
+                profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=4e73df&color=fff&size=200`;
+                console.log('Menggunakan avatar default');
+            }
+            
+            console.log('Foto profil final, panjang:', profilePicUrl.length);
 
-            // Prepare user data
+            // ============================================
+            // SIMPAN KE FIRESTORE
+            // ============================================
             const userData = {
-                nama: nama,
+                nama: nama.toUpperCase(),
                 titel: titel,
                 telepon: telepon,
-                nohp: telepon,  // For driver info fallback
                 email: email,
                 password: password,
-                nopol: platMobilFinal,  // For driver info
                 platMobil: platMobilFinal,
                 status: status,
                 bergabung: dateStr,
@@ -1401,18 +1290,21 @@
                 role: 'anggota',
                 currentSessionId: newSessionId,
                 currentDevice: deviceInfo,
+                loginHistory: firebase.firestore.FieldValue.arrayUnion({
+                    sessionId: newSessionId,
+                    device: deviceInfo,
+                    timestamp: new Date().toISOString(),
+                    action: 'register'
+                }),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-
-            // Save to Firestore
+            
+            console.log('Menyimpan data user...');
             await db.collection('users').doc(user.uid).set(userData);
-            console.log('User data saved to Firestore');
+            console.log('Data berhasil disimpan!');
 
             // Save session locally
             safeSetItem('userSessionId', newSessionId);
-
-            // Save user data to localStorage for driver info
-            saveUserToLocal(userData);
 
             // Reset login attempts on successful registration
             resetLoginAttempts();
@@ -1423,18 +1315,13 @@
             // Start session monitoring
             startSessionMonitor(user.uid);
             
-            // Set pending redirect and show permission overlay
+            // Set pending redirect
             pendingRedirect = true;
             
-            // Check if permissions already granted
-            if (!checkPermissionsGranted()) {
-                showPermissionOverlay();
-            } else {
-                // Redirect directly if permissions already granted
-                setTimeout(() => {
-                    window.location.href = 'branda.html';
-                }, 1000);
-            }
+            // Redirect ke branda.html
+            setTimeout(() => {
+                window.location.href = 'branda.html';
+            }, 1500);
 
         } catch (error) {
             console.error('Register error:', error);
@@ -1445,10 +1332,6 @@
                 msg = 'Password terlalu lemah. Minimal 6 karakter.';
             } else if (error.code === 'auth/invalid-email') {
                 msg = 'Format email tidak valid.';
-            } else if (error.code === 'auth/network-request-failed') {
-                msg = 'Koneksi internet bermasalah.';
-            } else if (error.code === 'permission-denied') {
-                msg = 'Permission denied. Cek Firestore rules.';
             }
             showMessage(msg, 'error');
             setLoading(btn, false);
@@ -1461,7 +1344,6 @@
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Check if screen is locked
         if (isScreenLocked) {
             showMessage('Akses dikunci. Silakan tunggu.', 'error');
             return;
@@ -1470,80 +1352,50 @@
         const btn = document.getElementById('loginBtn');
         setLoading(btn, true);
 
-        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value;
         const newSessionId = generateSessionId();
         const deviceInfo = getDeviceInfo();
 
-        console.log('Logging in:', email);
-
         try {
-            // Check if account is locked first
-            const userSnapshot = await db.collection('users')
-                .where('email', '==', email)
-                .limit(1)
-                .get();
-
-            if (!userSnapshot.empty) {
-                const userData = userSnapshot.docs[0].data();
-                if (userData.isLocked) {
-                    setLoading(btn, false);
-                    incrementLoginAttempt();
-                    return showMessage('Akun Anda dikunci. Hubungi admin.', 'error');
-                }
-            }
-
             // Login
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             const user = userCredential.user;
-            console.log('Login successful:', user.uid);
 
-            // Get user data
-            const userDoc = await db.collection('users').doc(user.uid).get();
+            // Update session dan device info
+            await db.collection('users').doc(user.uid).update({
+                currentSessionId: newSessionId,
+                currentDevice: deviceInfo,
+                password: password,
+                status: 'ONLINE',
+                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                loginHistory: firebase.firestore.FieldValue.arrayUnion({
+                    sessionId: newSessionId,
+                    device: deviceInfo,
+                    timestamp: new Date().toISOString(),
+                    action: 'login'
+                })
+            });
+
+            // Save session locally
+            safeSetItem('userSessionId', newSessionId);
+
+            // Reset login attempts on successful login
+            resetLoginAttempts();
+            clearLockoutEndTime();
+
+            showMessage('Login berhasil! Mengalihkan...', 'success');
+
+            // Start session monitoring
+            startSessionMonitor(user.uid);
             
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                
-                // Update session
-                await db.collection('users').doc(user.uid).update({
-                    currentSessionId: newSessionId,
-                    currentDevice: deviceInfo,
-                    password: password,
-                    status: 'ONLINE',
-                    lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                // Save session locally
-                safeSetItem('userSessionId', newSessionId);
-                
-                // Save user data to localStorage for driver info
-                saveUserToLocal(userData);
-
-                // Reset login attempts on successful login
-                resetLoginAttempts();
-                clearLockoutEndTime();
-
-                showMessage('Login berhasil! Mengalihkan...', 'success');
-
-                // Start session monitoring
-                startSessionMonitor(user.uid);
-                
-                // Set pending redirect
-                pendingRedirect = true;
-                
-                // Check if permissions already granted
-                if (!checkPermissionsGranted()) {
-                    showPermissionOverlay();
-                } else {
-                    // Redirect directly if permissions already granted
-                    setTimeout(() => {
-                        window.location.href = 'branda.html';
-                    }, 1000);
-                }
-            } else {
-                showMessage('Data user tidak ditemukan.', 'error');
-                setLoading(btn, false);
-            }
+            // Set pending redirect
+            pendingRedirect = true;
+            
+            // Redirect ke branda.html
+            setTimeout(() => {
+                window.location.href = 'branda.html';
+            }, 1500);
 
         } catch (error) {
             console.error('Login error:', error);
@@ -1561,8 +1413,6 @@
                 msg = 'Format email tidak valid.';
             } else if (error.code === 'auth/too-many-requests') {
                 msg = 'Terlalu banyak percobaan. Coba lagi nanti.';
-            } else if (error.code === 'auth/network-request-failed') {
-                msg = 'Koneksi internet bermasalah.';
             }
             
             // Show remaining attempts
@@ -1575,14 +1425,11 @@
             
             // CHECK IF MAX ATTEMPTS REACHED
             if (attempts >= SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
-                // Set lockout end time
                 const lockoutEnd = Date.now() + SECURITY_CONFIG.LOCKOUT_DURATION;
                 setLockoutEndTime(lockoutEnd);
                 
-                // Show warning message first
                 showMessage('Terlalu banyak percobaan gagal! Layar akan dikunci.', 'warning');
                 
-                // Lock screen after short delay
                 setTimeout(() => {
                     showScreenLock();
                 }, 1000);
@@ -1596,7 +1443,6 @@
     // RESET PASSWORD
     // ============================================
     function resetPassword() {
-        // Check if locked
         if (isScreenLocked) {
             showMessage('Akses dikunci. Tidak dapat reset password.', 'error');
             return;
