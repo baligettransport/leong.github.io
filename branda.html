@@ -521,10 +521,10 @@
                 <div class="feature-icon anggota"><i class="fas fa-users"></i></div>
                 <span class="feature-label">Anggota</span>
             </a>
-            <a class="feature-item" onclick="shareApp()">
+            <!-- <a class="feature-item" onclick="shareApp()">
                 <div class="feature-icon share"><i class="fas fa-share-alt"></i></div>
                 <span class="feature-label">Bagikan</span>
-            </a>
+            </a> -->
         </div>
 
         <!-- Kopdar Section -->
@@ -605,311 +605,51 @@
         // PUSH NOTIFICATION - FIREBASE CLOUD MESSAGING
         // ============================================
         let messaging = null;
-        let notificationSoundEnabled = true;
-
-        // ============================================
-        // NOTIFIKASI SUARA - AUDIO EMBEDDED
-        // ============================================
-        
-        // Audio notification base64 (suara ding-ding)
-        const NOTIFICATION_SOUND_BASE64 = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNBrv4AAAAAAAAAAAAAAAAAAAAAP/7UGQAD/AAADSAAAAAIAAANIAAAAQAAAGk9HR5en5+/8AAAAAABB6K6H4IAQe/AAQaCgIFBQN/bwMFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHAAAAAAAAPH/+1KFkC78AAANIAAAAAgAAA0gAAABAAAAaT0dHl6fn7/wAAAAAAEHorofggBB78ABBoKAgUFA39vAwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwcHAAAAAAABAAAA//tQaAIP8AAADSAAAAAIAAANIAAAAQAAAGk9HR5en5+/8AAAAAABB6K6H4IAQe/AAQaCgIFBQN/bwMFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcHAAAAAAAAPH/+1GkCD/AAAA0gAAAACAAADSAAAAEAAABpPR0eXp+fv/AAAAAAAQQeiuh+CAEHvwAEGgoCBQUDf28DBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBwcAAAAAAAEAAA==';
-        
-        // Bunyikan notifikasi suara
-        function playNotificationSound() {
-            try {
-                // Cek apakah suara diaktifkan
-                const soundEnabled = localStorage.getItem('notifSoundEnabled');
-                if (soundEnabled === 'false') return;
-                
-                // Mainkan audio
-                const audio = new Audio(NOTIFICATION_SOUND_BASE64);
-                audio.volume = 1.0;
-                audio.play().catch(e => {
-                    console.log('Audio play failed, trying user interaction...');
-                });
-                
-                // Juga bunyikan via AudioContext sebagai backup
-                playBeep();
-                
-            } catch (e) {
-                console.log('Audio error:', e);
-                // Fallback ke beep
-                playBeep();
-            }
-        }
-        
-        // Beep dengan AudioContext
-        function playBeep() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Resume audio context jika suspended
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                
-                // Buat oscillator
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 880; // A5
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.15);
-                
-                // Bunyi kedua
-                setTimeout(() => {
-                    const osc2 = audioContext.createOscillator();
-                    const gain2 = audioContext.createGain();
-                    
-                    osc2.connect(gain2);
-                    gain2.connect(audioContext.destination);
-                    
-                    osc2.frequency.value = 1100; // C#6
-                    osc2.type = 'sine';
-                    
-                    gain2.gain.setValueAtTime(0.5, audioContext.currentTime);
-                    gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                    
-                    osc2.start(audioContext.currentTime);
-                    osc2.stop(audioContext.currentTime + 0.15);
-                }, 200);
-                
-            } catch (e) {
-                console.log('Beep error:', e);
-            }
-        }
-
-        // Bunyikan suara pesan baru (lebih panjang)
-        function playMessageSound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                
-                // Pola 3 nada
-                const notes = [523, 659, 784]; // C5, E5, G5
-                
-                notes.forEach((freq, index) => {
-                    setTimeout(() => {
-                        const oscillator = audioContext.createOscillator();
-                        const gainNode = audioContext.createGain();
-                        
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioContext.destination);
-                        
-                        oscillator.frequency.value = freq;
-                        oscillator.type = 'sine';
-                        
-                        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                        
-                        oscillator.start(audioContext.currentTime);
-                        oscillator.stop(audioContext.currentTime + 0.15);
-                    }, index * 150);
-                });
-                
-            } catch (e) {
-                console.log('Message sound error:', e);
-            }
-        }
-        
-        // Aktifkan audio setelah user interaksi (untuk mobile)
-        function enableAudioOnInteraction() {
-            // Mainkan suara kosong untuk mengaktifkan audio context
-            const audio = new Audio();
-            audio.play().catch(() => {});
-            
-            // Resume AudioContext
-            if (window.AudioContext || window.webkitAudioContext) {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                if (ctx.state === 'suspended') {
-                    ctx.resume();
-                }
-            }
-            
-            console.log('🔊 Audio enabled');
-        }
-        
-        // Aktifkan audio saat user klik/tap pertama kali
-        document.addEventListener('click', function initAudio() {
-            enableAudioOnInteraction();
-            document.removeEventListener('click', initAudio);
-        }, { once: true });
-        
-        document.addEventListener('touchstart', function initAudio() {
-            enableAudioOnInteraction();
-            document.removeEventListener('touchstart', initAudio);
-        }, { once: true });
 
         // Inisialisasi FCM
         async function initFCM() {
             try {
-                // Register service worker terlebih dahulu
-                if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js', {
-                        scope: './'
-                    });
-                    console.log('✅ Service Worker registered:', registration.scope);
-                }
-                
                 messaging = firebase.messaging();
                 
                 // Request permission untuk notifikasi
-                let permission = Notification.permission;
-                
-                if (permission === 'default') {
-                    permission = await Notification.requestPermission();
-                }
+                const permission = await Notification.requestPermission();
                 
                 if (permission === 'granted') {
                     console.log('✅ Notifikasi diizinkan');
                     
-                    // Get FCM token dengan service worker registration
-                    let token;
-                    try {
-                        token = await messaging.getToken({
-                            vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ',
-                            serviceWorkerRegistration: await navigator.serviceWorker.ready
-                        });
-                    } catch (tokenError) {
-                        console.log('Token error, retrying...', tokenError);
-                        // Retry tanpa SW registration
-                        token = await messaging.getToken({
-                            vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ'
-                        });
-                    }
+                    // Get FCM token
+                    const token = await messaging.getToken({
+                        vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ'
+                    });
                     
                     if (token) {
                         console.log('📱 FCM Token:', token);
                         // Simpan token ke user document
                         const user = auth.currentUser;
                         if (user) {
-                            await db.collection('users').doc(user.uid).set({
+                            await db.collection('users').doc(user.uid).update({
                                 fcmToken: token,
                                 fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                            }, { merge: true });
-                        }
-                        
-                        // Simpan token ke localStorage untuk referensi
-                        localStorage.setItem('fcmToken', token);
-                    }
-                    
-                    // Listen untuk pesan saat app di foreground
-                    messaging.onMessage((payload) => {
-                        console.log('📬 Pesan diterima (foreground):', payload);
-                        
-                        // Bunyikan suara notifikasi
-                        playNotificationSound();
-                        
-                        // Tampilkan notifikasi custom
-                        showPushNotification(payload);
-                        
-                        // Bicara pesan
-                        const title = payload.notification?.title || 'Notifikasi';
-                        speakNotification(title);
-                        
-                        // Tampilkan notifikasi sistem juga (untuk visibility)
-                        if (Notification.permission === 'granted') {
-                            const notification = new Notification(title, {
-                                body: payload.notification?.body || 'Ada notifikasi baru!',
-                                icon: '512B.png',
-                                badge: '512B.png',
-                                vibrate: [200, 100, 200],
-                                tag: 'bgt-foreground',
-                                renotify: true
                             });
-                            
-                            notification.onclick = () => {
-                                window.focus();
-                                notification.close();
-                            };
                         }
-                    });
-                } else if (permission === 'denied') {
-                    console.log('❌ Notifikasi ditolak');
-                    showToast('warning', 'Notifikasi', 'Aktifkan izin notifikasi di pengaturan browser');
+                    }
                 } else {
-                    console.log('⏳ Menunggu izin notifikasi...');
+                    console.log('❌ Notifikasi ditolak');
                 }
+                
+                // Listen untuk pesan saat app di foreground
+                messaging.onMessage((payload) => {
+                    console.log('📬 Pesan diterima (foreground):', payload);
+                    
+                    // Tampilkan notifikasi custom
+                    showPushNotification(payload);
+                    
+                    // Bicara "Ada job baru"
+                    speakNewJob();
+                });
                 
             } catch (error) {
                 console.log('FCM Error:', error.message);
-                // Jangan tampilkan error ke user, hanya log
-            }
-        }
-
-        // ============================================
-        // REAL-TIME MESSAGE LISTENER
-        // ============================================
-        let messagesUnsubscribe = null;
-        let lastMessageCount = 0;
-
-        function startMessagesListener(userId) {
-            if (messagesUnsubscribe) {
-                messagesUnsubscribe();
-            }
-            
-            // Listen for new messages in Firestore
-            messagesUnsubscribe = db.collection('messages')
-                .where('toUserId', '==', userId)
-                .where('read', '==', false)
-                .onSnapshot((snapshot) => {
-                    const currentCount = snapshot.size;
-                    
-                    // Jika ada pesan baru (count bertambah)
-                    if (currentCount > lastMessageCount && lastMessageCount > 0) {
-                        // Bunyikan suara pesan baru
-                        playMessageSound();
-                        
-                        // Tampilkan notifikasi
-                        const newMessages = snapshot.docChanges()
-                            .filter(change => change.type === 'added')
-                            .map(change => change.doc.data());
-                        
-                        if (newMessages.length > 0) {
-                            const latestMessage = newMessages[newMessages.length - 1];
-                            showToast('info', '📬 Pesan Baru', latestMessage.message || 'Anda memiliki pesan baru');
-                            
-                            // Update badge notifikasi
-                            updateNotifBadge(currentCount);
-                            
-                            // Bicara
-                            speakNotification('Ada pesan baru');
-                        }
-                    }
-                    
-                    lastMessageCount = currentCount;
-                    updateNotifBadge(currentCount);
-                });
-        }
-
-        function stopMessagesListener() {
-            if (messagesUnsubscribe) {
-                messagesUnsubscribe();
-                messagesUnsubscribe = null;
-            }
-        }
-
-        // Update badge notifikasi di header
-        function updateNotifBadge(count) {
-            const notifBadge = document.getElementById('notifBadge');
-            if (notifBadge) {
-                if (count > 0) {
-                    notifBadge.textContent = count > 99 ? '99+' : count;
-                    notifBadge.classList.remove('hidden');
-                } else {
-                    notifBadge.classList.add('hidden');
-                }
             }
         }
 
@@ -917,36 +657,26 @@
         function showPushNotification(payload) {
             const title = payload.notification?.title || 'BGT-PRO';
             const body = payload.notification?.body || 'Ada notifikasi baru!';
-            const type = payload.data?.type || 'general';
             
             // Tampilkan toast
             showToast('info', title, body);
             
-            // Update badge sesuai tipe
-            if (type === 'job') {
-                updateJobBadge(1);
-            } else if (type === 'message') {
-                updateNotifBadge(1);
-            } else {
-                updateJobBadge(1);
-            }
-            
-            // Vibrate jika didukung
-            if (navigator.vibrate) {
-                navigator.vibrate([200, 100, 200]);
-            }
+            // Update badge
+            updateJobBadge(1);
         }
 
-        // Bicara notifikasi dengan TTS
-        function speakNotification(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'id-ID';
-                utterance.rate = 1;
-                utterance.volume = 0.8;
-                window.speechSynthesis.speak(utterance);
-            }
+        // ============================================
+        // SERVICE WORKER UNTUK NOTIFIKASI DI BACKGROUND
+        // ============================================
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                .then((registration) => {
+                    console.log('✅ Service Worker terdaftar:', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('Service Worker error:', error);
+                });
         }
 
         // ============================================
@@ -1281,9 +1011,6 @@
                 
                 // Init FCM untuk push notification
                 initFCM();
-                
-                // Start listener untuk pesan baru
-                startMessagesListener(user.uid);
                 
                 // Speak welcome
                 const hasSpoken = sessionStorage.getItem('welcomeSpoken');
