@@ -608,39 +608,63 @@
         let notificationSoundEnabled = true;
 
         // ============================================
-        // NOTIFIKASI SUARA
+        // NOTIFIKASI SUARA - AUDIO EMBEDDED
         // ============================================
+        
+        // Audio notification base64 (suara ding-ding)
+        const NOTIFICATION_SOUND_BASE64 = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNBrv4AAAAAAAAAAAAAAAAAAAAAP/7UGQAD/AAADSAAAAAIAAANIAAAAQAAAGk9HR5en5+/8AAAAAABB6K6H4IAQe/AAQaCgIFBQN/bwMFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHAAAAAAAAPH/+1KFkC78AAANIAAAAAgAAA0gAAABAAAAaT0dHl6fn7/wAAAAAAEHorofggBB78ABBoKAgUFA39vAwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwcHAAAAAAABAAAA//tQaAIP8AAADSAAAAAIAAANIAAAAQAAAGk9HR5en5+/8AAAAAABB6K6H4IAQe/AAQaCgIFBQN/bwMFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcHAAAAAAAAPH/+1GkCD/AAAA0gAAAACAAADSAAAAEAAABpPR0eXp+fv/AAAAAAAQQeiuh+CAEHvwAEGgoCBQUDf28DBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBwcAAAAAAAEAAA==';
         
         // Bunyikan notifikasi suara
         function playNotificationSound() {
-            // Cek apakah suara diaktifkan
-            const soundEnabled = localStorage.getItem('notifSoundEnabled');
-            if (soundEnabled === 'false') return;
-            
-            // Buat audio context untuk suara notifikasi
+            try {
+                // Cek apakah suara diaktifkan
+                const soundEnabled = localStorage.getItem('notifSoundEnabled');
+                if (soundEnabled === 'false') return;
+                
+                // Mainkan audio
+                const audio = new Audio(NOTIFICATION_SOUND_BASE64);
+                audio.volume = 1.0;
+                audio.play().catch(e => {
+                    console.log('Audio play failed, trying user interaction...');
+                });
+                
+                // Juga bunyikan via AudioContext sebagai backup
+                playBeep();
+                
+            } catch (e) {
+                console.log('Audio error:', e);
+                // Fallback ke beep
+                playBeep();
+            }
+        }
+        
+        // Beep dengan AudioContext
+        function playBeep() {
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 
-                // Buat oscillator untuk bunyi "ding"
+                // Resume audio context jika suspended
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                // Buat oscillator
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
                 
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                // Set frekuensi dan jenis gelombang
-                oscillator.frequency.value = 800;
+                oscillator.frequency.value = 880; // A5
                 oscillator.type = 'sine';
                 
-                // Set volume
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
                 
-                // Mainkan
                 oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
+                oscillator.stop(audioContext.currentTime + 0.15);
                 
-                // Bunyi kedua (lebih tinggi)
+                // Bunyi kedua
                 setTimeout(() => {
                     const osc2 = audioContext.createOscillator();
                     const gain2 = audioContext.createGain();
@@ -648,30 +672,34 @@
                     osc2.connect(gain2);
                     gain2.connect(audioContext.destination);
                     
-                    osc2.frequency.value = 1000;
+                    osc2.frequency.value = 1100; // C#6
                     osc2.type = 'sine';
                     
-                    gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    gain2.gain.setValueAtTime(0.5, audioContext.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
                     
                     osc2.start(audioContext.currentTime);
-                    osc2.stop(audioContext.currentTime + 0.3);
-                }, 150);
+                    osc2.stop(audioContext.currentTime + 0.15);
+                }, 200);
                 
             } catch (e) {
-                console.log('Audio not supported:', e);
+                console.log('Beep error:', e);
             }
         }
 
-        // Bunyikan suara pesan baru
+        // Bunyikan suara pesan baru (lebih panjang)
         function playMessageSound() {
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 
-                // Buat pola suara " notification "
-                const frequencies = [523, 659, 784]; // C5, E5, G5
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
                 
-                frequencies.forEach((freq, index) => {
+                // Pola 3 nada
+                const notes = [523, 659, 784]; // C5, E5, G5
+                
+                notes.forEach((freq, index) => {
                     setTimeout(() => {
                         const oscillator = audioContext.createOscillator();
                         const gainNode = audioContext.createGain();
@@ -682,45 +710,98 @@
                         oscillator.frequency.value = freq;
                         oscillator.type = 'sine';
                         
-                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
                         
                         oscillator.start(audioContext.currentTime);
-                        oscillator.stop(audioContext.currentTime + 0.2);
-                    }, index * 100);
+                        oscillator.stop(audioContext.currentTime + 0.15);
+                    }, index * 150);
                 });
                 
             } catch (e) {
-                console.log('Audio not supported:', e);
+                console.log('Message sound error:', e);
             }
         }
+        
+        // Aktifkan audio setelah user interaksi (untuk mobile)
+        function enableAudioOnInteraction() {
+            // Mainkan suara kosong untuk mengaktifkan audio context
+            const audio = new Audio();
+            audio.play().catch(() => {});
+            
+            // Resume AudioContext
+            if (window.AudioContext || window.webkitAudioContext) {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+            }
+            
+            console.log('🔊 Audio enabled');
+        }
+        
+        // Aktifkan audio saat user klik/tap pertama kali
+        document.addEventListener('click', function initAudio() {
+            enableAudioOnInteraction();
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
+        
+        document.addEventListener('touchstart', function initAudio() {
+            enableAudioOnInteraction();
+            document.removeEventListener('touchstart', initAudio);
+        }, { once: true });
 
         // Inisialisasi FCM
         async function initFCM() {
             try {
+                // Register service worker terlebih dahulu
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js', {
+                        scope: './'
+                    });
+                    console.log('✅ Service Worker registered:', registration.scope);
+                }
+                
                 messaging = firebase.messaging();
                 
                 // Request permission untuk notifikasi
-                const permission = await Notification.requestPermission();
+                let permission = Notification.permission;
+                
+                if (permission === 'default') {
+                    permission = await Notification.requestPermission();
+                }
                 
                 if (permission === 'granted') {
                     console.log('✅ Notifikasi diizinkan');
                     
-                    // Get FCM token
-                    const token = await messaging.getToken({
-                        vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ'
-                    });
+                    // Get FCM token dengan service worker registration
+                    let token;
+                    try {
+                        token = await messaging.getToken({
+                            vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ',
+                            serviceWorkerRegistration: await navigator.serviceWorker.ready
+                        });
+                    } catch (tokenError) {
+                        console.log('Token error, retrying...', tokenError);
+                        // Retry tanpa SW registration
+                        token = await messaging.getToken({
+                            vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ'
+                        });
+                    }
                     
                     if (token) {
                         console.log('📱 FCM Token:', token);
                         // Simpan token ke user document
                         const user = auth.currentUser;
                         if (user) {
-                            await db.collection('users').doc(user.uid).update({
+                            await db.collection('users').doc(user.uid).set({
                                 fcmToken: token,
                                 fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                            });
+                            }, { merge: true });
                         }
+                        
+                        // Simpan token ke localStorage untuk referensi
+                        localStorage.setItem('fcmToken', token);
                     }
                     
                     // Listen untuk pesan saat app di foreground
@@ -736,17 +817,34 @@
                         // Bicara pesan
                         const title = payload.notification?.title || 'Notifikasi';
                         speakNotification(title);
+                        
+                        // Tampilkan notifikasi sistem juga (untuk visibility)
+                        if (Notification.permission === 'granted') {
+                            const notification = new Notification(title, {
+                                body: payload.notification?.body || 'Ada notifikasi baru!',
+                                icon: '512B.png',
+                                badge: '512B.png',
+                                vibrate: [200, 100, 200],
+                                tag: 'bgt-foreground',
+                                renotify: true
+                            });
+                            
+                            notification.onclick = () => {
+                                window.focus();
+                                notification.close();
+                            };
+                        }
                     });
-                } else {
+                } else if (permission === 'denied') {
                     console.log('❌ Notifikasi ditolak');
-                    // Minta lagi jika ditolak
-                    setTimeout(() => {
-                        Notification.requestPermission();
-                    }, 5000);
+                    showToast('warning', 'Notifikasi', 'Aktifkan izin notifikasi di pengaturan browser');
+                } else {
+                    console.log('⏳ Menunggu izin notifikasi...');
                 }
                 
             } catch (error) {
                 console.log('FCM Error:', error.message);
+                // Jangan tampilkan error ke user, hanya log
             }
         }
 
@@ -849,20 +947,6 @@
                 utterance.volume = 0.8;
                 window.speechSynthesis.speak(utterance);
             }
-        }
-
-        // ============================================
-        // SERVICE WORKER UNTUK NOTIFIKASI DI BACKGROUND
-        // ============================================
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                .then((registration) => {
-                    console.log('✅ Service Worker terdaftar:', registration.scope);
-                })
-                .catch((error) => {
-                    console.log('Service Worker error:', error);
-                });
         }
 
         // ============================================
