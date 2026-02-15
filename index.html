@@ -54,70 +54,24 @@
             background: url('bgt.png') center center / cover no-repeat fixed;
         }
 
-        /* ============================================
-           LOADING SCREEN - AUTO CHECK SESSION
-           ============================================ */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-        }
 
-        .loading-screen.hidden {
+
+        /* LATAR BELAKANG VIDEO */
+        #bg-video {
+            position: fixed; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            z-index: -2; object-fit: cover;
+            filter: brightness(0.5); top: 0; left: 0;
             display: none;
         }
-
-        .loading-logo {
-            width: 100px;
-            height: 100px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            animation: pulse 1.5s ease-in-out infinite;
+        .video-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1; pointer-events: none;
         }
 
-        .loading-logo i {
-            font-size: 3rem;
-            color: white;
-        }
-
-        .loading-text {
-            color: white;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* CONTAINER */
+        /* CONTAINER - TRANSPARAN TANPA CARD PUTIH */
         .container {
             background: transparent;
             padding: 1.5rem;
@@ -185,7 +139,9 @@
         #plat-nomor { max-width: 33.33%; }
         #plat-huruf { max-width: 33.33%; }
 
-        /* FOTO PROFIL */
+        /* ============================================
+           FOTO PROFIL - DI ATAS & BISA DIKLIK
+           ============================================ */
         .photo-upload-section {
             display: flex;
             flex-direction: column;
@@ -210,8 +166,13 @@
             transition: transform 0.3s ease;
         }
 
-        .photo-preview-container:hover { transform: scale(1.05); }
-        .photo-preview-container:active { transform: scale(0.95); }
+        .photo-preview-container:hover {
+            transform: scale(1.05);
+        }
+
+        .photo-preview-container:active {
+            transform: scale(0.95);
+        }
 
         .photo-preview {
             width: 100px;
@@ -238,7 +199,10 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        .photo-camera-icon i { color: #fff; font-size: 0.8rem; }
+        .photo-camera-icon i {
+            color: #fff;
+            font-size: 0.8rem;
+        }
 
         .photo-hint {
             font-size: 0.7rem;
@@ -248,9 +212,14 @@
             text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
         }
 
-        .hidden-file-input { display: none; }
+        /* Hidden file input */
+        .hidden-file-input {
+            display: none;
+        }
 
-        /* MODAL PILIH KAMERA / GALERI */
+        /* ============================================
+           MODAL PILIH KAMERA / GALERI
+           ============================================ */
         .photo-source-modal {
             position: fixed;
             top: 0;
@@ -265,7 +234,9 @@
             backdrop-filter: blur(5px);
         }
 
-        .photo-source-modal.active { display: flex; }
+        .photo-source-modal.active {
+            display: flex;
+        }
 
         .photo-source-content {
             background: rgba(255, 255, 255, 0.98);
@@ -316,9 +287,20 @@
             border-color: var(--primary-color);
         }
 
-        .photo-source-btn:active { transform: scale(0.95); }
-        .photo-source-btn i { font-size: 2rem; color: var(--primary-color); }
-        .photo-source-btn span { color: var(--dark-color); font-size: 0.85rem; font-weight: 600; }
+        .photo-source-btn:active {
+            transform: scale(0.95);
+        }
+
+        .photo-source-btn i {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .photo-source-btn span {
+            color: var(--dark-color);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
 
         .photo-source-cancel {
             width: 100%;
@@ -333,7 +315,34 @@
             transition: all 0.3s ease;
         }
 
-        .photo-source-cancel:hover { background: rgba(231, 74, 59, 0.3); }
+        .photo-source-cancel:hover {
+            background: rgba(231, 74, 59, 0.3);
+        }
+
+        /* Permission denied message */
+        .permission-denied {
+            background: rgba(231, 74, 59, 0.2);
+            border: 1px solid rgba(231, 74, 59, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .permission-denied.show {
+            display: block;
+        }
+
+        .permission-denied p {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .permission-denied a {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
         
         .form-group select {
             appearance: none;
@@ -404,7 +413,9 @@
             text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
         }
 
-        /* SCREEN LOCK OVERLAY */
+        /* ============================================
+           KEAMANAN: SCREEN LOCK OVERLAY
+           ============================================ */
         .security-lock-overlay {
             position: fixed;
             top: 0;
@@ -412,19 +423,22 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.95);
-            z-index: 99998;
+            z-index: 99999;
             display: none;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
 
-        .security-lock-overlay.active { display: flex; }
+        .security-lock-overlay.active {
+            display: flex;
+        }
 
         .lock-icon-container {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             background: linear-gradient(135deg, #e74a3b, #c0392b);
             border-radius: 50%;
             display: flex;
@@ -432,47 +446,233 @@
             align-items: center;
             margin-bottom: 2rem;
             animation: pulseLock 2s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(231, 74, 59, 0.5);
         }
 
-        .lock-icon-container i { font-size: 3rem; color: #fff; }
+        .lock-icon-container i {
+            font-size: 4rem;
+            color: #fff;
+        }
 
-        .lock-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 1rem; }
-        .lock-message { font-size: 0.95rem; color: rgba(255,255,255,0.8); text-align: center; max-width: 300px; margin-bottom: 1rem; padding: 0 20px; }
-        .lock-timer { font-size: 2rem; font-weight: 700; color: var(--danger-color); margin-bottom: 1rem; font-family: 'Courier New', monospace; }
+        .lock-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
 
+        .lock-message {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            max-width: 320px;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            padding: 0 20px;
+        }
+
+        .lock-timer {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--danger-color);
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(231, 74, 59, 0.5);
+        }
+
+        .lock-warning-text {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            max-width: 280px;
+            line-height: 1.5;
+        }
+
+        .attempt-counter {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .attempt-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .attempt-dot.failed {
+            background: var(--danger-color);
+            box-shadow: 0 0 10px rgba(231, 74, 59, 0.5);
+        }
+
+        /* Session Kick Notification */
+        .session-kick-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 99998;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .session-kick-overlay.active {
+            display: flex;
+        }
+
+        .kick-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            animation: shakeIcon 0.5s ease-in-out;
+        }
+
+        .kick-icon i {
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        .kick-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .kick-message {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            max-width: 300px;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            padding: 0 20px;
+        }
+
+        .kick-device-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .kick-device-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0.3rem 0;
+        }
+
+        .kick-device-info strong {
+            color: #f39c12;
+        }
+
+        .btn-kick-ok {
+            padding: 0.8rem 2.5rem;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-kick-ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5);
+        }
+
+        /* Animations */
         @keyframes pulseLock {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(231, 74, 59, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(231, 74, 59, 0.7); }
+        }
+
+        @keyframes shakeIcon {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container { margin: 10px; padding: 1rem; }
+            .lock-title { font-size: 1.5rem; }
+            .lock-timer { font-size: 2rem; }
+            .lock-icon-container { width: 100px; height: 100px; }
+            .lock-icon-container i { font-size: 3rem; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- LOADING SCREEN - AUTO CHECK SESSION -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-logo">
-            <i class="fas fa-car"></i>
-        </div>
-        <div class="loading-text">BGT-PRO</div>
-        <div class="loading-spinner"></div>
-    </div>
+    <!-- VIDEO LATAR BELAKANG (Opsional) -->
+    <video id="bg-video" autoplay loop playsinline muted>
+        <source src="VideoBgt.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
 
-    <!-- SCREEN LOCK OVERLAY -->
+    <!-- KEAMANAN: SCREEN LOCK OVERLAY -->
     <div id="securityLockOverlay" class="security-lock-overlay">
         <div class="lock-icon-container">
             <i class="fas fa-lock"></i>
         </div>
         <h2 class="lock-title">AKSES DIKUNCI</h2>
-        <p class="lock-message">Terlalu banyak percobaan login yang gagal. Silakan tunggu.</p>
+        <p class="lock-message">Terlalu banyak percobaan login yang gagal. Silakan tunggu sebelum mencoba lagi.</p>
+        <div class="attempt-counter" id="attemptCounter">
+            <div class="attempt-dot failed"></div>
+            <div class="attempt-dot failed"></div>
+            <div class="attempt-dot failed"></div>
+        </div>
         <div class="lock-timer" id="lockTimer">05:00</div>
+        <p class="lock-warning-text">
+            <i class="fas fa-shield-alt"></i> 
+            Untuk keamanan, akses diblokir sementara.
+        </p>
+    </div>
+
+    <!-- KEAMANAN: SESSION KICK OVERLAY -->
+    <div id="sessionKickOverlay" class="session-kick-overlay">
+        <div class="kick-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2 class="kick-title">SESI ANDA BERAKHIR</h2>
+        <p class="kick-message">Akun Anda telah login di perangkat lain. Hanya satu perangkat yang dapat mengakses akun pada satu waktu.</p>
+        <div class="kick-device-info">
+            <p><i class="fas fa-mobile-alt"></i> <strong>Login Baru Terdeteksi</strong></p>
+            <p id="kickDeviceInfo">Perangkat lain</p>
+        </div>
+        <button class="btn-kick-ok" onclick="handleSessionKick()">
+            <i class="fas fa-check"></i> Mengerti
+        </button>
     </div>
 
     <!-- MODAL PILIH SUMBER FOTO -->
     <div id="photoSourceModal" class="photo-source-modal">
         <div class="photo-source-content">
             <h3 class="photo-source-title">Pilih Sumber Foto</h3>
+            
             <div class="photo-source-options">
                 <div class="photo-source-btn" onclick="openCamera()">
                     <i class="fas fa-camera"></i>
@@ -483,11 +683,21 @@
                     <span>Galeri</span>
                 </div>
             </div>
+            
             <button class="photo-source-cancel" onclick="closePhotoSourceModal()">Batal</button>
+            
+            <div class="permission-denied" id="permissionDenied">
+                <p>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Izin kamera ditolak. Buka 
+                    <a href="#" onclick="openAppSettings()">pengaturan browser</a> 
+                    untuk mengaktifkan izin kamera.
+                </p>
+            </div>
         </div>
     </div>
 
-<div class="container" id="mainContainer" style="display: none;">
+<div class="container">
     <div class="logo-area">
         <h3>PT. BALI GLOBAL TRANS &trade; </h3>
         <p>Silakan daftar untuk akses</p>
@@ -521,7 +731,7 @@
         <div class="copyright-footer">
             <strong>PT. BALI GLOBAL TRANS &trade;</strong>
             <strong> BY LEONK DESIGN&nbsp;&nbsp;&nbsp;BGT TEAM&reg;&nbsp;&nbsp;&nbsp;LEONK GROUP&reg;</strong>
-            <h5><i class="fas fa-shield-alt"></i> APLIKASI INI DILINDUNGI HAK CIPTA</h5>
+            <h5><i class="fas fa-shield-alt"></i> APLIKASI INI DILINDUNGI HAK CIPTA DAN UNDANG - UNDANG</h5>
             <strong>&copy;BGT 2023 - 2029</strong>
         </div>
     </div>
@@ -529,20 +739,47 @@
     <!-- FORM REGISTER -->
     <div id="register" class="form-container">
         <form id="registerForm">
-            <!-- FOTO PROFIL -->
+            
+            <!-- ============================================
+                 FOTO PROFIL - DI ATAS, KLIK UNTUK PILIH
+                 ============================================ -->
             <div class="photo-upload-section">
                 <label class="photo-upload-label">
                     <i class="fas fa-camera"></i> Foto Profil
                 </label>
+                
                 <div class="photo-preview-container" onclick="openCameraDirect()" oncontextmenu="openGalleryFromContext(event)">
-                    <img id="photoPreview" class="photo-preview" src="https://ui-avatars.com/api/?name=U&background=4e73df&color=fff&size=200" alt="Foto Profil">
+                    <img id="photoPreview" 
+                         class="photo-preview" 
+                         src="https://ui-avatars.com/api/?name=U&background=4e73df&color=fff&size=200" 
+                         alt="Foto Profil">
                     <div class="photo-camera-icon">
                         <i class="fas fa-camera"></i>
                     </div>
                 </div>
+                
                 <p class="photo-hint">Tap foto untuk kamera, tekan lama untuk galeri</p>
-                <input type="file" id="cameraInput" class="hidden-file-input" accept="image/*" capture="environment" onchange="previewPhoto(this)">
-                <input type="file" id="galleryInput" class="hidden-file-input" accept="image/*" onchange="previewPhoto(this)">
+                
+                <!-- Hidden file inputs - KAMERA UTAMA -->
+                <input type="file" 
+                       id="cameraInput" 
+                       class="hidden-file-input" 
+                       accept="image/*" 
+                       capture="environment"
+                       onchange="previewPhoto(this)">
+                <!-- Input untuk galeri -->
+                <input type="file" 
+                       id="galleryInput" 
+                       class="hidden-file-input" 
+                       accept="image/*"
+                       onchange="previewPhoto(this)">
+                <!-- Input kamera depan (opsional) -->
+                <input type="file" 
+                       id="frontCameraInput" 
+                       class="hidden-file-input" 
+                       accept="image/*" 
+                       capture="user"
+                       onchange="previewPhoto(this)">
                 <input type="hidden" id="register-pic-data" value="">
             </div>
 
@@ -580,21 +817,33 @@
             <div class="form-group">
                 <label for="register-password"><i class="fas fa-lock"></i> Password</label>
                 <input type="password" id="register-password" placeholder="Buat password" required>
-                <i class="fas fa-eye password-toggle" onclick="togglePasswordVisibility()"></i>
+                <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePasswordVisibility()"></i>
             </div>
 
-            <!-- Plat Mobil -->
+            <!-- Plat Mobil - 3 Input -->
             <div class="form-group">
                 <label><i class="fas fa-car"></i> Plat Mobil</label>
                 <div class="input-group plat-group">
                     <select id="plat-kode" class="text-upper">
                         <option value="" disabled selected>Kode</option>
-                        <option value="A">A</option><option value="B">B</option><option value="D">D</option>
-                        <option value="DK">DK</option><option value="E">E</option><option value="F">F</option>
-                        <option value="G">G</option><option value="H">H</option><option value="K">K</option>
-                        <option value="L">L</option><option value="M">M</option><option value="N">N</option>
-                        <option value="P">P</option><option value="R">R</option><option value="S">S</option>
-                        <option value="T">T</option><option value="W">W</option><option value="Z">Z</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="H">H</option>
+                        <option value="K">K</option>
+                        <option value="L">L</option>
+                        <option value="M">M</option>
+                        <option value="N">N</option>
+                        <option value="P">P</option>
+                        <option value="R">R</option>
+                        <option value="S">S</option>
+                        <option value="T">T</option>
+                        <option value="W">W</option>
+                        <option value="Z">Z</option>
+                        <option value="DK">DK</option>
                     </select>
                     <input type="text" id="plat-nomor" class="text-upper" placeholder="1234" maxlength="4" required>
                     <input type="text" id="plat-huruf" class="text-upper" placeholder="AA" maxlength="3" required>
@@ -604,7 +853,7 @@
             <!-- Bergabung -->
             <div class="form-group">
                 <label for="register-joined"><i class="fas fa-calendar-alt"></i> Bergabung</label>
-                <input type="text" id="register-joined" readonly>
+                <input type="text" id="register-joined" readonly placeholder="Mengambil tanggal...">
             </div>
 
             <button type="submit" class="btn" id="registerBtn">
@@ -622,11 +871,14 @@
 
 <script>
     // ============================================
-    // KONFIGURASI
+    // KEAMANAN: KONFIGURASI
     // ============================================
     const SECURITY_CONFIG = {
         MAX_LOGIN_ATTEMPTS: 3,
-        LOCKOUT_DURATION: 5 * 60 * 1000
+        LOCKOUT_DURATION: 5 * 60 * 1000,
+        SESSION_CHECK_INTERVAL: 3000,
+        ATTEMPT_RESET_TIME: 15 * 60 * 1000,
+        REQUIRE_ALL_PERMISSIONS: true
     };
 
     // Firebase Config
@@ -645,94 +897,169 @@
     const db = firebase.firestore();
 
     // ============================================
-    // FIREBASE AUTH PERSISTENCE - AGAR SESSION TETAP ADA
+    // KEAMANAN: STATE MANAGEMENT
     // ============================================
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .then(() => {
-            console.log('✅ Auth persistence set to LOCAL');
-        })
-        .catch((error) => {
-            console.error('Error setting persistence:', error);
-        });
+    let sessionUnsubscribe = null;
+    let currentUserId = null;
+    let localSessionId = null;
+    let isScreenLocked = false;
+    let lockTimerInterval = null;
+    let pendingRedirect = false;
 
     // ============================================
-    // CEK SESSION SAAT HALAMAN DIMUAT
-    // OTOMATIS REDIRECT KE BRANDA JIKA SUDAH LOGIN
+    // KEAMANAN: LOCAL STORAGE FUNCTIONS
     // ============================================
-    
-    // Cek status lockout
-    const lockoutEndTime = localStorage.getItem('lockoutEndTime');
-    if (lockoutEndTime && Date.now() < parseInt(lockoutEndTime)) {
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('securityLockOverlay').classList.add('active');
-        startLockTimer();
-    } else {
-        // Cek Firebase Auth State
-        auth.onAuthStateChanged(async (user) => {
-            console.log('Auth state changed, user:', user ? user.uid : 'null');
-            
-            if (user) {
-                // User sudah login - LANGSUNG REDIRECT KE BRANDA
-                console.log('User sudah login, redirect ke branda...');
-                
-                try {
-                    // Ambil data user untuk memastikan masih valid
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    
-                    if (userDoc.exists) {
-                        // Simpan data user ke localStorage
-                        const userData = userDoc.data();
-                        localStorage.setItem('userData', JSON.stringify(userData));
-                        localStorage.setItem('userId', user.uid);
-                        
-                        // Generate session ID jika belum ada
-                        if (!localStorage.getItem('userSessionId')) {
-                            const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                            localStorage.setItem('userSessionId', sessionId);
-                            
-                            // Update session di database
-                            await db.collection('users').doc(user.uid).update({
-                                currentSessionId: sessionId,
-                                currentDevice: navigator.userAgent,
-                                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        }
-                        
-                        // REDIRECT LANGSUNG KE BRANDA
-                        window.location.href = 'branda.html';
-                        return;
-                    }
-                } catch (err) {
-                    console.error('Error checking user:', err);
-                }
+    function safeSetItem(key, value) {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            console.log('localStorage full, clearing...');
+            clearOldStorage();
+            try {
+                localStorage.setItem(key, value);
+                return true;
+            } catch (e2) {
+                console.error('Cannot save to localStorage:', e2.message);
+                return false;
             }
-            
-            // User belum login - tampilkan form login
-            console.log('User belum login, tampilkan form login');
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('mainContainer').style.display = 'block';
-        });
+        }
+    }
+
+    function safeGetItem(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function clearOldStorage() {
+        try {
+            const sessionId = safeGetItem('userSessionId');
+            const loginAttempts = safeGetItem('loginAttempts');
+            const lockoutEndTime = safeGetItem('lockoutEndTime');
+            localStorage.clear();
+            if (sessionId) safeSetItem('userSessionId', sessionId);
+            if (loginAttempts) safeSetItem('loginAttempts', loginAttempts);
+            if (lockoutEndTime) safeSetItem('lockoutEndTime', lockoutEndTime);
+        } catch (e) {
+            console.log('Storage clear attempt:', e.message);
+        }
     }
 
     // ============================================
-    // LOCK TIMER
+    // KEAMANAN: DEVICE INFO
     // ============================================
-    let lockTimerInterval = null;
+    function getDeviceInfo() {
+        const ua = navigator.userAgent;
+        let device = 'Unknown Device';
+        let browser = 'Unknown Browser';
+
+        if (/iPhone|iPad|iPod/i.test(ua)) {
+            device = 'iOS Device';
+        } else if (/Android/i.test(ua)) {
+            device = 'Android Device';
+        } else if (/Windows/i.test(ua)) {
+            device = 'Windows PC';
+        } else if (/Mac/i.test(ua)) {
+            device = 'Mac';
+        } else if (/Linux/i.test(ua)) {
+            device = 'Linux PC';
+        }
+
+        if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) {
+            browser = 'Chrome';
+        } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+            browser = 'Safari';
+        } else if (/Firefox/i.test(ua)) {
+            browser = 'Firefox';
+        } else if (/Edg/i.test(ua)) {
+            browser = 'Edge';
+        }
+
+        return `${device} (${browser})`;
+    }
+
+    // ============================================
+    // KEAMANAN: LOGIN ATTEMPT TRACKING
+    // ============================================
+    function getLoginAttempts() {
+        const data = safeGetItem('loginAttempts');
+        if (data) {
+            try {
+                const parsed = JSON.parse(data);
+                if (Date.now() - parsed.timestamp > SECURITY_CONFIG.ATTEMPT_RESET_TIME) {
+                    return { count: 0, timestamp: Date.now() };
+                }
+                return parsed;
+            } catch (e) {
+                return { count: 0, timestamp: Date.now() };
+            }
+        }
+        return { count: 0, timestamp: Date.now() };
+    }
+
+    function incrementLoginAttempt() {
+        const attempts = getLoginAttempts();
+        const newCount = attempts.count + 1;
+        safeSetItem('loginAttempts', JSON.stringify({
+            count: newCount,
+            timestamp: Date.now()
+        }));
+        return newCount;
+    }
+
+    function resetLoginAttempts() {
+        safeSetItem('loginAttempts', JSON.stringify({ count: 0, timestamp: Date.now() }));
+    }
+
+    function getLockoutEndTime() {
+        const endTime = safeGetItem('lockoutEndTime');
+        return endTime ? parseInt(endTime) : 0;
+    }
+
+    function setLockoutEndTime(time) {
+        safeSetItem('lockoutEndTime', time.toString());
+    }
+
+    function clearLockoutEndTime() {
+        localStorage.removeItem('lockoutEndTime');
+    }
+
+    // ============================================
+    // KEAMANAN: SCREEN LOCK FUNCTIONS
+    // ============================================
+    function showScreenLock() {
+        isScreenLocked = true;
+        const overlay = document.getElementById('securityLockOverlay');
+        overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+        startLockTimer();
+    }
+
+    function hideScreenLock() {
+        isScreenLocked = false;
+        const overlay = document.getElementById('securityLockOverlay');
+        overlay.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+        if (lockTimerInterval) {
+            clearInterval(lockTimerInterval);
+            lockTimerInterval = null;
+        }
+    }
 
     function startLockTimer() {
         const timerDisplay = document.getElementById('lockTimer');
         
         function updateTimer() {
-            const endTime = parseInt(localStorage.getItem('lockoutEndTime') || '0');
+            const endTime = getLockoutEndTime();
             const remaining = endTime - Date.now();
             
             if (remaining <= 0) {
-                document.getElementById('securityLockOverlay').classList.remove('active');
-                document.getElementById('loadingScreen').classList.add('hidden');
-                document.getElementById('mainContainer').style.display = 'block';
-                localStorage.removeItem('lockoutEndTime');
-                localStorage.removeItem('loginAttempts');
-                if (lockTimerInterval) clearInterval(lockTimerInterval);
+                hideScreenLock();
+                resetLoginAttempts();
+                clearLockoutEndTime();
                 return;
             }
             
@@ -745,306 +1072,760 @@
         lockTimerInterval = setInterval(updateTimer, 1000);
     }
 
+    function updateAttemptDots(count) {
+        const dots = document.querySelectorAll('.attempt-dot');
+        dots.forEach((dot, index) => {
+            if (index < count) {
+                dot.classList.add('failed');
+            } else {
+                dot.classList.remove('failed');
+            }
+        });
+    }
+
     // ============================================
-    // TAB FUNCTIONS
+    // KEAMANAN: SESSION KICK FUNCTIONS
     // ============================================
+    function showSessionKick(deviceInfo) {
+        const overlay = document.getElementById('sessionKickOverlay');
+        const deviceInfoEl = document.getElementById('kickDeviceInfo');
+        
+        if (deviceInfo) {
+            deviceInfoEl.textContent = deviceInfo;
+        }
+        
+        overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+    }
+
+    function handleSessionKick() {
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+            sessionUnsubscribe = null;
+        }
+        
+        auth.signOut().then(() => {
+            window.location.reload();
+        }).catch(() => {
+            window.location.reload();
+        });
+    }
+
+    // ============================================
+    // KEAMANAN: SESSION MONITORING
+    // ============================================
+    function startSessionMonitor(userId) {
+        currentUserId = userId;
+        localSessionId = safeGetItem('userSessionId');
+        
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+        }
+        
+        sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
+            (doc) => {
+                if (!doc.exists) return;
+                
+                const data = doc.data();
+                const serverSessionId = data.currentSessionId;
+                const serverDevice = data.currentDevice;
+                
+                if (serverSessionId && serverSessionId !== localSessionId) {
+                    console.log('Session mismatch detected - another device logged in');
+                    
+                    if (sessionUnsubscribe) {
+                        sessionUnsubscribe();
+                        sessionUnsubscribe = null;
+                    }
+                    
+                    showSessionKick(serverDevice || 'Perangkat lain');
+                }
+            },
+            (error) => {
+                console.error('Session monitor error:', error);
+            }
+        );
+    }
+
+    function stopSessionMonitor() {
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+            sessionUnsubscribe = null;
+        }
+        currentUserId = null;
+    }
+
+    // ============================================
+    // KEAMANAN: CHECK LOCKOUT ON PAGE LOAD
+    // ============================================
+    function checkLockoutStatus() {
+        const endTime = getLockoutEndTime();
+        const attempts = getLoginAttempts();
+        
+        updateAttemptDots(attempts.count);
+        
+        if (endTime && Date.now() < parseInt(endTime)) {
+            showScreenLock();
+            return true;
+        }
+        
+        if (endTime && Date.now() >= parseInt(endTime)) {
+            clearLockoutEndTime();
+            resetLoginAttempts();
+        }
+        
+        return false;
+    }
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function generateSessionId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function setJoinDate() {
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('id-ID', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        const joinedInput = document.getElementById('register-joined');
+        if (joinedInput) joinedInput.value = dateStr;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setJoinDate();
+        checkLockoutStatus();
+        
+        const video = document.getElementById('bg-video');
+        if (video) {
+            video.play().catch(() => {
+                video.style.display = 'none';
+            });
+        }
+    });
+
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('register-password');
+        const toggleIcon = document.getElementById('togglePassword');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    function showMessage(msg, type) {
+        const messageBox = document.getElementById('message-box');
+        messageBox.textContent = msg;
+        messageBox.className = `message ${type}`;
+        messageBox.style.display = 'block';
+        setTimeout(() => { messageBox.style.display = 'none'; }, 5000);
+    }
+
     function openTab(evt, tabName) {
-        document.querySelectorAll('.form-container').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.form-container').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
         document.getElementById(tabName).classList.add('active');
         evt.currentTarget.classList.add('active');
-        hideMessage();
-    }
-
-    // ============================================
-    // MESSAGE FUNCTIONS
-    // ============================================
-    function showMessage(text, type) {
-        const box = document.getElementById('message-box');
-        box.textContent = text;
-        box.className = 'message ' + type;
-        box.style.display = 'block';
-    }
-
-    function hideMessage() {
         document.getElementById('message-box').style.display = 'none';
     }
 
-    // ============================================
-    // LOGIN ATTEMPT TRACKING
-    // ============================================
-    function getLoginAttempts() {
-        const data = localStorage.getItem('loginAttempts');
-        return data ? JSON.parse(data) : { count: 0, timestamp: Date.now() };
-    }
-
-    function incrementLoginAttempt() {
-        const attempts = getLoginAttempts();
-        const newCount = attempts.count + 1;
-        localStorage.setItem('loginAttempts', JSON.stringify({ count: newCount, timestamp: Date.now() }));
-        return newCount;
-    }
-
-    function resetLoginAttempts() {
-        localStorage.setItem('loginAttempts', JSON.stringify({ count: 0, timestamp: Date.now() }));
+    function setLoading(button, isLoading) {
+        const spinner = button.querySelector('.spinner');
+        const text = button.querySelector('span');
+        if (isLoading) {
+            button.disabled = true;
+            spinner.style.display = 'block';
+            text.textContent = 'Memproses...';
+        } else {
+            button.disabled = false;
+            spinner.style.display = 'none';
+            text.textContent = button.id === 'loginBtn' ? 'Masuk' : 'Daftar Sekarang';
+        }
     }
 
     // ============================================
-    // FORM LOGIN
+    // FUNGSI MODAL PILIH SUMBER FOTO
     // ============================================
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value;
-        const btn = document.getElementById('loginBtn');
-        
-        // Cek lockout
-        const lockoutEnd = localStorage.getItem('lockoutEndTime');
-        if (lockoutEnd && Date.now() < parseInt(lockoutEnd)) {
-            showMessage('Akun dikunci. Tunggu beberapa menit.', 'error');
+    
+    // Variable untuk menyimpan file yang dipilih
+    let selectedPhotoFile = null;
+
+    // Buka modal pilihan sumber foto
+    function openPhotoSourceModal() {
+        const modal = document.getElementById('photoSourceModal');
+        const permissionDenied = document.getElementById('permissionDenied');
+        modal.classList.add('active');
+        permissionDenied.classList.remove('show');
+        document.body.classList.add('no-scroll');
+    }
+
+    // Tutup modal
+    function closePhotoSourceModal() {
+        const modal = document.getElementById('photoSourceModal');
+        modal.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    }
+
+    // ============================================
+    // FUNGSI KAMERA LANGSUNG (TANPA MODAL)
+    // ============================================
+    
+    // Buka kamera langsung saat foto diklik - KOMPATIBEL SEMUA PERANGKAT
+    function openCameraDirect() {
+        // Cek apakah baru saja long press (untuk galeri)
+        if (isLongPress) {
+            console.log('⚠️ Skip openCameraDirect karena long press aktif');
             return;
         }
         
-        btn.disabled = true;
-        btn.querySelector('span').textContent = 'Memproses...';
-        btn.querySelector('.spinner').style.display = 'inline-block';
+        console.log('📷 Membuka kamera langsung...');
+        triggerCamera();
+    }
+    
+    // Buka galeri dari context menu (tekan lama)
+    function openGalleryFromContext(event) {
+        event.preventDefault();
+        console.log('📁 Membuka galeri dari context menu...');
+        openGallery();
+    }
+    
+    // ============================================
+    // LONG PRESS DETECTION UNTUK MOBILE
+    // ============================================
+    let longPressTimer = null;
+    let isLongPress = false;
+    const photoContainer = document.querySelector('.photo-preview-container');
+    
+    if (photoContainer) {
+        // Touch start - mulai timer
+        photoContainer.addEventListener('touchstart', function(e) {
+            isLongPress = false;
+            longPressTimer = setTimeout(function() {
+                isLongPress = true;
+                console.log('📱 Long press terdeteksi, buka galeri...');
+                openGallery();
+            }, 500); // 500ms = tekan lama
+        }, { passive: true });
+        
+        // Touch end - batalkan timer jika belum long press
+        photoContainer.addEventListener('touchend', function(e) {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            
+            // Reset isLongPress setelah sedikit delay
+            if (isLongPress) {
+                setTimeout(function() {
+                    isLongPress = false;
+                }, 300);
+            }
+        }, { passive: true });
+        
+        // Touch move - batalkan timer
+        photoContainer.addEventListener('touchmove', function(e) {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        }, { passive: true });
+    }
+
+    // Buka kamera dengan izin (untuk modal)
+    async function openCamera() {
+        const permissionDenied = document.getElementById('permissionDenied');
+        const cameraInput = document.getElementById('cameraInput');
+        
+        // Cek apakah HTTPS atau localhost
+        const isSecureContext = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        
+        // Deteksi mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        console.log('Is Secure Context:', isSecureContext);
+        console.log('Is Mobile:', isMobile);
+        
+        // Di mobile, langsung buka camera input
+        if (isMobile) {
+            console.log('📱 Mobile detected, langsung buka kamera...');
+            closePhotoSourceModal();
+            if (cameraInput) {
+                cameraInput.click();
+            }
+            return;
+        }
+        
+        // Di desktop, cek izin dulu
+        if (!isSecureContext) {
+            showMessage('Kamera hanya bisa diakses di HTTPS atau localhost', 'warning');
+            closePhotoSourceModal();
+            return;
+        }
         
         try {
-            // Login dengan Firebase
-            const userCredential = await auth.signInWithEmailAndPassword(email, password);
-            const user = userCredential.user;
+            // Request izin kamera
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            // Stop stream karena hanya untuk cek izin
+            stream.getTracks().forEach(track => track.stop());
             
-            // Ambil data user
-            const userDoc = await db.collection('users').doc(user.uid).get();
+            console.log('✅ Izin kamera diberikan');
+            permissionDenied.classList.remove('show');
+            closePhotoSourceModal();
             
-            if (!userDoc.exists) {
-                throw new Error('Data user tidak ditemukan');
+            // Buka input kamera
+            if (cameraInput) {
+                cameraInput.click();
             }
-            
-            const userData = userDoc.data();
-            
-            // Generate session ID
-            const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            
-            // Update session di database
-            await db.collection('users').doc(user.uid).update({
-                currentSessionId: sessionId,
-                currentDevice: navigator.userAgent,
-                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Simpan ke localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            localStorage.setItem('userSessionId', sessionId);
-            localStorage.setItem('userId', user.uid);
-            
-            // Reset login attempts
-            resetLoginAttempts();
-            
-            showMessage('Login berhasil! Mengalihkan...', 'success');
-            
-            // Redirect ke branda
-            setTimeout(() => {
-                window.location.href = 'branda.html';
-            }, 1000);
             
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('❌ Izin kamera ditolak:', error.name, error.message);
             
-            const attempts = incrementLoginAttempt();
-            
-            if (attempts >= SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
-                const lockoutEnd = Date.now() + SECURITY_CONFIG.LOCKOUT_DURATION;
-                localStorage.setItem('lockoutEndTime', lockoutEnd.toString());
-                showMessage('Terlalu banyak percobaan. Akun dikunci 5 menit.', 'error');
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                // Tampilkan pesan izin ditolak
+                permissionDenied.classList.add('show');
+                showMessage('Izin kamera ditolak. Silakan izinkan akses kamera di pengaturan browser.', 'warning');
+            } else if (error.name === 'NotFoundError') {
+                showMessage('Kamera tidak ditemukan di perangkat ini.', 'error');
+                closePhotoSourceModal();
             } else {
-                let errorMsg = 'Login gagal. ';
-                if (error.code === 'auth/user-not-found') {
-                    errorMsg += 'Email tidak terdaftar.';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorMsg += 'Password salah.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMsg += 'Email tidak valid.';
-                } else {
-                    errorMsg += error.message;
-                }
-                errorMsg += ` (${attempts}/3 percobaan)`;
-                showMessage(errorMsg, 'error');
+                showMessage('Tidak dapat mengakses kamera: ' + error.message, 'error');
+                closePhotoSourceModal();
+            }
+        }
+    }
+
+    // Buka galeri
+    function openGallery() {
+        closePhotoSourceModal();
+        const galleryInput = document.getElementById('galleryInput');
+        if (galleryInput) {
+            galleryInput.click();
+            console.log('📁 Gallery input triggered');
+        }
+    }
+    
+    // ============================================
+    // FUNGSI BUKA KAMERA - MULTI BROWSER SUPPORT
+    // ============================================
+    
+    // Fungsi utama untuk buka kamera di SEMUA perangkat
+    async function triggerCamera() {
+        const cameraInput = document.getElementById('cameraInput');
+        const frontCameraInput = document.getElementById('frontCameraInput');
+        
+        // Deteksi tipe perangkat dan browser
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        console.log('📱 Device Info:', { isMobile, isIOS, isAndroid });
+        
+        // Untuk SEMUA perangkat - langsung trigger input dengan capture
+        // Browser modern akan otomatis membuka kamera karena capture attribute
+        if (cameraInput) {
+            cameraInput.click();
+            return;
+        }
+        
+        // Fallback ke front camera input
+        if (frontCameraInput) {
+            frontCameraInput.click();
+            return;
+        }
+        
+        showMessage('Tidak dapat membuka kamera', 'error');
+    }
+
+    // Buka pengaturan aplikasi
+    function openAppSettings() {
+        alert('Untuk mengaktifkan izin kamera:\n\n1. Buka Pengaturan browser\n2. Cari izin/situs web\n3. Aktifkan akses Kamera\n4. Muat ulang halaman ini');
+    }
+
+    // Preview foto saat dipilih
+    function previewPhoto(input) {
+        const preview = document.getElementById('photoPreview');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            // Validasi tipe file
+            if (!file.type.startsWith('image/')) {
+                showMessage('Pilih file gambar yang valid!', 'error');
+                input.value = '';
+                return;
             }
             
-            btn.disabled = false;
-            btn.querySelector('span').textContent = 'Masuk';
-            btn.querySelector('.spinner').style.display = 'none';
+            // Validasi ukuran (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('Ukuran gambar maksimal 5MB!', 'error');
+                input.value = '';
+                return;
+            }
+            
+            // Simpan file untuk digunakan saat submit
+            selectedPhotoFile = file;
+            console.log('Foto dipilih:', file.name, 'ukuran:', file.size, 'bytes');
+            
+            // Tampilkan preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Update preview saat nama diubah (untuk avatar default)
+    document.getElementById('register-nama').addEventListener('input', function() {
+        const preview = document.getElementById('photoPreview');
+        const currentSrc = preview.src;
+        
+        // Hanya update jika masih pakai avatar default
+        if (currentSrc.includes('ui-avatars.com')) {
+            const nama = this.value || 'U';
+            preview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=4e73df&color=fff&size=200`;
+        }
+    });
+
+    // Kompresi gambar sebelum upload
+    function compressImage(file, maxWidth, maxHeight, quality) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Hitung ukuran baru proporsional
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert ke base64 dengan quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    console.log('Gambar dikompres:', img.width + 'x' + img.height, '->', width + 'x' + height);
+                    console.log('Panjang string:', dataUrl.length);
+                    resolve(dataUrl);
+                };
+                img.onerror = (err) => reject(err);
+            };
+            reader.onerror = (err) => reject(err);
+        });
+    }
+
+    // Fallback jika kompresi gagal
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    // Clear old storage on page load
+    clearOldStorage();
+
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            localSessionId = safeGetItem('userSessionId');
+            
+            if (localSessionId) {
+                startSessionMonitor(user.uid);
+            }
+        } else {
+            stopSessionMonitor();
         }
     });
 
     // ============================================
-    // FORM REGISTER
+    // REGISTER FORM - DENGAN PERBAIKAN FOTO
     // ============================================
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        const nama = document.getElementById('register-nama').value.trim().toUpperCase();
+        const btn = document.getElementById('registerBtn');
+        setLoading(btn, true);
+
+        const nama = document.getElementById('register-nama').value.trim();
+        const titel = document.getElementById('register-titel').value;
+        const status = document.getElementById('register-status').value;
         const telepon = document.getElementById('register-telepon').value.trim();
         const email = document.getElementById('register-email').value.trim();
         const password = document.getElementById('register-password').value;
+        const picFile = selectedPhotoFile; // Gunakan file yang sudah dipilih
         const platKode = document.getElementById('plat-kode').value;
         const platNomor = document.getElementById('plat-nomor').value.trim().toUpperCase();
         const platHuruf = document.getElementById('plat-huruf').value.trim().toUpperCase();
-        const profilePic = document.getElementById('register-pic-data').value;
-        
-        const btn = document.getElementById('registerBtn');
-        
-        btn.disabled = true;
-        btn.querySelector('span').textContent = 'Mendaftarkan...';
-        btn.querySelector('.spinner').style.display = 'inline-block';
-        
+        const dateStr = document.getElementById('register-joined').value;
+
+        // Validasi Plat
+        if (!platKode) {
+            setLoading(btn, false);
+            return showMessage("Harap pilih kode plat.", "error");
+        }
+        if (!platNomor) {
+            setLoading(btn, false);
+            return showMessage("Harap isi nomor plat.", "error");
+        }
+        if (!platHuruf) {
+            setLoading(btn, false);
+            return showMessage("Harap isi huruf plat.", "error");
+        }
+
+        // Format: DK 1234 AA
+        const platMobilFinal = platKode + " " + platNomor + " " + platHuruf;
+        const newSessionId = generateSessionId();
+        const deviceInfo = getDeviceInfo();
+
         try {
-            // Create user dengan Firebase Auth
+            // Create user di Firebase Auth
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             const user = userCredential.user;
+
+            // ============================================
+            // PROSES FOTO PROFIL - DENGAN KOMPRESI
+            // ============================================
+            let profilePicUrl = '';
             
-            // Format plat
-            const nopol = platKode + ' ' + platNomor + ' ' + platHuruf;
+            if (picFile) {
+                try {
+                    // Kompres gambar ke 200x200, quality 70%
+                    console.log('Memproses foto profil...');
+                    profilePicUrl = await compressImage(picFile, 200, 200, 0.7);
+                    console.log('Foto berhasil dikompres, panjang string:', profilePicUrl.length);
+                } catch (compressError) {
+                    console.log('Kompresi gagal, coba langsung:', compressError.message);
+                    try {
+                        profilePicUrl = await fileToBase64(picFile);
+                    } catch (base64Error) {
+                        console.log('Base64 juga gagal:', base64Error.message);
+                    }
+                }
+            }
             
-            // Generate session ID
-            const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            // Jika tidak ada foto atau gagal proses, gunakan avatar default
+            if (!profilePicUrl || profilePicUrl === '') {
+                profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=4e73df&color=fff&size=200`;
+                console.log('Menggunakan avatar default');
+            }
             
-            // Save user data ke Firestore
-            await db.collection('users').doc(user.uid).set({
-                nama: nama,
-                nohp: telepon,
+            console.log('Foto profil final, panjang:', profilePicUrl.length);
+
+            // ============================================
+            // SIMPAN KE FIRESTORE
+            // ============================================
+            const userData = {
+                nama: nama.toUpperCase(),
+                titel: titel,
+                telepon: telepon,
                 email: email,
-                nopol: nopol,
-                titel: 'ANGGOTA',
-                status: 'ONLINE',
-                profilePicUrl: profilePic || '',
-                joined: new Date().toISOString().split('T')[0],
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                currentSessionId: sessionId,
-                currentDevice: navigator.userAgent,
-                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            });
+                password: password,
+                platMobil: platMobilFinal,
+                status: status,
+                bergabung: dateStr,
+                profilePicUrl: profilePicUrl,
+                role: 'anggota',
+                currentSessionId: newSessionId,
+                currentDevice: deviceInfo,
+                loginHistory: firebase.firestore.FieldValue.arrayUnion({
+                    sessionId: newSessionId,
+                    device: deviceInfo,
+                    timestamp: new Date().toISOString(),
+                    action: 'register'
+                }),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
             
-            // Simpan ke localStorage
-            localStorage.setItem('userData', JSON.stringify({
-                nama: nama,
-                nohp: telepon,
-                email: email,
-                nopol: nopol,
-                titel: 'ANGGOTA',
-                profilePicUrl: profilePic || ''
-            }));
-            localStorage.setItem('userSessionId', sessionId);
-            localStorage.setItem('userId', user.uid);
+            console.log('Menyimpan data user...');
+            await db.collection('users').doc(user.uid).set(userData);
+            console.log('Data berhasil disimpan!');
+
+            // Save session locally
+            safeSetItem('userSessionId', newSessionId);
+
+            // Reset login attempts on successful registration
+            resetLoginAttempts();
+            clearLockoutEndTime();
+
+            showMessage('Registrasi berhasil! Mengalihkan...', 'success');
             
-            showMessage('Pendaftaran berhasil! Mengalihkan...', 'success');
+            // Start session monitoring
+            startSessionMonitor(user.uid);
             
-            // Redirect ke branda
+            // Set pending redirect
+            pendingRedirect = true;
+            
+            // Redirect ke branda.html
             setTimeout(() => {
                 window.location.href = 'branda.html';
-            }, 1000);
-            
+            }, 1500);
+
         } catch (error) {
             console.error('Register error:', error);
-            
-            let errorMsg = 'Pendaftaran gagal. ';
+            let msg = error.message;
             if (error.code === 'auth/email-already-in-use') {
-                errorMsg += 'Email sudah terdaftar.';
+                msg = 'Email sudah terdaftar. Silakan login.';
             } else if (error.code === 'auth/weak-password') {
-                errorMsg += 'Password minimal 6 karakter.';
+                msg = 'Password terlalu lemah. Minimal 6 karakter.';
             } else if (error.code === 'auth/invalid-email') {
-                errorMsg += 'Email tidak valid.';
-            } else {
-                errorMsg += error.message;
+                msg = 'Format email tidak valid.';
             }
-            showMessage(errorMsg, 'error');
+            showMessage(msg, 'error');
+            setLoading(btn, false);
+        }
+    });
+
+    // ============================================
+    // LOGIN FORM - WITH SECURITY
+    // ============================================
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (isScreenLocked) {
+            showMessage('Akses dikunci. Silakan tunggu.', 'error');
+            return;
+        }
+        
+        const btn = document.getElementById('loginBtn');
+        setLoading(btn, true);
+
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const newSessionId = generateSessionId();
+        const deviceInfo = getDeviceInfo();
+
+        try {
+            // Login
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            // Update session dan device info
+            await db.collection('users').doc(user.uid).update({
+                currentSessionId: newSessionId,
+                currentDevice: deviceInfo,
+                password: password,
+                status: 'ONLINE',
+                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                loginHistory: firebase.firestore.FieldValue.arrayUnion({
+                    sessionId: newSessionId,
+                    device: deviceInfo,
+                    timestamp: new Date().toISOString(),
+                    action: 'login'
+                })
+            });
+
+            // Save session locally
+            safeSetItem('userSessionId', newSessionId);
+
+            // Reset login attempts on successful login
+            resetLoginAttempts();
+            clearLockoutEndTime();
+
+            showMessage('Login berhasil! Mengalihkan...', 'success');
+
+            // Start session monitoring
+            startSessionMonitor(user.uid);
             
-            btn.disabled = false;
-            btn.querySelector('span').textContent = 'Daftar Sekarang';
-            btn.querySelector('.spinner').style.display = 'none';
+            // Set pending redirect
+            pendingRedirect = true;
+            
+            // Redirect ke branda.html
+            setTimeout(() => {
+                window.location.href = 'branda.html';
+            }, 1500);
+
+        } catch (error) {
+            console.error('Login error:', error);
+            
+            // INCREMENT LOGIN ATTEMPT
+            const attempts = incrementLoginAttempt();
+            updateAttemptDots(attempts);
+            
+            let msg = 'Email atau password salah.';
+            if (error.code === 'auth/user-not-found') {
+                msg = 'Email tidak terdaftar.';
+            } else if (error.code === 'auth/wrong-password') {
+                msg = 'Password salah.';
+            } else if (error.code === 'auth/invalid-email') {
+                msg = 'Format email tidak valid.';
+            } else if (error.code === 'auth/too-many-requests') {
+                msg = 'Terlalu banyak percobaan. Coba lagi nanti.';
+            }
+            
+            // Show remaining attempts
+            const remaining = SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS - attempts;
+            if (remaining > 0) {
+                msg += ` (${remaining} percobaan tersisa)`;
+            }
+            
+            showMessage(msg, 'error');
+            
+            // CHECK IF MAX ATTEMPTS REACHED
+            if (attempts >= SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
+                const lockoutEnd = Date.now() + SECURITY_CONFIG.LOCKOUT_DURATION;
+                setLockoutEndTime(lockoutEnd);
+                
+                showMessage('Terlalu banyak percobaan gagal! Layar akan dikunci.', 'warning');
+                
+                setTimeout(() => {
+                    showScreenLock();
+                }, 1000);
+            }
+            
+            setLoading(btn, false);
         }
     });
 
     // ============================================
     // RESET PASSWORD
     // ============================================
-    async function resetPassword() {
-        const email = document.getElementById('login-email').value.trim();
-        
-        if (!email) {
-            showMessage('Masukkan email terlebih dahulu', 'warning');
+    function resetPassword() {
+        if (isScreenLocked) {
+            showMessage('Akses dikunci. Tidak dapat reset password.', 'error');
             return;
         }
         
-        try {
-            await auth.sendPasswordResetEmail(email);
-            showMessage('Email reset password telah dikirim!', 'success');
-        } catch (error) {
-            showMessage('Gagal mengirim email: ' + error.message, 'error');
+        const email = prompt('Masukkan email Anda untuk reset password:');
+        if (email) {
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    showMessage(`Link reset password dikirim ke ${email}`, 'success');
+                })
+                .catch((error) => {
+                    showMessage(error.message, 'error');
+                });
         }
     }
-
-    // ============================================
-    // FOTO PROFIL FUNCTIONS
-    // ============================================
-    function openCameraDirect() {
-        document.getElementById('cameraInput').click();
-    }
-
-    function openGalleryFromContext(e) {
-        e.preventDefault();
-        document.getElementById('galleryInput').click();
-    }
-
-    function openCamera() {
-        closePhotoSourceModal();
-        document.getElementById('cameraInput').click();
-    }
-
-    function openGallery() {
-        closePhotoSourceModal();
-        document.getElementById('galleryInput').click();
-    }
-
-    function closePhotoSourceModal() {
-        document.getElementById('photoSourceModal').classList.remove('active');
-    }
-
-    function previewPhoto(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('photoPreview').src = e.target.result;
-                document.getElementById('register-pic-data').value = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    // ============================================
-    // TOGGLE PASSWORD VISIBILITY
-    // ============================================
-    function togglePasswordVisibility() {
-        const input = document.getElementById('register-password');
-        const icon = document.querySelector('.password-toggle');
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
-    }
-
-    // ============================================
-    // SET TANGGAL BERGABUNG
-    // ============================================
-    document.getElementById('register-joined').value = new Date().toISOString().split('T')[0];
 </script>
 
 </body>
