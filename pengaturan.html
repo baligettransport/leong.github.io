@@ -149,6 +149,7 @@
             padding: 14px 16px; 
             border-bottom: 1px solid rgba(0,0,0,0.05); 
             transition: all 0.3s;
+            cursor: pointer;
         }
         .setting-item:last-child { border-bottom: none; }
         .setting-info { flex: 1; }
@@ -271,8 +272,157 @@
         .arrow { color: var(--gray); font-size: 0.8rem; }
 
         /* ============================================
-           RESPONSIVE UNTUK MOBILE @350px
+           MODAL STYLES
            ============================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 380px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title { font-weight: 700; font-size: 1.1rem; color: var(--dark); }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            transition: all 0.3s;
+        }
+        .modal-close:active { background: rgba(0,0,0,0.1); }
+        
+        .modal-body { padding: 16px; }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-modal:active { transform: scale(0.98); }
+        .btn-modal:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-modal.danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .btn-modal.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+
+        /* FAQ Item */
+        .faq-item {
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .faq-question {
+            padding: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--dark);
+        }
+        .faq-question:active { background: rgba(0,0,0,0.05); }
+        .faq-answer {
+            padding: 0 12px 12px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            line-height: 1.5;
+            display: none;
+        }
+        .faq-item.open .faq-answer { display: block; }
+        .faq-item.open .faq-question i { transform: rotate(180deg); }
+
+        /* Permission Guide */
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .permission-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        .permission-icon.location { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .permission-icon.notification { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+        .permission-icon.camera { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+        .permission-info { flex: 1; }
+        .permission-name { font-weight: 600; font-size: 0.85rem; color: var(--dark); }
+        .permission-desc { font-size: 0.7rem; color: var(--gray); }
+
+        /* Responsive */
         @media (max-width: 350px) {
             .header { padding: 8px 12px; }
             .header-title { font-size: 1rem; }
@@ -286,6 +436,8 @@
             
             .slider-container { padding: 12px 14px; }
             .stat-value { font-size: 1rem; }
+            
+            .modal-content { margin: 10px; }
         }
     </style>
 </head>
@@ -293,6 +445,167 @@
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal Ubah Password -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-key" style="color: var(--primary); margin-right: 8px;"></i> Ubah Password</h3>
+                <button class="modal-close" onclick="closeModal('passwordModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-lock" style="color: var(--gray); margin-right: 6px;"></i> Password Lama</label>
+                        <input type="password" id="oldPassword" placeholder="Masukkan password lama" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock" style="color: var(--gray); margin-right: 6px;"></i> Password Baru</label>
+                        <input type="password" id="newPassword" placeholder="Masukkan password baru" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock" style="color: var(--gray); margin-right: 6px;"></i> Konfirmasi Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Ulangi password baru" required>
+                    </div>
+                    <button type="submit" class="btn-modal" id="btnChangePassword">
+                        <i class="fas fa-save"></i> Simpan Password
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Kelola Izin -->
+    <div class="modal-overlay" id="permissionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-shield-alt" style="color: var(--primary); margin-right: 8px;"></i> Kelola Izin Aplikasi</h3>
+                <button class="modal-close" onclick="closeModal('permissionModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.8rem; color: var(--gray); margin-bottom: 16px;">
+                    Untuk mengubah izin aplikasi, buka pengaturan browser Anda:
+                </p>
+                
+                <div class="permission-item">
+                    <div class="permission-icon location"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="permission-info">
+                        <div class="permission-name">Lokasi</div>
+                        <div class="permission-desc">Untuk fitur tracking dan peta</div>
+                    </div>
+                </div>
+                
+                <div class="permission-item">
+                    <div class="permission-icon notification"><i class="fas fa-bell"></i></div>
+                    <div class="permission-info">
+                        <div class="permission-name">Notifikasi</div>
+                        <div class="permission-desc">Untuk info job dan pesan</div>
+                    </div>
+                </div>
+                
+                <div class="permission-item">
+                    <div class="permission-icon camera"><i class="fas fa-camera"></i></div>
+                    <div class="permission-info">
+                        <div class="permission-name">Kamera</div>
+                        <div class="permission-desc">Untuk foto profil</div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(99, 102, 241, 0.1); border-radius: 10px; padding: 12px; margin-top: 16px;">
+                    <p style="font-size: 0.75rem; color: var(--dark); margin-bottom: 8px;">
+                        <strong><i class="fas fa-info-circle" style="color: var(--primary);"></i> Cara membuka pengaturan:</strong>
+                    </p>
+                    <p style="font-size: 0.7rem; color: var(--gray); line-height: 1.6;">
+                        <strong>Chrome:</strong> Tap 🔒 di URL bar → Izin situs<br>
+                        <strong>Safari:</strong> Pengaturan → Safari → Situs web<br>
+                        <strong>Firefox:</strong> Tap 🔒 di URL bar → Izin
+                    </p>
+                </div>
+                
+                <button class="btn-modal success" style="margin-top: 16px;" onclick="requestPermissions()">
+                    <i class="fas fa-check-circle"></i> Minta Izin Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Bantuan FAQ -->
+    <div class="modal-overlay" id="faqModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-question-circle" style="color: var(--primary); margin-right: 8px;"></i> Bantuan & FAQ</h3>
+                <button class="modal-close" onclick="closeModal('faqModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Bagaimana cara mengubah foto profil?</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem; transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Buka halaman Profil, lalu klik pada foto profil Anda. Pilih "Kamera" untuk mengambil foto langsung atau "Galeri" untuk memilih foto dari penyimpanan.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Mengapa lokasi saya tidak akurat?</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem; transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Pastikan GPS perangkat Anda aktif dan izin lokasi sudah diberikan. Aktifkan "High Accuracy GPS" di pengaturan untuk akurasi lebih tinggi. Pastikan juga Anda berada di area dengan sinyal GPS yang baik.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Bagaimana cara mendaftar job?</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem; transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Buka menu "Job BGT" di navigation bar bawah. Pilih job yang tersedia, lalu klik tombol "Daftar" atau "Ambil Job". Pastikan profil Anda lengkap sebelum mendaftar.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Bagaimana cara menghubungi admin?</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem; transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Anda bisa menghubungi admin melalui menu Pesan di halaman Beranda, atau klik ikon headset di pojok kanan atas halaman Beranda untuk bantuan langsung.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Mengapa saya tidak bisa login?</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem; transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Pastikan email dan password sudah benar. Jika lupa password, klik "Lupa Password" di halaman login. Jika akun Anda login di perangkat lain, Anda akan otomatis logout dari perangkat sebelumnya.
+                    </div>
+                </div>
+                
+                <div style="background: rgba(16, 185, 129, 0.1); border-radius: 10px; padding: 12px; margin-top: 16px; text-align: center;">
+                    <p style="font-size: 0.75rem; color: var(--dark); margin-bottom: 8px;">
+                        <strong>Butuh bantuan lebih lanjut?</strong>
+                    </p>
+                    <a href="bantuan.html" style="text-decoration: none;">
+                        <button class="btn-modal success" style="padding: 10px;">
+                            <i class="fas fa-headset"></i> Hubungi Admin
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- App Container -->
     <div class="app-container" id="mainApp">
@@ -429,14 +742,14 @@
                     </div>
                     <i class="fas fa-chevron-right arrow"></i>
                 </div>
-                <div class="setting-item" onclick="showToast('info', 'Fitur ubah password akan segera hadir')">
+                <div class="setting-item" onclick="openModal('passwordModal')">
                     <div class="setting-info">
                         <div class="setting-title">Ubah Password</div>
                         <div class="setting-desc">Ganti password akun Anda</div>
                     </div>
                     <i class="fas fa-chevron-right arrow"></i>
                 </div>
-                <div class="setting-item" onclick="showToast('info', 'Buka pengaturan browser untuk mengubah izin')">
+                <div class="setting-item" onclick="openModal('permissionModal')">
                     <div class="setting-info">
                         <div class="setting-title">Kelola Izin Aplikasi</div>
                         <div class="setting-desc">Atur izin lokasi, notifikasi, dll</div>
@@ -457,7 +770,7 @@
                     </div>
                     <span style="color: var(--success); font-size: 0.75rem; font-weight: 600;">Terbaru</span>
                 </div>
-                <div class="setting-item" onclick="showToast('info', 'Halaman bantuan akan segera hadir')">
+                <div class="setting-item" onclick="openModal('faqModal')">
                     <div class="setting-info">
                         <div class="setting-title">Bantuan & FAQ</div>
                         <div class="setting-desc">Pertanyaan yang sering diajukan</div>
@@ -506,7 +819,7 @@
         // STATE MANAGEMENT
         // ==========================================
         let settings = {
-            backgroundTracking: true,  // DEFAULT AKTIF
+            backgroundTracking: true,
             gps: true,
             notif: false,
             updateInterval: 30
@@ -543,6 +856,119 @@
                 setTimeout(() => toast.remove(), 300); 
             }, 4000);
         }
+
+        // ==========================================
+        // MODAL FUNCTIONS
+        // ==========================================
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // ==========================================
+        // FAQ TOGGLE
+        // ==========================================
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            faqItem.classList.toggle('open');
+        }
+
+        // ==========================================
+        // REQUEST PERMISSIONS
+        // ==========================================
+        async function requestPermissions() {
+            // Request location permission
+            if (navigator.geolocation) {
+                try {
+                    const position = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+                    });
+                    showToast('success', 'Izin Lokasi', 'Izin lokasi berhasil diberikan');
+                } catch (e) {
+                    showToast('error', 'Izin Lokasi', 'Izin lokasi ditolak');
+                }
+            }
+
+            // Request notification permission
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    showToast('success', 'Izin Notifikasi', 'Izin notifikasi berhasil diberikan');
+                } else {
+                    showToast('error', 'Izin Notifikasi', 'Izin notifikasi ditolak');
+                }
+            }
+
+            closeModal('permissionModal');
+        }
+
+        // ==========================================
+        // CHANGE PASSWORD
+        // ==========================================
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const btn = document.getElementById('btnChangePassword');
+
+            // Validation
+            if (newPassword !== confirmPassword) {
+                showToast('error', 'Error', 'Password baru tidak cocok');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showToast('error', 'Error', 'Password minimal 6 karakter');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const user = auth.currentUser;
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPassword);
+                
+                // Re-authenticate
+                await user.reauthenticateWithCredential(credential);
+                
+                // Update password
+                await user.updatePassword(newPassword);
+                
+                showToast('success', 'Berhasil', 'Password berhasil diubah');
+                closeModal('passwordModal');
+                document.getElementById('passwordForm').reset();
+                
+            } catch (error) {
+                console.error('Error changing password:', error);
+                
+                let errorMessage = 'Gagal mengubah password';
+                if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Password lama salah';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password baru terlalu lemah';
+                }
+                
+                showToast('error', 'Error', errorMessage);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Simpan Password';
+            }
+        });
 
         // ==========================================
         // UI UPDATE FUNCTIONS
@@ -594,7 +1020,6 @@
                 settings = { ...settings, ...parsed };
             }
             
-            // Pastikan background tracking selalu true saat load
             settings.backgroundTracking = true;
             
             document.getElementById('toggleBackground').checked = settings.backgroundTracking;
@@ -642,17 +1067,13 @@
         }
 
         // ==========================================
-        // WAKE LOCK - Keep screen/device awake
+        // WAKE LOCK
         // ==========================================
         async function requestWakeLock() {
             if ('wakeLock' in navigator) {
                 try {
                     wakeLock = await navigator.wakeLock.request('screen');
                     console.log('🔋 Wake Lock acquired');
-                    
-                    wakeLock.addEventListener('release', () => {
-                        console.log('🔋 Wake Lock released');
-                    });
                 } catch (err) {
                     console.log('Wake Lock error:', err.message);
                 }
@@ -699,7 +1120,6 @@
             const now = Date.now();
             const minInterval = settings.updateInterval * 1000;
             
-            // Throttle updates based on interval
             if (now - lastUpdateTime < minInterval && watchId !== null) {
                 return;
             }
@@ -715,7 +1135,6 @@
             updateCountUI();
             updateLocationToFirebase(lat, lng, accuracy);
             
-            // Show toast only for manual updates
             if (watchId === null) {
                 showToast('success', 'Berhasil', 'Lokasi berhasil diperbarui');
             }
@@ -738,7 +1157,6 @@
             
             showToast('error', 'Error', errorMessage);
             
-            // Reset button state
             const btn = document.getElementById('btnUpdate');
             const btnText = document.getElementById('btnText');
             btn.disabled = false;
@@ -751,7 +1169,6 @@
             maximumAge: 0
         };
 
-        // Manual update
         function manualUpdate() {
             if (!navigator.geolocation) {
                 showToast('error', 'Error', 'Browser tidak mendukung geolokasi');
@@ -801,10 +1218,8 @@
                 return;
             }
             
-            // Stop existing watch
             stopBackgroundTracking();
             
-            // Start watching position
             const options = {
                 ...geoOptions,
                 enableHighAccuracy: settings.gps,
@@ -817,10 +1232,8 @@
                 options
             );
             
-            // Request wake lock to keep device awake
             requestWakeLock();
             
-            // Get initial position immediately
             navigator.geolocation.getCurrentPosition(
                 handlePosition,
                 handlePositionError,
@@ -859,23 +1272,15 @@
         // PAGE VISIBILITY HANDLING
         // ==========================================
         document.addEventListener('visibilitychange', async () => {
-            if (document.hidden) {
-                console.log('📱 App moved to background');
-            } else {
-                console.log('📱 App returned to foreground');
+            if (!document.hidden && settings.backgroundTracking) {
+                await requestWakeLock();
                 
-                // Re-acquire wake lock if tracking is enabled
-                if (settings.backgroundTracking) {
-                    await requestWakeLock();
-                    
-                    // Get fresh location
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                            handlePosition,
-                            handlePositionError,
-                            { ...geoOptions, enableHighAccuracy: settings.gps }
-                        );
-                    }
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        handlePosition,
+                        handlePositionError,
+                        { ...geoOptions, enableHighAccuracy: settings.gps }
+                    );
                 }
             }
         });
@@ -894,10 +1299,8 @@
         async function handleLogout() {
             if (!confirm('Apakah Anda yakin ingin keluar?')) return;
             
-            // Stop tracking
             stopBackgroundTracking();
             
-            // Update Firebase status
             if (currentUser) {
                 try {
                     await db.collection('users').doc(currentUser.uid).update({
@@ -922,7 +1325,6 @@
         function initApp() {
             loadSettings();
             
-            // AUTO START BACKGROUND TRACKING
             if (settings.backgroundTracking) {
                 startBackgroundTracking();
             }
