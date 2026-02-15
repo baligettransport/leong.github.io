@@ -11,37 +11,62 @@
     
     <style>
         :root {
-            --primary: #0ea5e9;
-            --primary-dark: #0284c7;
-            --primary-darker: #0369a1;
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
             --secondary: #8b5cf6;
             --accent: #f59e0b;
             --success: #10b981;
             --danger: #ef4444;
-            --whatsapp: #25D366;
-            --dark: #0f172a;
-            --dark-light: #1e293b;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --sky-light: #f0f9ff;
+            --sky-medium: #e0f2fe;
+            --sky-soft: #bae6fd;
+            --dark: #1e293b;
+            --dark-light: #334155;
             --gray: #64748b;
             --gray-light: #94a3b8;
             --white: #ffffff;
-            --sky-light: #e0f2fe;
-            --sky-medium: #bae6fd;
-            --sky-dark: #7dd3fc;
-            --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+            --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+            --gradient-sky: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 30%, #f0f9ff 100%);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(180deg, var(--sky-light) 0%, var(--sky-medium) 40%, var(--sky-dark) 100%);
+            background: var(--gradient-sky);
+            color: var(--dark);
+            position: relative;
         }
 
-        /* App Container */
+        /* Subtle animated clouds background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(186, 230, 253, 0.6) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(224, 242, 254, 0.8) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 60% 70%, rgba(186, 230, 253, 0.4) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: cloudFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-10px) translateY(-5px); }
+        }
+
+        /* Main App */
         .app-container {
             width: 100%;
             height: 100%;
-            position: relative;
         }
 
         /* Header */
@@ -51,24 +76,32 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(14, 165, 233, 0.95);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
-            padding: 12px 16px;
+            -webkit-backdrop-filter: blur(20px);
+            padding: 14px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(79, 70, 229, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .header-title { font-size: 1.1rem; font-weight: 700; color: white; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-title { 
+            font-size: 1.15rem; 
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
         .back-btn {
-            width: 38px;
-            height: 38px;
-            background: rgba(255,255,255,0.2);
+            width: 42px;
+            height: 42px;
+            background: rgba(79, 70, 229, 0.08);
             border: none;
-            border-radius: 10px;
-            color: white;
+            border-radius: 12px;
+            color: var(--primary);
             font-size: 1rem;
             cursor: pointer;
             display: flex;
@@ -76,16 +109,15 @@
             justify-content: center;
             transition: all 0.2s;
         }
-        .back-btn:hover { background: rgba(255,255,255,0.3); }
-        .back-btn:active { background: rgba(255,255,255,0.4); transform: scale(0.95); }
+        .back-btn:active { background: rgba(79, 70, 229, 0.15); transform: scale(0.95); }
         .header-right { display: flex; align-items: center; gap: 8px; }
         .header-btn {
-            width: 38px;
-            height: 38px;
-            background: rgba(255,255,255,0.2);
+            width: 42px;
+            height: 42px;
+            background: rgba(79, 70, 229, 0.08);
             border: none;
-            border-radius: 10px;
-            color: white;
+            border-radius: 12px;
+            color: var(--primary);
             font-size: 1rem;
             cursor: pointer;
             display: flex;
@@ -93,8 +125,7 @@
             justify-content: center;
             transition: all 0.2s;
         }
-        .header-btn:hover { background: rgba(255,255,255,0.3); }
-        .header-btn:active { background: rgba(255,255,255,0.4); }
+        .header-btn:active { background: rgba(79, 70, 229, 0.15); }
 
         /* Map */
         #map {
@@ -109,59 +140,64 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(20px);
-            border-radius: 20px 20px 0 0;
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px 24px 0 0;
             padding: 16px;
             z-index: 1000;
-            max-height: 50vh;
+            max-height: 55vh;
             overflow-y: auto;
             transition: transform 0.3s ease;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
         }
-        .map-panel.collapsed { transform: translateY(calc(100% - 50px)); }
+        .map-panel.collapsed { transform: translateY(calc(100% - 55px)); }
         .map-panel-handle {
-            width: 40px;
-            height: 4px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 2px;
-            margin: 0 auto 12px;
+            width: 45px;
+            height: 5px;
+            background: rgba(79, 70, 229, 0.15);
+            border-radius: 3px;
+            margin: 0 auto 14px;
             cursor: pointer;
         }
         .map-panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
         .map-panel-title {
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             color: var(--dark);
+        }
+        .map-panel-title i {
+            color: var(--primary);
         }
         .live-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            font-size: 0.7rem;
-            background: rgba(16, 185, 129, 0.15);
+            gap: 6px;
+            font-size: 0.72rem;
+            background: rgba(16, 185, 129, 0.1);
             color: var(--success);
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 9999px;
+            font-weight: 600;
         }
         .live-dot {
-            width: 6px;
-            height: 6px;
+            width: 7px;
+            height: 7px;
             background: var(--success);
             border-radius: 50%;
             animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
         }
 
         /* Stats */
@@ -169,42 +205,52 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
         .map-stat {
-            background: rgba(14, 165, 233, 0.1);
-            border-radius: 12px;
-            padding: 12px 8px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(79, 70, 229, 0.08);
+            border-radius: 14px;
+            padding: 14px 10px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
         .map-stat-value {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: var(--primary-darker);
         }
         .map-stat-label {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             color: var(--gray);
-            margin-top: 2px;
+            margin-top: 3px;
+            font-weight: 500;
         }
         .map-stat.online .map-stat-value { color: var(--success); }
         .map-stat.offline .map-stat-value { color: var(--gray); }
+        .map-stat.total .map-stat-value {
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
         /* Legend */
         .map-legend {
             display: flex;
-            gap: 15px;
-            margin-bottom: 12px;
-            padding: 10px;
-            background: rgba(14, 165, 233, 0.05);
-            border-radius: 10px;
+            gap: 16px;
+            margin-bottom: 14px;
+            padding: 12px;
+            background: rgba(79, 70, 229, 0.04);
+            border-radius: 12px;
+            border: 1px solid rgba(79, 70, 229, 0.06);
         }
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.75rem;
+            gap: 8px;
+            font-size: 0.78rem;
             color: var(--dark);
+            font-weight: 500;
         }
         .legend-dot {
             width: 12px;
@@ -213,151 +259,151 @@
         }
         .legend-dot.online {
             background: var(--success);
-            box-shadow: 0 0 10px var(--success);
+            box-shadow: 0 0 8px var(--success);
         }
         .legend-dot.offline {
             background: var(--gray);
             opacity: 0.6;
         }
-        .legend-dot.me {
-            background: var(--primary);
-            border: 2px solid var(--accent);
-        }
 
         /* Member List */
         .member-list-title {
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.78rem;
+            font-weight: 700;
             color: var(--gray);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .map-member-list {
-            max-height: 180px;
+            max-height: 200px;
             overflow-y: auto;
         }
         .map-member-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: rgba(0,0,0,0.02);
-            border-radius: 10px;
-            margin-bottom: 6px;
+            gap: 12px;
+            padding: 12px;
+            background: var(--white);
+            border: 1px solid rgba(79, 70, 229, 0.06);
+            border-radius: 14px;
+            margin-bottom: 8px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        .map-member-item:hover { background: rgba(0,0,0,0.05); }
-        .map-member-item:active { background: rgba(0,0,0,0.08); }
+        .map-member-item:active { 
+            background: rgba(79, 70, 229, 0.05);
+            border-color: var(--primary-light);
+        }
         .map-member-avatar {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid rgba(14, 165, 233, 0.3);
+            border: 2px solid rgba(79, 70, 229, 0.1);
         }
         .map-member-info { flex: 1; }
         .map-member-name {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
             color: var(--dark);
         }
         .map-member-status {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--gray);
         }
         .map-member-dot {
-            width: 10px;
-            height: 10px;
+            width: 11px;
+            height: 11px;
             border-radius: 50%;
         }
         .map-member-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
-        .map-member-dot.offline { background: var(--gray); }
+        .map-member-dot.offline { background: var(--gray); opacity: 0.5; }
 
         /* Custom Marker */
         .custom-marker {
             border-radius: 50%;
             border: 3px solid white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.25);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: transform 0.2s;
         }
+        .custom-marker.online { background: var(--success); }
+        .custom-marker.offline { background: var(--gray); opacity: 0.7; }
 
         /* Leaflet Popup */
         .leaflet-popup-content-wrapper {
-            background: white !important;
-            border-radius: 12px !important;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+            background: var(--white) !important;
+            border-radius: 16px !important;
+            color: var(--dark) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
+            border: 1px solid rgba(79, 70, 229, 0.08) !important;
         }
-        .leaflet-popup-tip { background: white !important; }
-        .leaflet-popup-content { margin: 12px 15px !important; }
-        .popup-content { min-width: 180px; }
+        .leaflet-popup-tip { background: var(--white) !important; }
+        .leaflet-popup-content { margin: 14px 16px !important; }
+        .popup-content { min-width: 200px; }
         .popup-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
         .popup-avatar {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--primary);
+            border: 2px solid rgba(79, 70, 229, 0.15);
         }
         .popup-name {
             font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 3px;
+            font-size: 1rem;
+            margin-bottom: 4px;
             color: var(--dark);
         }
         .popup-status {
-            font-size: 0.7rem;
-            padding: 2px 8px;
+            font-size: 0.72rem;
+            padding: 3px 10px;
             border-radius: 9999px;
+            font-weight: 600;
             display: inline-block;
         }
-        .popup-status.online { background: rgba(16, 185, 129, 0.15); color: var(--success); }
-        .popup-status.offline { background: rgba(100, 116, 139, 0.15); color: var(--gray); }
+        .popup-status.online { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+        .popup-status.offline { background: rgba(100, 116, 139, 0.12); color: var(--gray); }
         .popup-info {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--gray);
         }
         .popup-info div {
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
-        .popup-info i { width: 14px; color: var(--primary); }
+        .popup-info i { width: 16px; color: var(--primary); }
 
         /* Locate Button */
         .locate-btn {
             position: fixed;
-            bottom: 240px;
+            bottom: 260px;
             right: 16px;
-            width: 48px;
-            height: 48px;
-            background: white;
-            border: none;
+            width: 52px;
+            height: 52px;
+            background: var(--white);
+            border: 1px solid rgba(79, 70, 229, 0.1);
             border-radius: 50%;
             color: var(--primary);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             cursor: pointer;
             z-index: 999;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
             transition: all 0.2s;
-        }
-        .locate-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
         .locate-btn:active {
             transform: scale(0.95);
@@ -368,18 +414,19 @@
         /* Toast */
         .toast {
             position: fixed;
-            top: 70px;
-            left: 12px;
-            right: 12px;
-            background: white;
-            border-radius: 12px;
-            padding: 12px 14px;
+            top: 75px;
+            left: 16px;
+            right: 16px;
+            background: var(--white);
+            border: 1px solid rgba(79, 70, 229, 0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             z-index: 2000;
             animation: slideDown 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         .toast.hidden { display: none; }
         .toast.hiding { animation: slideUp 0.3s ease forwards; }
@@ -391,58 +438,66 @@
             to { transform: translateY(-20px); opacity: 0; }
         }
         .toast-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
-        .toast-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
-        .toast-icon.info { background: rgba(14, 165, 233, 0.15); color: var(--primary); }
-        .toast-icon.warning { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+        .toast-icon.success { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+        .toast-icon.info { background: rgba(79, 70, 229, 0.12); color: var(--primary); }
+        .toast-icon.warning { background: rgba(245, 158, 11, 0.12); color: var(--accent); }
         .toast-content { flex: 1; }
-        .toast-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; color: var(--dark); }
-        .toast-message { font-size: 0.75rem; color: var(--gray); }
+        .toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 3px; color: var(--dark); }
+        .toast-message { font-size: 0.8rem; color: var(--gray); }
 
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             color: var(--gray);
         }
         .empty-state i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+            color: var(--primary-light);
         }
-        .empty-state p { font-size: 0.85rem; }
+        .empty-state p { font-size: 0.9rem; }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(14, 165, 233, 0.3); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: rgba(79, 70, 229, 0.15); border-radius: 2px; }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <!-- App Container -->
-    <div class="app-container">
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
         
         <!-- Header -->
         <header class="header">
             <div class="header-left">
-                <button class="back-btn" onclick="goBack()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
+                <button class="back-btn" onclick="goBack()" aria-label="Kembali"><i class="fas fa-arrow-left"></i></button>
                 <div class="header-title">Peta Anggota</div>
             </div>
             <div class="header-right">
-                <button class="header-btn" onclick="togglePanel()" title="Toggle Panel">
+                <button class="header-btn" onclick="togglePanel()" id="togglePanelBtn" aria-label="Toggle Panel">
                     <i class="fas fa-list"></i>
                 </button>
-                <button class="header-btn" onclick="refreshLocation()" title="Refresh">
+                <button class="header-btn" onclick="refreshLocation()" aria-label="Refresh">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
@@ -452,7 +507,7 @@
         <div id="map"></div>
 
         <!-- Locate Button -->
-        <button class="locate-btn" onclick="locateMe()" title="Lokasi Saya">
+        <button class="locate-btn" onclick="locateMe()" id="locateBtn" aria-label="Lokasi Saya">
             <i class="fas fa-crosshairs"></i>
         </button>
 
@@ -462,8 +517,7 @@
             
             <div class="map-panel-header">
                 <div class="map-panel-title">
-                    <i class="fas fa-users" style="color: var(--primary);"></i> 
-                    Lokasi Anggota
+                    <i class="fas fa-users"></i> Lokasi Anggota
                     <span class="live-indicator">
                         <span class="live-dot"></span> REALTIME
                     </span>
@@ -471,7 +525,7 @@
             </div>
 
             <div class="map-stats">
-                <div class="map-stat">
+                <div class="map-stat total">
                     <div class="map-stat-value" id="statTotal">0</div>
                     <div class="map-stat-label">Total</div>
                 </div>
@@ -488,14 +542,13 @@
             <div class="map-legend">
                 <div class="legend-item"><div class="legend-dot online"></div> Online</div>
                 <div class="legend-item"><div class="legend-dot offline"></div> Offline</div>
-                <div class="legend-item"><div class="legend-dot me"></div> Anda</div>
             </div>
 
             <div class="member-list-title">Anggota dengan Lokasi</div>
             <div class="map-member-list" id="memberList">
                 <div class="empty-state">
                     <i class="fas fa-spinner fa-spin"></i>
-                    <p>Memuat data anggota...</p>
+                    <p>Memuat data...</p>
                 </div>
             </div>
         </div>
@@ -515,13 +568,10 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // ==========================================
-        // FIREBASE CONFIG
-        // ==========================================
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
             authDomain: "cedar-setup-425414-d7.firebaseapp.com",
@@ -533,15 +583,11 @@
         };
 
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ==========================================
-        // STATE
-        // ==========================================
+        // State
         let map = null;
         let markers = {};
-        let currentUser = null;
         let membersUnsubscribe = null;
         let allMembers = [];
 
@@ -550,31 +596,21 @@
         const DEFAULT_LNG = 118.0149;
         const DEFAULT_ZOOM = 5;
 
-        // ==========================================
-        // INISIALISASI
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize map immediately
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
             initMap();
-            
-            // Check auth state
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    updateMyLocation();
-                }
-            });
-            
-            // Load members from Firebase (realtime)
             loadMembersRealtime();
         });
 
-        // ==========================================
-        // FUNGSI MAP
-        // ==========================================
-        
+        // Go Back
+        function goBack() {
+            window.location.href = 'branda.html';
+        }
+
         // Initialize Map
         function initMap() {
+            if (map) return;
+            
             map = L.map('map', {
                 center: [DEFAULT_LAT, DEFAULT_LNG],
                 zoom: DEFAULT_ZOOM,
@@ -608,27 +644,24 @@
         }
 
         // Create Custom Marker Icon
-        function createMarkerIcon(isOnline, isMe) {
-            const size = isMe ? 44 : 36;
-            const bgColor = isMe ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : (isOnline ? '#10b981' : '#94a3b8');
-            const borderColor = isMe ? '#f59e0b' : 'white';
+        function createMarkerIcon(isOnline) {
+            const size = 38;
             
             return L.divIcon({
-                className: 'custom-marker',
+                className: `custom-marker ${isOnline ? 'online' : 'offline'}`,
                 html: `
                     <div style="
                         width: ${size}px;
                         height: ${size}px;
                         border-radius: 50%;
-                        border: 3px solid ${borderColor};
-                        background: ${bgColor};
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                        border: 3px solid white;
+                        background: ${isOnline ? '#10b981' : '#94a3b8'};
+                        box-shadow: 0 3px 12px rgba(0,0,0,0.2);
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        ${isMe ? 'box-shadow: 0 0 15px rgba(14, 165, 233, 0.5);' : ''}
                     ">
-                        <i class="fas fa-user" style="color: white; font-size: ${isMe ? '16px' : '14px'};"></i>
+                        <i class="fas fa-user" style="color: white; font-size: 15px;"></i>
                     </div>
                 `,
                 iconSize: [size, size],
@@ -637,7 +670,7 @@
             });
         }
 
-        // Load Members with Realtime Updates from Firebase
+        // Load Members with Realtime Updates
         function loadMembersRealtime() {
             if (membersUnsubscribe) {
                 membersUnsubscribe();
@@ -657,13 +690,6 @@
                 updateMemberList();
             }, (error) => {
                 console.error('Realtime listener error:', error);
-                // Show error state
-                document.getElementById('memberList').innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p>Gagal memuat data anggota</p>
-                    </div>
-                `;
             });
         }
 
@@ -674,25 +700,24 @@
                 map.removeLayer(marker);
             });
             markers = {};
-
+            
             // Add markers for members with location
             allMembers.forEach(member => {
                 if (member.latitude && member.longitude) {
                     const isOnline = checkOnlineStatus(member);
-                    const isMe = currentUser && member.id === currentUser.uid;
                     
                     const marker = L.marker([member.latitude, member.longitude], {
-                        icon: createMarkerIcon(isOnline, isMe)
+                        icon: createMarkerIcon(isOnline)
                     });
                     
                     // Create popup content
                     const popupContent = `
                         <div class="popup-content">
                             <div class="popup-header">
-                                <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nama || 'User')}&background=0ea5e9&color=fff`}" 
-                                     alt="${member.nama || 'User'}" class="popup-avatar">
+                                <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nama || 'User')}&background=4f46e5&color=fff`}" 
+                                     alt="${member.nama}" class="popup-avatar">
                                 <div>
-                                    <div class="popup-name">${member.nama || 'Unknown'}${isMe ? ' (Anda)' : ''}</div>
+                                    <div class="popup-name">${member.nama || 'Unknown'}</div>
                                     <span class="popup-status ${isOnline ? 'online' : 'offline'}">
                                         ${isOnline ? 'ONLINE' : 'OFFLINE'}
                                     </span>
@@ -753,13 +778,12 @@
             
             list.innerHTML = membersWithLocation.map(member => {
                 const isOnline = checkOnlineStatus(member);
-                const isMe = currentUser && member.id === currentUser.uid;
                 return `
                     <div class="map-member-item" onclick="focusMember('${member.id}')">
-                        <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nama || 'User')}&background=0ea5e9&color=fff`}" 
-                             alt="${member.nama || 'User'}" class="map-member-avatar">
+                        <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nama || 'User')}&background=4f46e5&color=fff`}" 
+                             alt="${member.nama}" class="map-member-avatar">
                         <div class="map-member-info">
-                            <div class="map-member-name">${member.nama || 'Unknown'}${isMe ? ' (Anda)' : ''}</div>
+                            <div class="map-member-name">${member.nama || 'Unknown'}</div>
                             <div class="map-member-status">${isOnline ? 'Online' : 'Offline'}</div>
                         </div>
                         <div class="map-member-dot ${isOnline ? 'online' : 'offline'}"></div>
@@ -792,19 +816,7 @@
                     const lng = position.coords.longitude;
                     
                     map.setView([lat, lng], 15);
-                    
-                    // Update user's location in Firestore
-                    if (currentUser) {
-                        db.collection('users').doc(currentUser.uid).update({
-                            latitude: lat,
-                            longitude: lng,
-                            lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                        }).then(() => {
-                            showToast('success', 'Lokasi Ditemukan', 'Posisi Anda telah diperbarui');
-                        });
-                    } else {
-                        showToast('success', 'Lokasi Ditemukan', 'Posisi Anda telah ditemukan');
-                    }
+                    showToast('success', 'Lokasi Ditemukan', 'Posisi Anda telah ditampilkan');
                 },
                 (error) => {
                     let msg = 'Gagal mendapatkan lokasi';
@@ -814,23 +826,6 @@
                     showToast('warning', 'Error', msg);
                 },
                 { enableHighAccuracy: true, timeout: 10000 }
-            );
-        }
-
-        // Update My Location
-        function updateMyLocation() {
-            if (!navigator.geolocation || !currentUser) return;
-            
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    db.collection('users').doc(currentUser.uid).update({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                },
-                () => {},
-                { enableHighAccuracy: true, timeout: 5000 }
             );
         }
 
@@ -852,15 +847,6 @@
         function togglePanelCollapse() {
             const panel = document.getElementById('mapPanel');
             panel.classList.toggle('collapsed');
-        }
-
-        // Go Back
-        function goBack() {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                window.location.href = 'branda.html';
-            }
         }
 
         // Show Toast
