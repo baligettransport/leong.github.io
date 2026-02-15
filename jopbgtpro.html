@@ -316,6 +316,13 @@
         .route-address:hover { color: var(--primary); }
         .route-address:active { opacity: 0.7; }
         .route-address i { color: var(--primary); font-size: 0.7rem; margin-top: 2px; flex-shrink: 0; }
+        
+        /* Route Address Disabled (untuk tab Semua) */
+        .route-address.disabled {
+            cursor: default;
+            pointer-events: none;
+        }
+        .route-address.disabled:hover { color: var(--text-dark); }
 
         .order-info { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -346,6 +353,90 @@
         /* Empty */
         .empty-state { text-align: center; padding: 60px 20px; color: var(--text-gray); background: var(--bg-card); border-radius: 16px; margin: 0 16px; border: 1px dashed var(--border-light); }
         .empty-state i { font-size: 3rem; margin-bottom: 15px; color: #cbd5e1; }
+
+        /* Photo Preview untuk Selesai */
+        .photo-preview {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 2px solid var(--success);
+        }
+
+        /* Camera Modal */
+        .camera-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .camera-modal.active {
+            display: flex;
+        }
+        .camera-container {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        .camera-video {
+            width: 100%;
+            border-radius: 12px;
+            transform: scaleX(-1);
+        }
+        .camera-canvas {
+            display: none;
+        }
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .camera-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .camera-btn:active { transform: scale(0.9); }
+        .camera-btn.capture {
+            background: white;
+            color: #000;
+        }
+        .camera-btn.cancel {
+            background: #ef4444;
+            color: white;
+        }
+        .camera-btn.confirm {
+            background: #10b981;
+            color: white;
+        }
+        .camera-preview-img {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            display: none;
+        }
+        .camera-instruction {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -367,9 +458,32 @@
         </div>
 
         <div class="order-list" id="orderList">
-            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Memuat data...</p></div>
+            <div class="empty-state"><i class="fas fa-box-open"></i><p>Tidak ada orderan</p></div>
         </div>
 
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="camera-modal" id="cameraModal">
+        <div class="camera-instruction">
+            <i class="fas fa-camera"></i> Foto Selfie dengan Tamu
+        </div>
+        <div class="camera-container">
+            <video class="camera-video" id="cameraVideo" autoplay playsinline></video>
+            <canvas class="camera-canvas" id="cameraCanvas"></canvas>
+            <img class="camera-preview-img" id="cameraPreviewImg">
+        </div>
+        <div class="camera-controls">
+            <button class="camera-btn cancel" id="cancelCameraBtn" onclick="closeCamera()">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="camera-btn capture" id="captureBtn" onclick="capturePhoto()">
+                <i class="fas fa-camera"></i>
+            </button>
+            <button class="camera-btn confirm" id="confirmBtn" onclick="confirmPhoto()" style="display:none;">
+                <i class="fas fa-check"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -377,6 +491,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
 
     <script>
         // Firebase Config
@@ -394,11 +509,149 @@
         const auth = firebase.auth();
         const db = firebase.database();
         const firestore = firebase.firestore();
+        const storage = firebase.storage();
         
-        let currentUserData = null; // Untuk menyimpan data user yang login
-
+        let currentUserId = null;
+        let currentUserData = null;
         let orderData = [];
         let currentFilter = 'all';
+        
+        // Camera variables
+        let cameraStream = null;
+        let capturedPhotoBlob = null;
+        let currentFinishingOrderId = null;
+
+        // ============================================
+        // NOTIFIKASI SUARA - AUDIO EMBEDDED
+        // ============================================
+        
+        // Audio notification base64 (suara ding-ding)
+        const NOTIFICATION_SOUND_BASE64 = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNBrv4AAAAAAAAAAAAAAAAAAAAAP/7UGQAD/AAADSAAAAAIAAANIAAAAQAAAGk9HR5en5+/8AAAAAABB6K6H4IAQe/AAQaCgIFBQN/bwMFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHAAAAAAAAPH/+1KFkC78AAANIAAAAAgAAA0gAAABAAAAaT0dHl6fn7/wAAAAAAEHorofggBB78ABBoKAgUFA39vAwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwcHAAAAAAABAAAA//tQaAIP8AAADSAAAAAIAAANIAAAAQAAAGk9HR5en5+/8AAAAAABB6K6H4IAQe/AAQaCgIFBQN/bwMFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcHAAAAAAAAPH/+1GkCD/AAAA0gAAAACAAADSAAAAEAAABpPR0eXp+fv/AAAAAAAQQeiuh+CAEHvwAEGgoCBQUDf28DBQUDg4KCgcFBQODgoKBwUFA4OCgoHBQUDg4KCgcFBQODgoKBwUFA4OCgoHBwcAAAAAAAEAAA==';
+        
+        // Bunyikan notifikasi suara
+        function playNotificationSound() {
+            try {
+                // Mainkan audio
+                const audio = new Audio(NOTIFICATION_SOUND_BASE64);
+                audio.volume = 1.0;
+                audio.play().catch(e => {
+                    console.log('Audio play failed');
+                });
+                
+                // Juga bunyikan via AudioContext sebagai backup
+                playBeep();
+                
+            } catch (e) {
+                console.log('Audio error:', e);
+                playBeep();
+            }
+        }
+        
+        // Beep dengan AudioContext
+        function playBeep() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Resume audio context jika suspended
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                // Buat oscillator - ding ding
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 880; // A5
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.15);
+                
+                // Bunyi kedua
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    
+                    osc2.frequency.value = 1100; // C#6
+                    osc2.type = 'sine';
+                    
+                    gain2.gain.setValueAtTime(0.5, audioContext.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    
+                    osc2.start(audioContext.currentTime);
+                    osc2.stop(audioContext.currentTime + 0.15);
+                }, 200);
+                
+            } catch (e) {
+                console.log('Beep error:', e);
+            }
+        }
+        
+        // Aktifkan audio setelah user interaksi (untuk mobile)
+        function enableAudioOnInteraction() {
+            const audio = new Audio();
+            audio.play().catch(() => {});
+            
+            if (window.AudioContext || window.webkitAudioContext) {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+            }
+            
+            console.log('🔊 Audio enabled');
+        }
+        
+        // Aktifkan audio saat user klik/tap pertama kali
+        document.addEventListener('click', function initAudio() {
+            enableAudioOnInteraction();
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
+        
+        document.addEventListener('touchstart', function initAudio() {
+            enableAudioOnInteraction();
+            document.removeEventListener('touchstart', initAudio);
+        }, { once: true });
+
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                console.log('User logged in:', currentUserId);
+                
+                // Ambil data user dari Firestore
+                try {
+                    const userDoc = await firestore.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        currentUserData = userDoc.data();
+                        console.log('User data:', currentUserData);
+                    }
+                } catch (err) {
+                    console.error('Error getting user data:', err);
+                }
+            } else {
+                // Cek localStorage
+                const localUserData = localStorage.getItem('userData');
+                if (localUserData) {
+                    try {
+                        currentUserData = JSON.parse(localUserData);
+                        currentUserId = currentUserData.uid || currentUserData.id || 'local-user';
+                        console.log('User data from localStorage:', currentUserData);
+                    } catch(e) {
+                        console.log('Error parsing localStorage');
+                    }
+                }
+            }
+        });
 
         function filterOrders(filter) {
             currentFilter = filter;
@@ -410,17 +663,41 @@
         function renderOrders() {
             const list = document.getElementById('orderList');
             
-            // Filter Logic
             let filtered = orderData;
-            if (currentFilter === 'order') {
-                // Tab Order: HANYA tampilkan order yang TERSEDIA (status: order)
+            
+            // Filter Logic berdasarkan tab
+            if (currentFilter === 'all') {
+                // SEMUA: Tampilkan semua order tanpa filter
+                filtered = orderData;
+            } else if (currentFilter === 'order') {
+                // ORDER: HANYA tampilkan order yang TERSEDIA (status: order)
                 filtered = orderData.filter(o => o.status === 'order');
-            } else if (currentFilter !== 'all') {
-                filtered = orderData.filter(o => o.status === currentFilter);
+            } else if (currentFilter === 'berjalan') {
+                // BERJALAN: HANYA tampilkan order yang diambil driver ini
+                filtered = orderData.filter(o => {
+                    return o.status === 'berjalan' && 
+                           (o.driverId === currentUserId || 
+                            (currentUserData && o.driverName === currentUserData.nama));
+                });
+            } else if (currentFilter === 'selesai') {
+                // SELESAI: Tampilkan order selesai oleh driver ini
+                filtered = orderData.filter(o => {
+                    return o.status === 'selesai' && 
+                           (o.driverId === currentUserId || 
+                            (currentUserData && o.driverName === currentUserData.nama));
+                });
             }
 
             if (filtered.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><p>Tidak ada orderan</p></div>`;
+                let emptyMsg = 'Tidak ada orderan';
+                if (currentFilter === 'berjalan') {
+                    emptyMsg = 'Tidak ada order yang sedang berjalan';
+                } else if (currentFilter === 'selesai') {
+                    emptyMsg = 'Belum ada order yang selesai';
+                } else if (currentFilter === 'order') {
+                    emptyMsg = 'Tidak ada order baru';
+                }
+                list.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><p>${emptyMsg}</p></div>`;
                 return;
             }
 
@@ -429,8 +706,9 @@
                 let badgeClass = 'new';
                 let badgeText = 'ORDER BARU';
                 let btnHtml = '';
+                let isDisabled = false;
                 
-                // Logic untuk SEMUA (hanya lihat, tidak bisa klik)
+                // Logic untuk SEMUA (hanya lihat, tidak bisa klik apapun)
                 if (currentFilter === 'all') {
                     if (o.status === 'order') {
                         badgeClass = 'new'; badgeText = 'ORDER BARU';
@@ -440,6 +718,7 @@
                         badgeClass = 'done'; badgeText = 'SELESAI';
                     }
                     btnHtml = '';
+                    isDisabled = true; // Disable semua klik
                 }
                 // Logic untuk ORDER tab - HANYA order tersedia
                 else if (currentFilter === 'order') {
@@ -449,7 +728,7 @@
                 // Logic untuk BERJALAN tab
                 else if (currentFilter === 'berjalan') {
                     badgeClass = 'progress'; badgeText = 'SEDANG BERJALAN';
-                    btnHtml = `<button class="action-btn finish" onclick="finishOrder(event, '${o.id}')"><i class="fas fa-check-circle"></i> Selesai</button>`;
+                    btnHtml = `<button class="action-btn finish" onclick="openCameraForFinish(event, '${o.id}')"><i class="fas fa-camera"></i> Selesai</button>`;
                 }
                 // Logic untuk SELESAI tab
                 else if (currentFilter === 'selesai') {
@@ -457,8 +736,13 @@
                     btnHtml = '';
                 }
 
-                // Image Logic
-                const imgHtml = o.imageUrl ? `<img src="${o.imageUrl}" class="order-image" alt="Gambar Order">` : '';
+                // Image Logic - Jika ada foto selesai, tampilkan
+                let imgHtml = '';
+                if (o.finishPhoto) {
+                    imgHtml = `<img src="${o.finishPhoto}" class="photo-preview" alt="Foto Selesai">`;
+                } else if (o.imageUrl) {
+                    imgHtml = `<img src="${o.imageUrl}" class="order-image" alt="Gambar Order">`;
+                }
 
                 // Format waktu 12 jam (AM/PM)
                 function formatTime12Hour(timeStr) {
@@ -541,36 +825,49 @@
                     </div>
                 ` : '';
 
-                // DRIVER INFO - untuk status berjalan atau selesai (di tab Semua)
+                // DRIVER INFO
                 const driverName = o.driverName || o.driver || '';
                 const driverPlate = o.driverPlate || o.nopol || o.plat || '';
                 const driverPhone = o.driverPhone || '';
                 
-                // Debug log
-                if (currentFilter === 'all') {
-                    console.log('Order:', o.id, '| Status:', o.status, '| Driver:', driverName, driverPhone, driverPlate);
-                }
-                
                 // Cek apakah ada driver info
                 const hasDriverInfo = (driverName || driverPlate);
+                
+                // Disabled class untuk route address (tab Semua)
+                const disabledClass = isDisabled ? 'disabled' : '';
+                
+                // Phone link atau text biasa
+                let phoneHtml = '';
+                if (isDisabled) {
+                    phoneHtml = teleponCustomer ? `<div class="customer-phone"><i class="fas fa-phone"></i> ${teleponCustomer}</div>` : '';
+                } else {
+                    phoneHtml = teleponCustomer ? `<div class="customer-phone"><a href="tel:${teleponCustomer}"><i class="fas fa-phone"></i> ${teleponCustomer}</a></div>` : '';
+                }
                 
                 // Jika di tab Semua dan ada driver, tampil split view
                 let infoSectionHtml = '';
                 if (currentFilter === 'all' && hasDriverInfo) {
                     // Split view: Customer | Driver
+                    let driverPhoneHtml = '';
+                    if (isDisabled) {
+                        driverPhoneHtml = driverPhone ? `<div class="info-phone"><i class="fas fa-phone"></i> ${driverPhone}</div>` : '';
+                    } else {
+                        driverPhoneHtml = driverPhone ? `<div class="info-phone"><a href="tel:${driverPhone}"><i class="fas fa-phone"></i> ${driverPhone}</a></div>` : '';
+                    }
+                    
                     infoSectionHtml = `
                         <div class="split-info">
                             <!-- Customer -->
                             <div class="info-box customer">
                                 <div class="info-header"><div class="info-avatar"><i class="fas fa-user"></i></div> Customer</div>
                                 <div class="info-name">${namaCustomer}</div>
-                                ${teleponCustomer ? `<div class="info-phone"><a href="tel:${teleponCustomer}"><i class="fas fa-phone"></i> ${teleponCustomer}</a></div>` : ''}
+                                ${phoneHtml}
                             </div>
                             <!-- Driver -->
                             <div class="info-box driver">
                                 <div class="info-header"><div class="info-avatar"><i class="fas fa-user-tie"></i></div> Driver</div>
-                                <div class="info-name">${driverName || 'Driver'} ${driverPhone ? `<a href="tel:${driverPhone}" style="color: #15803d;"><i class="fas fa-phone"></i></a>` : ''}</div>
-                                ${driverPhone ? `<div class="info-phone"><i class="fas fa-phone"></i> ${driverPhone}</div>` : ''}
+                                <div class="info-name">${driverName || 'Driver'}</div>
+                                ${driverPhoneHtml}
                                 ${driverPlate ? `<div class="info-phone"><i class="fas fa-car"></i> ${driverPlate}</div>` : ''}
                             </div>
                         </div>
@@ -586,12 +883,24 @@
                                 <i class="fas fa-user-circle"></i>
                                 ${namaCustomer}
                             </div>
-                            ${teleponCustomer ? `<div class="customer-phone"><i class="fas fa-phone"></i> ${teleponCustomer}</div>` : ''}
+                            ${phoneHtml}
                             ${deskripsiHtml}
                             ${koperHtml}
                             ${keteranganHtml}
                         </div>
                     `;
+                }
+
+                // Route onclick - hanya untuk tab yang tidak disabled
+                let routeClickAttr = '';
+                if (!isDisabled) {
+                    routeClickAttr = `onclick="openNavigation('${encodeURIComponent(o.pickup)}')"`;
+                }
+
+                let dropoffClickAttr = '';
+                if (!isDisabled) {
+                    routeClickAttr = `onclick="openNavigation('${encodeURIComponent(o.pickup)}')"`;
+                    dropoffClickAttr = `onclick="openNavigation('${encodeURIComponent(o.dropoff)}')"`;
                 }
 
                 return `
@@ -614,14 +923,14 @@
                             
                             <div class="route-point">
                                 <div class="route-label">Jemput</div>
-                                <div class="route-address" onclick="openNavigation('${encodeURIComponent(o.pickup)}')">
+                                <div class="route-address ${disabledClass}" ${routeClickAttr}>
                                     <i class="fas fa-location-arrow"></i>
                                     <span>${o.pickup}</span>
                                 </div>
                             </div>
                             <div class="route-point">
                                 <div class="route-label">Tujuan</div>
-                                <div class="route-address" onclick="openNavigation('${encodeURIComponent(o.dropoff)}')">
+                                <div class="route-address ${disabledClass}" ${dropoffClickAttr}>
                                     <i class="fas fa-flag-checkered"></i>
                                     <span>${o.dropoff}</span>
                                 </div>
@@ -651,8 +960,12 @@
         let previousOrderCount = 0;
         let hasInitializedNotif = false;
 
-        // Fungsi untuk bicara "Ada job baru"
+        // Fungsi untuk bicara "Ada job baru" + suara notifikasi
         function speakNewJob() {
+            // Mainkan suara notifikasi DULU
+            playNotificationSound();
+            
+            // Lalu bicara dengan TTS
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const message = 'Ada job baru';
@@ -668,7 +981,10 @@
                     utterance.voice = indonesianVoice;
                 }
                 
-                window.speechSynthesis.speak(utterance);
+                // Delay sedikit agar suara selesai dulu
+                setTimeout(() => {
+                    window.speechSynthesis.speak(utterance);
+                }, 500);
             }
         }
 
@@ -688,23 +1004,18 @@
             let newOrderCount = 0;
             
             if (data) {
-                // Ubah object menjadi array dengan key sebagai ID fallback
                 Object.keys(data).forEach(key => {
                     const item = data[key];
-                    // Skip data undefined/tidak valid
                     if (!item || key === 'undefined') return;
-                    // Gunakan key Firebase jika field id tidak ada
                     if (!item.id) {
                         item.id = key;
                     }
                     orderData.push(item);
                     
-                    // Count order baru
                     if (item.status === 'order') {
                         newOrderCount++;
                     }
                 });
-                // Sort berdasarkan timestamp (terbaru di atas)
                 orderData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             }
             
@@ -728,9 +1039,7 @@
             previousOrderCount = newOrderCount;
             hasInitializedNotif = true;
             
-            console.log('Order data:', orderData);
-            console.log('Current filter:', currentFilter);
-            renderOrders(); // Render ulang list setiap ada perubahan data
+            renderOrders();
         });
 
         // 2. Ambil Order (Update status di Database)
@@ -741,36 +1050,23 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengambil...';
             
-            console.log('Mengambil order ID:', id);
-            
-            // Ambil data user yang login
-            const user = auth.currentUser;
-            console.log('Current Firebase user:', user);
-            
             let driverName = 'Driver';
             let driverPhone = '-';
             let driverPlate = '-';
             
             try {
-                if (user) {
-                    // Ambil data user dari Firestore
-                    const userDoc = await firestore.collection('users').doc(user.uid).get();
-                    const userData = userDoc.exists ? userDoc.data() : null;
-                    console.log('User data dari Firestore:', userData);
-                    
-                    if (userData) {
-                        driverName = userData.nama || userData.name || userData.displayName || 'Driver';
-                        driverPhone = userData.nohp || userData.phone || userData.telepon || userData.hp || '-';
-                        driverPlate = userData.nopol || userData.plat || userData.nomorPolisi || '-';
-                    }
+                // Ambil dari currentUserData
+                if (currentUserData) {
+                    driverName = currentUserData.nama || currentUserData.name || currentUserData.displayName || 'Driver';
+                    driverPhone = currentUserData.nohp || currentUserData.phone || currentUserData.telepon || currentUserData.hp || '-';
+                    driverPlate = currentUserData.nopol || currentUserData.plat || currentUserData.nomorPolisi || '-';
                 }
                 
-                // Fallback: cek localStorage untuk data user
+                // Fallback: cek localStorage
                 const localUserData = localStorage.getItem('userData');
                 if (localUserData) {
                     try {
                         const parsed = JSON.parse(localUserData);
-                        console.log('User data dari localStorage:', parsed);
                         if (driverName === 'Driver') {
                             driverName = parsed.nama || parsed.name || 'Driver';
                         }
@@ -780,9 +1076,7 @@
                         if (driverPlate === '-') {
                             driverPlate = parsed.nopol || parsed.plat || '-';
                         }
-                    } catch(e) {
-                        console.log('Error parsing localStorage:', e);
-                    }
+                    } catch(e) {}
                 }
                 
                 // Jika masih belum ada nama driver, tanya manual
@@ -793,23 +1087,17 @@
                     }
                 }
                 
-                console.log('Driver info yang akan disimpan:', { driverName, driverPhone, driverPlate });
-                
-                // Siapkan data driver
                 const driverData = {
                     status: 'berjalan',
-                    driverId: user?.uid || 'unknown',
+                    driverId: currentUserId || 'unknown',
                     driverName: driverName,
                     driverPhone: driverPhone,
                     driverPlate: driverPlate,
                     takenAt: firebase.database.ServerValue.TIMESTAMP
                 };
                 
-                // Update order dengan info driver
                 await db.ref('orders/' + id).update(driverData);
                 
-                console.log('Order berhasil diambil:', id);
-                console.log('Driver data tersimpan:', driverData);
                 alert('Order berhasil diambil oleh ' + driverName + '!');
                 
             } catch (err) {
@@ -820,43 +1108,136 @@
             }
         }
 
-        // 3. Selesaikan Order (Update status di Database)
-        function finishOrder(e, id) {
+        // 3. Fungsi Kamera untuk Selesai Order
+        function openCameraForFinish(e, id) {
             e.preventDefault();
-            const btn = e.target.closest('button');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyelesaikan...';
+            currentFinishingOrderId = id;
             
-            db.ref('orders/' + id).update({
-                status: 'selesai'
-            }).then(() => {
-                console.log('Order selesai:', id);
-                alert('Order selesai!');
-            }).catch(err => {
-                console.error("Gagal menyelesaikan:", err);
-                alert("Gagal menyelesaikan: " + err.message);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('cameraVideo');
+            const previewImg = document.getElementById('cameraPreviewImg');
+            const captureBtn = document.getElementById('captureBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            // Reset state
+            previewImg.style.display = 'none';
+            video.style.display = 'block';
+            captureBtn.style.display = 'flex';
+            confirmBtn.style.display = 'none';
+            capturedPhotoBlob = null;
+            
+            modal.classList.add('active');
+            
+            // Buka kamera
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                } 
+            })
+            .then(stream => {
+                cameraStream = stream;
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error('Error accessing camera:', err);
+                alert('Tidak dapat mengakses kamera. Pastikan izin kamera sudah diberikan.');
+                closeCamera();
             });
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
+            const previewImg = document.getElementById('cameraPreviewImg');
+            const captureBtn = document.getElementById('captureBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            // Set canvas size sama dengan video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw video frame ke canvas (mirror)
+            const ctx = canvas.getContext('2d');
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0);
+            
+            // Convert ke blob
+            canvas.toBlob(blob => {
+                capturedPhotoBlob = blob;
+                
+                // Show preview
+                const url = URL.createObjectURL(blob);
+                previewImg.src = url;
+                previewImg.style.display = 'block';
+                video.style.display = 'none';
+                
+                // Show confirm button
+                captureBtn.style.display = 'none';
+                confirmBtn.style.display = 'flex';
+            }, 'image/jpeg', 0.8);
+        }
+
+        function confirmPhoto() {
+            if (!capturedPhotoBlob || !currentFinishingOrderId) return;
+            
+            const btn = event.target.closest('button');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+            
+            // Upload foto ke Firebase Storage
+            const fileName = `finish_photos/${currentFinishingOrderId}_${Date.now()}.jpg`;
+            const storageRef = storage.ref(fileName);
+            
+            storageRef.put(capturedPhotoBlob)
+                .then(snapshot => snapshot.ref.getDownloadURL())
+                .then(downloadURL => {
+                    console.log('Photo uploaded:', downloadURL);
+                    
+                    // Update order status
+                    return db.ref('orders/' + currentFinishingOrderId).update({
+                        status: 'selesai',
+                        finishPhoto: downloadURL,
+                        finishedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                })
+                .then(() => {
+                    alert('Order selesai!');
+                    closeCamera();
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Gagal menyimpan: ' + err.message);
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    btn.disabled = false;
+                });
+        }
+
+        function closeCamera() {
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('cameraVideo');
+            
+            // Stop camera stream
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            
+            video.srcObject = null;
+            modal.classList.remove('active');
+            currentFinishingOrderId = null;
+            capturedPhotoBlob = null;
         }
 
         // Fungsi Buka Navigasi Google Maps
         function openNavigation(address) {
             if (!address) return;
             const decodedAddress = decodeURIComponent(address);
-            // Buka Google Maps dengan navigasi ke alamat tujuan
             const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(decodedAddress)}`;
             window.open(url, '_blank');
         }
-
-        // Auth Check
-        auth.onAuthStateChanged((user) => {
-             if (!user) {
-                 // Opsional: Redirect jika tidak login
-                 // window.location.href = 'index.html'; 
-             }
-        });
     </script>
 </body>
 </html>
