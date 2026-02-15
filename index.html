@@ -69,18 +69,13 @@
             z-index: -1; pointer-events: none;
         }
 
-        /* CONTAINER */
+        /* CONTAINER - TRANSPARAN TANPA CARD PUTIH */
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: transparent;
             padding: 1.5rem;
             width: 100%;
             max-width: 400px;
             margin: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .logo-area { text-align: center; margin-bottom: 1rem; }
@@ -96,11 +91,11 @@
         .tabs { display: flex; margin-bottom: 1.2rem; border-bottom: 2px solid rgba(0,0,0,0.1); }
         .tab-button {
             background: none; border: none; padding: 0.8rem; cursor: pointer;
-            font-size: 0.95rem; font-weight: 700; color: var(--dark-color);
+            font-size: 0.95rem; font-weight: 700; color: rgba(0, 0, 0, 0.6);
             flex-grow: 1; transition: all 0.3s ease-in-out; position: relative;
         }
         .tab-button:hover { color: var(--primary-color); background-color: rgba(78, 115, 223, 0.1); border-radius: 5px 5px 0 0;}
-        .tab-button.active { color: var(--primary-color); }
+        .tab-button.active { color: var(--primary-color); font-weight: 700; }
         .tab-button.active::after {
             content: ''; position: absolute; bottom: -2px; left: 0; width: 100%;
             height: 3px; background-color: var(--primary-color);
@@ -122,7 +117,7 @@
         .form-group input, .form-group select {
             width: 100%; padding: 0.6rem 0.8rem; border: 1px solid rgba(0, 0, 0, 0.15);
             border-radius: 0.4rem; box-sizing: border-box; font-size: 0.9rem;
-            transition: all 0.3s; background: rgba(255, 255, 255, 0.9); color: var(--dark-color);
+            transition: all 0.3s; background: rgba(255, 255, 255, 0.95); color: var(--dark-color);
             font-family: inherit;
         }
 
@@ -699,14 +694,14 @@
     </div>
 
     <div class="tabs">
-        <button class="tab-button" onclick="openTab(event, 'login')">Masuk</button>
-        <button class="tab-button active" onclick="openTab(event, 'register')">Daftar</button>
+        <button class="tab-button active" onclick="openTab(event, 'login')">Masuk</button>
+        <button class="tab-button" onclick="openTab(event, 'register')">Daftar</button>
     </div>
 
     <div id="message-box" class="message"></div>
 
     <!-- FORM LOGIN -->
-    <div id="login" class="form-container">
+    <div id="login" class="form-container active">
         <form id="loginForm">
             <div class="form-group">
                 <label for="login-email"><i class="fas fa-envelope"></i> Email</label>
@@ -732,7 +727,7 @@
     </div>
 
     <!-- FORM REGISTER -->
-    <div id="register" class="form-container active">
+    <div id="register" class="form-container">
         <form id="registerForm">
             
             <!-- ============================================
@@ -743,7 +738,7 @@
                     <i class="fas fa-camera"></i> Foto Profil
                 </label>
                 
-                <div class="photo-preview-container" onclick="openPhotoSourceModal()">
+                <div class="photo-preview-container" onclick="openCameraDirect()" oncontextmenu="openGalleryFromContext(event)">
                     <img id="photoPreview" 
                          class="photo-preview" 
                          src="https://ui-avatars.com/api/?name=U&background=4e73df&color=fff&size=200" 
@@ -753,19 +748,27 @@
                     </div>
                 </div>
                 
-                <p class="photo-hint">Tap foto untuk ambil gambar</p>
+                <p class="photo-hint">Tap foto untuk kamera, tekan lama untuk galeri</p>
                 
-                <!-- Hidden file inputs -->
+                <!-- Hidden file inputs - KAMERA UTAMA -->
                 <input type="file" 
                        id="cameraInput" 
                        class="hidden-file-input" 
                        accept="image/*" 
-                       capture="user"
+                       capture="environment"
                        onchange="previewPhoto(this)">
+                <!-- Input untuk galeri -->
                 <input type="file" 
                        id="galleryInput" 
                        class="hidden-file-input" 
                        accept="image/*"
+                       onchange="previewPhoto(this)">
+                <!-- Input kamera depan (opsional) -->
+                <input type="file" 
+                       id="frontCameraInput" 
+                       class="hidden-file-input" 
+                       accept="image/*" 
+                       capture="user"
                        onchange="previewPhoto(this)">
                 <input type="hidden" id="register-pic-data" value="">
             </div>
@@ -1265,7 +1268,72 @@
         document.body.classList.remove('no-scroll');
     }
 
-    // Buka kamera dengan izin
+    // ============================================
+    // FUNGSI KAMERA LANGSUNG (TANPA MODAL)
+    // ============================================
+    
+    // Buka kamera langsung saat foto diklik - KOMPATIBEL SEMUA PERANGKAT
+    function openCameraDirect() {
+        // Cek apakah baru saja long press (untuk galeri)
+        if (isLongPress) {
+            console.log('⚠️ Skip openCameraDirect karena long press aktif');
+            return;
+        }
+        
+        console.log('📷 Membuka kamera langsung...');
+        triggerCamera();
+    }
+    
+    // Buka galeri dari context menu (tekan lama)
+    function openGalleryFromContext(event) {
+        event.preventDefault();
+        console.log('📁 Membuka galeri dari context menu...');
+        openGallery();
+    }
+    
+    // ============================================
+    // LONG PRESS DETECTION UNTUK MOBILE
+    // ============================================
+    let longPressTimer = null;
+    let isLongPress = false;
+    const photoContainer = document.querySelector('.photo-preview-container');
+    
+    if (photoContainer) {
+        // Touch start - mulai timer
+        photoContainer.addEventListener('touchstart', function(e) {
+            isLongPress = false;
+            longPressTimer = setTimeout(function() {
+                isLongPress = true;
+                console.log('📱 Long press terdeteksi, buka galeri...');
+                openGallery();
+            }, 500); // 500ms = tekan lama
+        }, { passive: true });
+        
+        // Touch end - batalkan timer jika belum long press
+        photoContainer.addEventListener('touchend', function(e) {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            
+            // Reset isLongPress setelah sedikit delay
+            if (isLongPress) {
+                setTimeout(function() {
+                    isLongPress = false;
+                }, 300);
+            }
+        }, { passive: true });
+        
+        // Touch move - batalkan timer
+        photoContainer.addEventListener('touchmove', function(e) {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        }, { passive: true });
+    }
+
+    // Buka kamera dengan izin (untuk modal)
     async function openCamera() {
         const permissionDenied = document.getElementById('permissionDenied');
         const cameraInput = document.getElementById('cameraInput');
@@ -1334,7 +1402,40 @@
         const galleryInput = document.getElementById('galleryInput');
         if (galleryInput) {
             galleryInput.click();
+            console.log('📁 Gallery input triggered');
         }
+    }
+    
+    // ============================================
+    // FUNGSI BUKA KAMERA - MULTI BROWSER SUPPORT
+    // ============================================
+    
+    // Fungsi utama untuk buka kamera di SEMUA perangkat
+    async function triggerCamera() {
+        const cameraInput = document.getElementById('cameraInput');
+        const frontCameraInput = document.getElementById('frontCameraInput');
+        
+        // Deteksi tipe perangkat dan browser
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        console.log('📱 Device Info:', { isMobile, isIOS, isAndroid });
+        
+        // Untuk SEMUA perangkat - langsung trigger input dengan capture
+        // Browser modern akan otomatis membuka kamera karena capture attribute
+        if (cameraInput) {
+            cameraInput.click();
+            return;
+        }
+        
+        // Fallback ke front camera input
+        if (frontCameraInput) {
+            frontCameraInput.click();
+            return;
+        }
+        
+        showMessage('Tidak dapat membuka kamera', 'error');
     }
 
     // Buka pengaturan aplikasi
