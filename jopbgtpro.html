@@ -1088,7 +1088,7 @@
         }
 
         // ============================================
-        // CONFIRM PHOTO - UPLOAD & SAVE
+        // CONFIRM PHOTO - SIMPAN LANGSUNG KE DATABASE (BASE64)
         // ============================================
         async function confirmPhoto() {
             if (!capturedPhotoBlob || !currentFinishingOrderId) {
@@ -1098,43 +1098,21 @@
             
             const btn = event.target.closest('button');
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
             btn.disabled = true;
             
-            console.log('📤 Mengupload foto...');
+            console.log('📤 Menyimpan foto ke database...');
             
             try {
-                let downloadURL = '';
+                // Kompres dan convert ke base64 (langsung ke database, tanpa storage)
+                const base64Photo = await compressAndConvertToBase64(capturedPhotoBlob);
                 
-                // Coba upload ke Firebase Storage
-                try {
-                    const fileName = `finish_photos/${currentFinishingOrderId}_${Date.now()}.jpg`;
-                    const storageRef = storage.ref(fileName);
-                    
-                    const snapshot = await storageRef.put(capturedPhotoBlob);
-                    console.log('✅ Foto uploaded ke storage');
-                    
-                    downloadURL = await snapshot.ref.getDownloadURL();
-                    console.log('📎 Download URL:', downloadURL);
-                    
-                } catch (storageErr) {
-                    console.log('⚠️ Storage tidak tersedia, simpan sebagai base64:', storageErr.message);
-                    
-                    // Fallback: convert blob ke base64
-                    downloadURL = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(capturedPhotoBlob);
-                    });
-                    
-                    console.log('📎 Base64 length:', downloadURL.length);
-                }
+                console.log('✅ Foto berhasil dikompres, size:', base64Photo.length, 'chars');
                 
-                // Update order status
+                // Update order status di Realtime Database
                 await db.ref('orders/' + currentFinishingOrderId).update({
                     status: 'selesai',
-                    finishPhoto: downloadURL,
+                    finishPhoto: base64Photo,
                     finishedAt: firebase.database.ServerValue.TIMESTAMP
                 });
                 
@@ -1151,9 +1129,59 @@
                 }
                 alert(errorMsg);
                 
-                btn.innerHTML = originalHtml;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
                 btn.disabled = false;
             }
+        }
+        
+        // ============================================
+        // KOMPRES DAN CONVERT KE BASE64
+        // ============================================
+        function compressAndConvertToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(blob);
+                
+                img.onload = function() {
+                    URL.revokeObjectURL(url);
+                    
+                    // Buat canvas dengan ukuran yang lebih kecil
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Max width/height untuk kompresi
+                    const maxWidth = 800;
+                    const maxHeight = 600;
+                    
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Hitung rasio
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width = width * ratio;
+                        height = height * ratio;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw image
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert ke base64 dengan kualitas 0.7
+                    const base64 = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    resolve(base64);
+                };
+                
+                img.onerror = function() {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Gagal memuat gambar'));
+                };
+                
+                img.src = url;
+            });
         }
 
         // ============================================
