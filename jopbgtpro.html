@@ -83,10 +83,6 @@
             transition: transform 0.2s;
         }
         .order-card:active { transform: scale(0.99); }
-        .order-card.disabled-card {
-            opacity: 0.6;
-            pointer-events: none;
-        }
         
         .order-content { padding: 12px; }
         
@@ -405,7 +401,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
 
     <script>
+        // ============================================
         // Firebase Config
+        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
             authDomain: "cedar-setup-425414-d7.firebaseapp.com",
@@ -422,6 +420,9 @@
         const firestore = firebase.firestore();
         const storage = firebase.storage();
         
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
         let currentUserId = null;
         let currentUserData = null;
         let orderData = [];
@@ -472,12 +473,16 @@
 
         // Aktifkan audio saat user interaksi
         document.addEventListener('click', function initAudio() {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            if (ctx.state === 'suspended') ctx.resume();
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') ctx.resume();
+            } catch(e) {}
             document.removeEventListener('click', initAudio);
         }, { once: true });
 
-        // Auth state listener
+        // ============================================
+        // AUTH STATE LISTENER
+        // ============================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUserId = user.uid;
@@ -493,16 +498,21 @@
                     console.error('Error getting user data:', err);
                 }
             } else {
+                // Cek localStorage untuk data user
                 const localUserData = localStorage.getItem('userData');
                 if (localUserData) {
                     try {
                         currentUserData = JSON.parse(localUserData);
                         currentUserId = currentUserData.uid || currentUserData.id || 'local-user';
+                        console.log('User from localStorage:', currentUserData);
                     } catch(e) {}
                 }
             }
         });
 
+        // ============================================
+        // FILTER ORDERS
+        // ============================================
         function filterOrders(filter) {
             currentFilter = filter;
             document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
@@ -512,10 +522,18 @@
 
         // Cek apakah order milik driver ini
         function isMyOrder(order) {
-            return (order.driverId && order.driverId === currentUserId) || 
-                   (currentUserData && order.driverName && order.driverName === currentUserData.nama);
+            const myId = currentUserId || '';
+            const myName = (currentUserData && currentUserData.nama) ? currentUserData.nama : '';
+            const orderDriverId = order.driverId || '';
+            const orderDriverName = order.driverName || '';
+            
+            return (orderDriverId && orderDriverId === myId) || 
+                   (orderDriverName && myName && orderDriverName === myName);
         }
 
+        // ============================================
+        // RENDER ORDERS
+        // ============================================
         function renderOrders() {
             const list = document.getElementById('orderList');
             
@@ -523,21 +541,13 @@
             
             // Filter Logic berdasarkan tab
             if (currentFilter === 'all') {
-                // SEMUA: Tampilkan semua order
                 filtered = orderData;
             } else if (currentFilter === 'order') {
-                // ORDER: HANYA tampilkan order yang TERSEDIA (status: order)
                 filtered = orderData.filter(o => o.status === 'order');
             } else if (currentFilter === 'berjalan') {
-                // BERJALAN: HANYA tampilkan order yang diambil driver ini
-                filtered = orderData.filter(o => {
-                    return o.status === 'berjalan' && isMyOrder(o);
-                });
+                filtered = orderData.filter(o => o.status === 'berjalan' && isMyOrder(o));
             } else if (currentFilter === 'selesai') {
-                // SELESAI: Tampilkan order selesai oleh driver ini
-                filtered = orderData.filter(o => {
-                    return o.status === 'selesai' && isMyOrder(o);
-                });
+                filtered = orderData.filter(o => o.status === 'selesai' && isMyOrder(o));
             }
 
             if (filtered.length === 0) {
@@ -554,7 +564,6 @@
                 let badgeText = 'ORDER BARU';
                 let btnHtml = '';
                 let isDisabled = false;
-                let isMyOrderFlag = isMyOrder(o);
                 
                 // Logic untuk SEMUA (hanya lihat)
                 if (currentFilter === 'all') {
@@ -573,10 +582,9 @@
                     badgeClass = 'new'; badgeText = 'TERSEDIA';
                     btnHtml = `<button class="action-btn take" onclick="takeOrder(event, '${o.id}')"><i class="fas fa-hand-holding-heart"></i> Ambil Order</button>`;
                 }
-                // Logic untuk BERJALAN tab - HANYA order milik driver ini
+                // Logic untuk BERJALAN tab
                 else if (currentFilter === 'berjalan') {
                     badgeClass = 'progress'; badgeText = 'SEDANG BERJALAN';
-                    // Tombol Selesai - buka kamera
                     btnHtml = `<button class="action-btn finish" onclick="openCameraForFinish(event, '${o.id}')"><i class="fas fa-camera"></i> Selesai</button>`;
                 }
                 // Logic untuk SELESAI tab
@@ -766,7 +774,9 @@
             `}).join('');
         }
 
-        // --- DATABASE REALTIME ---
+        // ============================================
+        // DATABASE REALTIME LISTENER
+        // ============================================
         let previousOrderCount = 0;
         let hasInitializedNotif = false;
 
@@ -809,7 +819,9 @@
             renderOrders();
         });
 
-        // Ambil Order
+        // ============================================
+        // AMBIL ORDER
+        // ============================================
         async function takeOrder(e, id) {
             e.preventDefault();
             const btn = e.target.closest('button');
@@ -865,9 +877,11 @@
         // ============================================
         // KAMERA UNTUK SELESAI ORDER
         // ============================================
-        function openCameraForFinish(e, id) {
+        async function openCameraForFinish(e, id) {
             e.preventDefault();
             currentFinishingOrderId = id;
+            
+            console.log('📸 Membuka kamera untuk order:', id);
             
             const modal = document.getElementById('cameraModal');
             const video = document.getElementById('cameraVideo');
@@ -884,25 +898,95 @@
             
             modal.classList.add('active');
             
-            // Buka kamera depan (selfie)
-            navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: 'user',
-                    width: { ideal: 640 },
-                    height: { ideal: 480 }
-                } 
-            })
-            .then(stream => {
-                cameraStream = stream;
-                video.srcObject = stream;
-            })
-            .catch(err => {
-                console.error('Error accessing camera:', err);
-                alert('Tidak dapat mengakses kamera. Pastikan izin kamera sudah diberikan.');
+            // Cek apakah getUserMedia tersedia
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Browser tidak mendukung akses kamera. Silakan gunakan browser modern seperti Chrome, Firefox, atau Safari.');
                 closeCamera();
-            });
+                return;
+            }
+            
+            try {
+                let stream = null;
+                
+                // Coba kamera depan (selfie) dulu
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'user',
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        },
+                        audio: false
+                    });
+                    console.log('✅ Kamera depan berhasil dibuka');
+                } catch (frontErr) {
+                    console.log('Kamera depan gagal, coba kamera belakang:', frontErr.message);
+                    
+                    // Fallback ke kamera belakang
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { 
+                                facingMode: 'environment',
+                                width: { ideal: 640 },
+                                height: { ideal: 480 }
+                            },
+                            audio: false
+                        });
+                        console.log('✅ Kamera belakang berhasil dibuka');
+                    } catch (backErr) {
+                        // Fallback terakhir - tanpa constraint
+                        stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: true,
+                            audio: false
+                        });
+                        console.log('✅ Kamera berhasil dibuka (fallback)');
+                    }
+                }
+                
+                if (stream) {
+                    cameraStream = stream;
+                    video.srcObject = stream;
+                    
+                    // Tunggu video ready
+                    video.onloadedmetadata = () => {
+                        video.play().catch(e => console.log('Video play error:', e));
+                        console.log('📹 Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+                    };
+                    
+                    // Play video
+                    await video.play();
+                    console.log('🎥 Video playing');
+                }
+                
+            } catch (err) {
+                console.error('❌ Error accessing camera:', err);
+                
+                let errorMsg = 'Tidak dapat mengakses kamera.\n\n';
+                
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    errorMsg += 'Izin kamera ditolak.\n\nSilakan izinkan akses kamera di pengaturan browser Anda.';
+                } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                    errorMsg += 'Kamera tidak ditemukan di perangkat ini.';
+                } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                    errorMsg += 'Kamera sedang digunakan aplikasi lain.\n\nTutup aplikasi lain yang menggunakan kamera.';
+                } else if (err.name === 'NotSupportedError') {
+                    errorMsg += 'Browser tidak mendukung akses kamera.';
+                } else if (err.name === 'TypeError') {
+                    errorMsg += 'Kesalahan konfigurasi kamera.';
+                } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                    errorMsg += 'Kamera membutuhkan koneksi HTTPS.\n\nGunakan HTTPS atau localhost.';
+                } else {
+                    errorMsg += 'Error: ' + err.message;
+                }
+                
+                alert(errorMsg);
+                closeCamera();
+            }
         }
 
+        // ============================================
+        // CAPTURE PHOTO
+        // ============================================
         function capturePhoto() {
             const video = document.getElementById('cameraVideo');
             const canvas = document.getElementById('cameraCanvas');
@@ -910,11 +994,21 @@
             const captureBtn = document.getElementById('captureBtn');
             const confirmBtn = document.getElementById('confirmBtn');
             
+            console.log('📷 Mengambil foto...');
+            
+            // Cek apakah video sudah ready
+            if (video.videoWidth === 0 || video.videoHeight === 0) {
+                alert('Kamera belum siap. Tunggu beberapa detik lalu coba lagi.');
+                return;
+            }
+            
             // Set canvas size sama dengan video
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             
-            // Draw video frame ke canvas (mirror)
+            console.log('📐 Canvas size:', canvas.width, 'x', canvas.height);
+            
+            // Draw video frame ke canvas (mirror untuk selfie)
             const ctx = canvas.getContext('2d');
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
@@ -922,7 +1016,13 @@
             
             // Convert ke blob
             canvas.toBlob(blob => {
+                if (!blob) {
+                    alert('Gagal mengambil foto. Coba lagi.');
+                    return;
+                }
+                
                 capturedPhotoBlob = blob;
+                console.log('✅ Foto berhasil diambil, size:', blob.size, 'bytes');
                 
                 // Show preview
                 const url = URL.createObjectURL(blob);
@@ -936,58 +1036,127 @@
             }, 'image/jpeg', 0.8);
         }
 
-        function confirmPhoto() {
-            if (!capturedPhotoBlob || !currentFinishingOrderId) return;
+        // ============================================
+        // CONFIRM PHOTO - UPLOAD & SAVE
+        // ============================================
+        async function confirmPhoto() {
+            if (!capturedPhotoBlob || !currentFinishingOrderId) {
+                alert('Tidak ada foto untuk disimpan.');
+                return;
+            }
             
             const btn = event.target.closest('button');
+            const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             btn.disabled = true;
             
-            // Upload foto ke Firebase Storage
-            const fileName = `finish_photos/${currentFinishingOrderId}_${Date.now()}.jpg`;
-            const storageRef = storage.ref(fileName);
+            console.log('📤 Mengupload foto...');
             
-            storageRef.put(capturedPhotoBlob)
-                .then(snapshot => snapshot.ref.getDownloadURL())
-                .then(downloadURL => {
-                    console.log('Photo uploaded:', downloadURL);
+            try {
+                let downloadURL = '';
+                
+                // Coba upload ke Firebase Storage
+                try {
+                    const fileName = `finish_photos/${currentFinishingOrderId}_${Date.now()}.jpg`;
+                    const storageRef = storage.ref(fileName);
                     
-                    // Update order status
-                    return db.ref('orders/' + currentFinishingOrderId).update({
-                        status: 'selesai',
-                        finishPhoto: downloadURL,
-                        finishedAt: firebase.database.ServerValue.TIMESTAMP
+                    const snapshot = await storageRef.put(capturedPhotoBlob);
+                    console.log('✅ Foto uploaded ke storage');
+                    
+                    downloadURL = await snapshot.ref.getDownloadURL();
+                    console.log('📎 Download URL:', downloadURL);
+                    
+                } catch (storageErr) {
+                    console.log('⚠️ Storage tidak tersedia, simpan sebagai base64:', storageErr.message);
+                    
+                    // Fallback: convert blob ke base64
+                    downloadURL = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(capturedPhotoBlob);
                     });
-                })
-                .then(() => {
-                    alert('Order selesai!');
-                    closeCamera();
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    alert('Gagal menyimpan: ' + err.message);
-                    btn.innerHTML = '<i class="fas fa-check"></i>';
-                    btn.disabled = false;
+                    
+                    console.log('📎 Base64 length:', downloadURL.length);
+                }
+                
+                // Update order status
+                await db.ref('orders/' + currentFinishingOrderId).update({
+                    status: 'selesai',
+                    finishPhoto: downloadURL,
+                    finishedAt: firebase.database.ServerValue.TIMESTAMP
                 });
+                
+                console.log('✅ Order status updated to selesai');
+                alert('Order selesai! 🎉');
+                closeCamera();
+                
+            } catch (err) {
+                console.error('❌ Error:', err);
+                
+                let errorMsg = 'Gagal menyimpan foto.\n';
+                if (err.message) {
+                    errorMsg += err.message;
+                }
+                alert(errorMsg);
+                
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
         }
 
+        // ============================================
+        // CLOSE CAMERA
+        // ============================================
         function closeCamera() {
+            console.log('🚪 Menutup kamera...');
+            
             const modal = document.getElementById('cameraModal');
             const video = document.getElementById('cameraVideo');
+            const previewImg = document.getElementById('cameraPreviewImg');
+            const captureBtn = document.getElementById('captureBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
             
             // Stop camera stream
             if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log('⏹️ Track stopped:', track.kind);
+                });
                 cameraStream = null;
             }
             
-            video.srcObject = null;
-            modal.classList.remove('active');
+            // Clear video source
+            if (video) {
+                video.srcObject = null;
+                video.pause();
+            }
+            
+            // Clear preview
+            if (previewImg && previewImg.src) {
+                URL.revokeObjectURL(previewImg.src);
+                previewImg.src = '';
+            }
+            
+            // Reset buttons
+            if (captureBtn) captureBtn.style.display = 'flex';
+            if (confirmBtn) confirmBtn.style.display = 'none';
+            
+            // Hide modal
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            
+            // Reset variables
             currentFinishingOrderId = null;
             capturedPhotoBlob = null;
+            
+            console.log('✅ Kamera ditutup');
         }
 
-        // Buka Navigasi Google Maps
+        // ============================================
+        // BUKA NAVIGASI GOOGLE MAPS
+        // ============================================
         function openNavigation(address) {
             if (!address) return;
             const decodedAddress = decodeURIComponent(address);
