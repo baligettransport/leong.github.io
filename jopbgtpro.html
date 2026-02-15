@@ -275,7 +275,68 @@
 
         /* Image */
         .order-image { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; display: block; }
-        .photo-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid var(--success); }
+        .photo-preview { 
+            width: 100%; 
+            height: auto; 
+            max-height: 250px; 
+            object-fit: cover; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            border: 3px solid var(--success);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .photo-label {
+            font-size: 0.65rem;
+            color: var(--success);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Photo Modal - Untuk melihat foto besar */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .photo-modal.active { display: flex; }
+        .photo-modal img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .photo-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .photo-modal-close:hover { background: rgba(255,255,255,0.3); }
 
         /* Route Visual */
         .route-wrapper { margin-bottom: 10px; position: relative; padding-left: 18px; }
@@ -402,6 +463,14 @@
 
     </div>
 
+    <!-- Photo Modal - Untuk melihat foto besar -->
+    <div class="photo-modal" id="photoModal" onclick="closePhotoModal()">
+        <button class="photo-modal-close" onclick="closePhotoModal()">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="photoModalImg" src="" alt="Foto">
+    </div>
+
     <!-- Camera Modal -->
     <div class="camera-modal" id="cameraModal">
         <div class="camera-instruction">
@@ -507,6 +576,9 @@
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('mainApp').style.display = 'block';
                 
+                // Setup event listener untuk klik pada foto
+                setupPhotoClickListener();
+                
             } else {
                 // User BELUM login - REDIRECT KE INDEX (Login Page)
                 console.log('⚠️ User belum login, redirect ke index.html');
@@ -560,6 +632,22 @@
             } catch(e) {}
             document.removeEventListener('click', initAudio);
         }, { once: true });
+
+        // ============================================
+        // EVENT LISTENER UNTUK KLIK FOTO
+        // ============================================
+        function setupPhotoClickListener() {
+            document.getElementById('orderList').addEventListener('click', function(e) {
+                // Cek apakah yang diklik adalah foto preview
+                const photoPreview = e.target.closest('.photo-preview');
+                if (photoPreview) {
+                    const orderId = photoPreview.getAttribute('data-photo-id')?.replace('photo-', '');
+                    if (orderId && window.orderPhotos && window.orderPhotos[orderId]) {
+                        openPhotoModal(window.orderPhotos[orderId]);
+                    }
+                }
+            });
+        }
 
         // ============================================
         // FILTER ORDERS
@@ -644,10 +732,18 @@
                     btnHtml = '';
                 }
 
-                // Image Logic
+                // Image Logic - TAMPILKAN FOTO SELESAI DENGAN LABEL
                 let imgHtml = '';
                 if (o.finishPhoto) {
-                    imgHtml = `<img src="${o.finishPhoto}" class="photo-preview" alt="Foto Selesai">`;
+                    // Simpan photoUrl untuk onclick
+                    const photoDataId = `photo-${o.id}`;
+                    imgHtml = `
+                        <div class="photo-label"><i class="fas fa-check-circle"></i> Foto Selesai (Klik untuk memperbesar)</div>
+                        <img src="${o.finishPhoto}" class="photo-preview" alt="Foto Selesai" data-photo-id="${photoDataId}">
+                    `;
+                    // Simpan photo URL ke window untuk diakses nanti
+                    if (!window.orderPhotos) window.orderPhotos = {};
+                    window.orderPhotos[o.id] = o.finishPhoto;
                 } else if (o.imageUrl) {
                     imgHtml = `<img src="${o.imageUrl}" class="order-image" alt="Gambar Order">`;
                 }
@@ -732,19 +828,26 @@
                     phoneHtml = teleponCustomer ? `<div class="customer-phone"><a href="tel:${teleponCustomer}"><i class="fas fa-phone"></i> ${teleponCustomer}</a></div>` : '';
                 }
                 
-                // Info Section
+                // Info Section - TAMPILKAN DETAIL LENGKAP UNTUK SEMUA STATUS
                 let infoSectionHtml = '';
-                if (currentFilter === 'all' && hasDriverInfo) {
+                
+                // Untuk order SELESAI atau BERJALAN - tampilkan split info (Customer & Driver)
+                if ((o.status === 'selesai' || o.status === 'berjalan') || (currentFilter === 'all' && hasDriverInfo)) {
                     let driverPhoneHtml = isDisabled 
                         ? (driverPhone ? `<div class="info-phone"><i class="fas fa-phone"></i> ${driverPhone}</div>` : '')
                         : (driverPhone ? `<div class="info-phone"><a href="tel:${driverPhone}"><i class="fas fa-phone"></i> ${driverPhone}</a></div>` : '');
+                    
+                    // Tampilkan telepon customer dengan link
+                    let customerPhoneHtml = teleponCustomer 
+                        ? `<div class="info-phone"><a href="tel:${teleponCustomer}"><i class="fas fa-phone"></i> ${teleponCustomer}</a></div>` 
+                        : '';
                     
                     infoSectionHtml = `
                         <div class="split-info">
                             <div class="info-box customer">
                                 <div class="info-header"><div class="info-avatar"><i class="fas fa-user"></i></div> Customer</div>
                                 <div class="info-name">${namaCustomer}</div>
-                                ${phoneHtml}
+                                ${customerPhoneHtml}
                             </div>
                             <div class="info-box driver">
                                 <div class="info-header"><div class="info-avatar"><i class="fas fa-user-tie"></i></div> Driver</div>
@@ -758,6 +861,7 @@
                         ${keteranganHtml}
                     `;
                 } else {
+                    // Untuk order baru - tampilkan info customer saja
                     infoSectionHtml = `
                         <div class="customer-info">
                             <div class="customer-name">
@@ -1182,6 +1286,24 @@
                 
                 img.src = url;
             });
+        }
+
+        // ============================================
+        // PHOTO MODAL - Lihat Foto Besar
+        // ============================================
+        function openPhotoModal(photoUrl) {
+            if (!photoUrl) return;
+            const modal = document.getElementById('photoModal');
+            const img = document.getElementById('photoModalImg');
+            img.src = photoUrl;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         // ============================================
