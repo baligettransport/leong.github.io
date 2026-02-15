@@ -25,66 +25,156 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow-x: hidden; }
-        body { font-family: 'Poppins', sans-serif; background: var(--dark); color: var(--white); min-height: 100dvh; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%); 
+            color: var(--dark); 
+            min-height: 100dvh; 
+        }
 
-        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
-        .loading-screen.hidden { opacity: 0; pointer-events: none; }
-        .loading-spinner { width: 35px; height: 35px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Hide Scrollbar */
+        html, body, .app-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar, .app-container::-webkit-scrollbar {
+            display: none;
+        }
 
-        .app-container { width: 100%; min-height: 100dvh; padding-bottom: 20px; }
+        .app-container { 
+            width: 100%; 
+            min-height: 100dvh; 
+            padding-bottom: 20px; 
+            padding-top: 60px;
+        }
 
-        /* Header */
-        .header { position: sticky; top: 0; z-index: 100; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        /* Header - Fixed */
+        .header { 
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            padding: 10px 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
         .header-left { display: flex; align-items: center; gap: 10px; }
-        .header-title { font-size: 1.1rem; font-weight: 700; }
-        .back-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.05); border: none; border-radius: 10px; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .back-btn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+        .header-title { font-size: 1.1rem; font-weight: 700; color: var(--dark); }
+        .back-btn { 
+            width: 38px; 
+            height: 38px; 
+            background: rgba(99, 102, 241, 0.1); 
+            border: none; 
+            border-radius: 10px; 
+            color: var(--primary); 
+            font-size: 1rem; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.3s;
+        }
+        .back-btn:active { background: rgba(99, 102, 241, 0.2); transform: scale(0.95); }
 
         /* Section */
         .section { margin: 16px; }
-        .section-title { font-size: 0.85rem; font-weight: 600; color: var(--gray-light); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .section-title { 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            color: var(--gray); 
+            margin-bottom: 10px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
         .section-title i { color: var(--primary); font-size: 0.8rem; }
 
         /* Card */
-        .card { background: var(--dark-light); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
+        .card { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.5); 
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
 
         /* Location Card */
         .location-card { padding: 16px; }
         .location-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .location-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; }
+        .location-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--dark); }
         .location-title i { color: var(--success); }
         .location-status { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
         .location-status.active { background: rgba(16, 185, 129, 0.15); color: var(--success); }
         .location-status.inactive { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
         .location-status.tracking { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
-        .location-coords { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        .location-coords { background: rgba(0,0,0,0.03); border-radius: 10px; padding: 12px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.05); }
         .coord-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
         .coord-row:last-child { margin-bottom: 0; }
-        .coord-label { color: var(--gray-light); }
-        .coord-value { font-weight: 600; font-family: monospace; }
-        .btn-update { width: 100%; padding: 12px; background: var(--gradient-primary); border: none; border-radius: 10px; color: white; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .coord-label { color: var(--gray); }
+        .coord-value { font-weight: 600; font-family: monospace; color: var(--dark); }
+        .btn-update { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--gradient-primary); 
+            border: none; 
+            border-radius: 10px; 
+            color: white; 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            transition: all 0.3s;
+        }
         .btn-update:active { transform: scale(0.98); }
         .btn-update:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* Setting Item */
-        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .setting-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 14px 16px; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+            transition: all 0.3s;
+        }
         .setting-item:last-child { border-bottom: none; }
         .setting-info { flex: 1; }
-        .setting-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
-        .setting-desc { font-size: 0.75rem; color: var(--gray-light); }
-        .setting-item:active { background: rgba(255,255,255,0.02); }
+        .setting-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; color: var(--dark); }
+        .setting-desc { font-size: 0.75rem; color: var(--gray); }
+        .setting-item:active { background: rgba(0,0,0,0.02); }
 
         /* Toggle Switch */
         .toggle-switch { position: relative; width: 46px; height: 24px; flex-shrink: 0; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); border-radius: 24px; transition: 0.3s; }
-        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.1); border-radius: 24px; transition: 0.3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .toggle-switch input:checked + .toggle-slider { background: var(--success); }
         .toggle-switch input:checked + .toggle-slider:before { transform: translateX(22px); }
 
         /* Info Banner */
-        .info-banner { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 10px; margin: 12px 16px 0; font-size: 0.75rem; line-height: 1.4; color: var(--gray-light); }
+        .info-banner { 
+            background: rgba(245, 158, 11, 0.1); 
+            border: 1px solid rgba(245, 158, 11, 0.3); 
+            border-radius: 8px; 
+            padding: 10px; 
+            margin: 12px 16px 0; 
+            font-size: 0.75rem; 
+            line-height: 1.4; 
+            color: var(--dark); 
+        }
         .info-banner i { color: var(--accent); margin-right: 4px; }
         .info-banner.success { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
         .info-banner.success i { color: var(--success); }
@@ -95,62 +185,123 @@
         .slider-container { padding: 14px 16px; }
         .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .slider-value { background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
-        .slider-range { width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); outline: none; -webkit-appearance: none; }
-        .slider-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); cursor: pointer; }
+        .slider-range { width: 100%; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.1); outline: none; -webkit-appearance: none; appearance: none; }
+        .slider-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .slider-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--gray); margin-top: 6px; }
 
         /* Stats */
         .stats-row { display: flex; gap: 8px; margin-top: 10px; }
-        .stat-item { flex: 1; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; text-align: center; }
+        .stat-item { flex: 1; background: rgba(0,0,0,0.03); border-radius: 8px; padding: 8px; text-align: center; border: 1px solid rgba(0,0,0,0.05); }
         .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
-        .stat-label { font-size: 0.65rem; color: var(--gray-light); }
+        .stat-label { font-size: 0.65rem; color: var(--gray); }
 
         /* Logout */
-        .logout-btn { width: 100%; padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; color: var(--danger); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .logout-btn:active { background: rgba(239, 68, 68, 0.2); }
+        .logout-btn { 
+            width: 100%; 
+            padding: 14px; 
+            background: rgba(239, 68, 68, 0.1); 
+            border: 1px solid rgba(239, 68, 68, 0.3); 
+            border-radius: 12px; 
+            color: var(--danger); 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            transition: all 0.3s;
+        }
+        .logout-btn:active { background: rgba(239, 68, 68, 0.2); transform: scale(0.98); }
 
         /* Version */
         .version { text-align: center; padding: 20px; color: var(--gray); font-size: 0.75rem; }
 
         /* Toast */
-        .toast { position: fixed; top: 70px; left: 12px; right: 12px; background: var(--dark-light); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; z-index: 1000; animation: slideIn 0.3s ease; }
-        .toast.hidden { display: none; }
-        .toast.error { border-color: rgba(239, 68, 68, 0.3); }
-        .toast.error .toast-icon { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .toast-container { 
+            position: fixed; 
+            top: 70px; 
+            right: 12px; 
+            left: 12px; 
+            z-index: 1000; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            pointer-events: none; 
+        }
+        .toast { 
+            background: #ffffff; 
+            border: 1px solid rgba(0,0,0,0.05); 
+            border-radius: 12px; 
+            padding: 12px 14px; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 10px; 
+            animation: slideIn 0.3s ease; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
+            pointer-events: auto; 
+            color: var(--dark); 
+        }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .toast-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .toast.hiding { animation: slideOut 0.3s ease forwards; }
+        @keyframes slideOut { to { transform: translateY(-20px); opacity: 0; } }
+        .toast-icon { 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1rem; 
+            flex-shrink: 0; 
+        }
+        .toast-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .toast-icon.error { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .toast-icon.info { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
         .toast-content { flex: 1; }
-        .toast-title { font-weight: 600; font-size: 0.85rem; }
-        .toast-message { font-size: 0.75rem; color: var(--gray-light); }
+        .toast-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; }
+        .toast-message { font-size: 0.75rem; color: var(--gray); }
+        .toast-close { background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px; font-size: 0.8rem; }
 
         /* Pulse animation */
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .pulse { animation: pulse 2s infinite; }
+
+        /* Arrow */
+        .arrow { color: var(--gray); font-size: 0.8rem; }
+
+        /* ============================================
+           RESPONSIVE UNTUK MOBILE @350px
+           ============================================ */
+        @media (max-width: 350px) {
+            .header { padding: 8px 12px; }
+            .header-title { font-size: 1rem; }
+            .back-btn { width: 34px; height: 34px; font-size: 0.9rem; }
+            
+            .section { margin: 12px; }
+            .location-card { padding: 12px; }
+            .setting-item { padding: 12px 14px; }
+            .setting-title { font-size: 0.85rem; }
+            .setting-desc { font-size: 0.7rem; }
+            
+            .slider-container { padding: 12px 14px; }
+            .stat-value { font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-spinner"></div>
-        <p style="color: var(--gray-light); font-size: 0.85rem; margin-top: 15px;">Memuat Pengaturan...</p>
-    </div>
-
-    <!-- Toast -->
-    <div class="toast hidden" id="toast">
-        <div class="toast-icon" id="toastIcon"><i class="fas fa-check"></i></div>
-        <div class="toast-content">
-            <div class="toast-title" id="toastTitle">Berhasil</div>
-            <div class="toast-message" id="toastMessage">Pengaturan disimpan</div>
-        </div>
-    </div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- App Container -->
-    <div class="app-container" id="mainApp" style="display: none;">
+    <div class="app-container" id="mainApp">
 
         <header class="header">
             <div class="header-left">
-                <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                <button class="back-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
                 <div class="header-title">Pengaturan</div>
             </div>
         </header>
@@ -164,7 +315,7 @@
                         <div class="location-title"><i class="fas fa-satellite-dish"></i> Status GPS</div>
                         <div class="location-status inactive" id="locationStatus">
                             <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
-                            <span id="locationStatusText">Tidak Aktif</span>
+                            <span id="locationStatusText">Mengecek...</span>
                         </div>
                     </div>
                     <div class="location-coords">
@@ -191,7 +342,7 @@
                             <div class="stat-label">Total Update</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value" id="trackingStatus">OFF</div>
+                            <div class="stat-value" id="trackingStatus">ON</div>
                             <div class="stat-label">Tracking</div>
                         </div>
                     </div>
@@ -213,7 +364,7 @@
                         <div class="setting-desc">Update lokasi otomatis di background</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="toggleBackground" onchange="toggleBackgroundTracking(this.checked)">
+                        <input type="checkbox" id="toggleBackground" checked onchange="toggleBackgroundTracking(this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -242,8 +393,8 @@
                     </div>
                 </div>
             </div>
-            <div class="info-banner" id="trackingBanner">
-                <i class="fas fa-info-circle"></i> Aktifkan Background Tracking untuk update lokasi otomatis
+            <div class="info-banner tracking" id="trackingBanner">
+                <i class="fas fa-broadcast-tower pulse"></i> Background Tracking AKTIF - Lokasi diupdate otomatis
             </div>
         </div>
 
@@ -271,26 +422,26 @@
         <div class="section">
             <div class="section-title"><i class="fas fa-user-cog"></i> Akun</div>
             <div class="card">
-                <div class="setting-item" onclick="showToast('Info', 'Fitur edit profil akan segera hadir')">
+                <div class="setting-item" onclick="window.location.href='profil.html'">
                     <div class="setting-info">
                         <div class="setting-title">Edit Profil</div>
                         <div class="setting-desc">Ubah foto, nama, dan data lainnya</div>
                     </div>
-                    <i class="fas fa-chevron-right" style="color: var(--gray);"></i>
+                    <i class="fas fa-chevron-right arrow"></i>
                 </div>
-                <div class="setting-item" onclick="showToast('Info', 'Fitur ubah password akan segera hadir')">
+                <div class="setting-item" onclick="showToast('info', 'Fitur ubah password akan segera hadir')">
                     <div class="setting-info">
                         <div class="setting-title">Ubah Password</div>
                         <div class="setting-desc">Ganti password akun Anda</div>
                     </div>
-                    <i class="fas fa-chevron-right" style="color: var(--gray);"></i>
+                    <i class="fas fa-chevron-right arrow"></i>
                 </div>
-                <div class="setting-item" onclick="showToast('Info', 'Buka pengaturan browser untuk mengubah izin')">
+                <div class="setting-item" onclick="showToast('info', 'Buka pengaturan browser untuk mengubah izin')">
                     <div class="setting-info">
                         <div class="setting-title">Kelola Izin Aplikasi</div>
                         <div class="setting-desc">Atur izin lokasi, notifikasi, dll</div>
                     </div>
-                    <i class="fas fa-chevron-right" style="color: var(--gray);"></i>
+                    <i class="fas fa-chevron-right arrow"></i>
                 </div>
             </div>
         </div>
@@ -306,12 +457,12 @@
                     </div>
                     <span style="color: var(--success); font-size: 0.75rem; font-weight: 600;">Terbaru</span>
                 </div>
-                <div class="setting-item" onclick="showToast('Info', 'Halaman bantuan akan segera hadir')">
+                <div class="setting-item" onclick="showToast('info', 'Halaman bantuan akan segera hadir')">
                     <div class="setting-info">
                         <div class="setting-title">Bantuan & FAQ</div>
                         <div class="setting-desc">Pertanyaan yang sering diajukan</div>
                     </div>
-                    <i class="fas fa-chevron-right" style="color: var(--gray);"></i>
+                    <i class="fas fa-chevron-right arrow"></i>
                 </div>
             </div>
         </div>
@@ -355,7 +506,7 @@
         // STATE MANAGEMENT
         // ==========================================
         let settings = {
-            backgroundTracking: false,
+            backgroundTracking: true,  // DEFAULT AKTIF
             gps: true,
             notif: false,
             updateInterval: 30
@@ -370,18 +521,27 @@
         // ==========================================
         // TOAST NOTIFICATION
         // ==========================================
-        function showToast(title, message, isError = false) {
-            const toast = document.getElementById('toast');
-            const toastIcon = document.getElementById('toastIcon');
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
             
-            document.getElementById('toastTitle').textContent = title;
-            document.getElementById('toastMessage').textContent = message;
+            let iconClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            let iconName = type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info';
             
-            toast.className = isError ? 'toast error' : 'toast';
-            toastIcon.innerHTML = isError ? '<i class="fas fa-times"></i>' : '<i class="fas fa-check"></i>';
-            
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
+            toast.innerHTML = `
+                <div class="toast-icon ${iconClass}"><i class="fas ${iconName}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { 
+                toast.classList.add('hiding'); 
+                setTimeout(() => toast.remove(), 300); 
+            }, 4000);
         }
 
         // ==========================================
@@ -397,12 +557,10 @@
             status.classList.remove('inactive');
             
             if (settings.backgroundTracking) {
-                status.classList.add('tracking');
-                status.classList.remove('active');
+                status.className = 'location-status tracking';
                 document.getElementById('locationStatusText').textContent = 'Tracking';
             } else {
-                status.classList.add('active');
-                status.classList.remove('tracking');
+                status.className = 'location-status active';
                 document.getElementById('locationStatusText').textContent = 'Aktif';
             }
         }
@@ -410,11 +568,12 @@
         function updateTrackingUI(isTracking) {
             document.getElementById('trackingStatus').textContent = isTracking ? 'ON' : 'OFF';
             document.getElementById('trackingStatus').style.color = isTracking ? 'var(--success)' : 'var(--gray)';
+            document.getElementById('toggleBackground').checked = isTracking;
             
             const banner = document.getElementById('trackingBanner');
             if (isTracking) {
                 banner.className = 'info-banner tracking';
-                banner.innerHTML = '<i class="fas fa-broadcast-tower" style="animation: pulse 2s infinite;"></i> Background Tracking AKTIF - Lokasi diupdate otomatis';
+                banner.innerHTML = '<i class="fas fa-broadcast-tower pulse"></i> Background Tracking AKTIF - Lokasi diupdate otomatis';
             } else {
                 banner.className = 'info-banner';
                 banner.innerHTML = '<i class="fas fa-info-circle"></i> Aktifkan Background Tracking untuk update lokasi otomatis';
@@ -431,8 +590,12 @@
         function loadSettings() {
             const saved = localStorage.getItem('appSettings');
             if (saved) {
-                settings = { ...settings, ...JSON.parse(saved) };
+                const parsed = JSON.parse(saved);
+                settings = { ...settings, ...parsed };
             }
+            
+            // Pastikan background tracking selalu true saat load
+            settings.backgroundTracking = true;
             
             document.getElementById('toggleBackground').checked = settings.backgroundTracking;
             document.getElementById('toggleGps').checked = settings.gps;
@@ -453,10 +616,10 @@
             saveSettings();
             
             if (key === 'notif') {
-                showToast('Berhasil', value ? 'Notifikasi diaktifkan' : 'Notifikasi dinonaktifkan');
+                showToast('success', 'Berhasil', value ? 'Notifikasi diaktifkan' : 'Notifikasi dinonaktifkan');
                 updateBanner();
-            } else {
-                showToast('Berhasil', 'Pengaturan disimpan');
+            } else if (key === 'gps') {
+                showToast('success', 'Berhasil', value ? 'High Accuracy GPS aktif' : 'High Accuracy GPS nonaktif');
             }
         }
 
@@ -475,7 +638,7 @@
             settings.updateInterval = parseInt(value);
             document.getElementById('intervalValue').textContent = `${value} detik`;
             saveSettings();
-            showToast('Berhasil', `Interval update diatur ke ${value} detik`);
+            showToast('success', 'Berhasil', `Interval update diatur ke ${value} detik`);
         }
 
         // ==========================================
@@ -485,7 +648,7 @@
             if ('wakeLock' in navigator) {
                 try {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('🔋 Wake Lock acquired - device will stay awake');
+                    console.log('🔋 Wake Lock acquired');
                     
                     wakeLock.addEventListener('release', () => {
                         console.log('🔋 Wake Lock released');
@@ -554,7 +717,7 @@
             
             // Show toast only for manual updates
             if (watchId === null) {
-                showToast('Berhasil', 'Lokasi berhasil diperbarui');
+                showToast('success', 'Berhasil', 'Lokasi berhasil diperbarui');
             }
         }
 
@@ -573,7 +736,7 @@
                     break;
             }
             
-            showToast('Error', errorMessage, true);
+            showToast('error', 'Error', errorMessage);
             
             // Reset button state
             const btn = document.getElementById('btnUpdate');
@@ -591,7 +754,7 @@
         // Manual update
         function manualUpdate() {
             if (!navigator.geolocation) {
-                showToast('Error', 'Browser tidak mendukung geolokasi', true);
+                showToast('error', 'Error', 'Browser tidak mendukung geolokasi');
                 return;
             }
             
@@ -634,7 +797,7 @@
         // ==========================================
         function startBackgroundTracking() {
             if (!navigator.geolocation) {
-                showToast('Error', 'Browser tidak mendukung geolokasi', true);
+                showToast('error', 'Error', 'Browser tidak mendukung geolokasi');
                 return;
             }
             
@@ -665,8 +828,6 @@
             );
             
             updateTrackingUI(true);
-            showToast('Berhasil', 'Background Tracking diaktifkan');
-            
             console.log('🚀 Background tracking started');
         }
 
@@ -678,7 +839,6 @@
             
             releaseWakeLock();
             updateTrackingUI(false);
-            
             console.log('🛑 Background tracking stopped');
         }
 
@@ -688,9 +848,10 @@
             
             if (enabled) {
                 startBackgroundTracking();
+                showToast('success', 'Berhasil', 'Background Tracking diaktifkan');
             } else {
                 stopBackgroundTracking();
-                showToast('Info', 'Background Tracking dinonaktifkan');
+                showToast('info', 'Info', 'Background Tracking dinonaktifkan');
             }
         }
 
@@ -700,7 +861,6 @@
         document.addEventListener('visibilitychange', async () => {
             if (document.hidden) {
                 console.log('📱 App moved to background');
-                // Tracking continues in background
             } else {
                 console.log('📱 App returned to foreground');
                 
@@ -759,10 +919,13 @@
         // ==========================================
         // APP INITIALIZATION
         // ==========================================
-        function showApp() {
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('mainApp').style.display = 'block';
+        function initApp() {
             loadSettings();
+            
+            // AUTO START BACKGROUND TRACKING
+            if (settings.backgroundTracking) {
+                startBackgroundTracking();
+            }
         }
 
         // Auth State Observer
@@ -773,12 +936,7 @@
             }
             
             currentUser = user;
-            showApp();
-            
-            // Resume background tracking if it was enabled
-            if (settings.backgroundTracking) {
-                startBackgroundTracking();
-            }
+            initApp();
         });
 
         // Clean up on page unload
