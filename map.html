@@ -3,1002 +3,877 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Profil - BGT-PRO</title>
+    <title>Peta Anggota - BGT-PRO</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary: #4f46e5;
             --primary-light: #818cf8;
+            --primary-dark: #3730a3;
             --secondary: #8b5cf6;
             --accent: #f59e0b;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
             --info: #06b6d4;
-            --dark: #0f172a;
-            --dark-light: #1e293b;
+            --sky-light: #f0f9ff;
+            --sky-medium: #e0f2fe;
+            --sky-soft: #bae6fd;
+            --dark: #1e293b;
+            --dark-light: #334155;
             --gray: #64748b;
             --gray-light: #94a3b8;
             --white: #ffffff;
-            --text-primary: #1e3a5f;
-            --text-secondary: #4a6d8c;
-            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-            --shadow-soft: 0 4px 15px rgba(99, 102, 241, 0.08);
-            --shadow-card: 0 2px 12px rgba(0, 0, 0,0.08);
+            --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+            --gradient-sky: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 30%, #f0f9ff 100%);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow-x: hidden; }
-        
+        html, body { width: 100%; height: 100%; overflow: hidden; }
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%); 
-            color: var(--dark); 
-            min-height: 100dvh; 
+            background: var(--gradient-sky);
+            color: var(--dark);
+            position: relative;
         }
 
-        /* Hide Scrollbar */
-        html, body, .app-container {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        html::-webkit-scrollbar, body::-webkit-scrollbar, .app-container::-webkit-scrollbar {
-            display: none;
+        /* Subtle animated clouds background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(186, 230, 253, 0.6) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(224, 242, 254, 0.8) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 60% 70%, rgba(186, 230, 253, 0.4) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: cloudFloat 20s ease-in-out infinite;
         }
 
-        .app-container { 
-            width: 100%; 
-            min-height: 100dvh; 
-            padding-bottom: 90px; 
-            overflow-y: auto; 
-            padding-top: 60px; 
+        @keyframes cloudFloat {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-10px) translateY(-5px); }
+        }
+
+        /* Main App */
+        .app-container {
+            width: 100%;
+            height: 100%;
         }
 
         /* Header */
-        .header { 
-            position: fixed; top: 0; left: 0; width: 100%; z-index: 100; 
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(15px); 
-            padding: 10px 16px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid rgba(0,0,0,0.05); 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(79, 70, 229, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
-        .header-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,0,0,0.1); }
-        .header-name { font-size: 0.9rem; font-weight: 600; }
-        .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
-        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-title { 
+            font-size: 1.15rem; 
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .back-btn {
+            width: 42px;
+            height: 42px;
+            background: rgba(79, 70, 229, 0.08);
+            border: none;
+            border-radius: 12px;
+            color: var(--primary);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .back-btn:active { background: rgba(79, 70, 229, 0.15); transform: scale(0.95); }
         .header-right { display: flex; align-items: center; gap: 8px; }
-        .header-btn { 
-            width: 38px; height: 38px; background: rgba(99, 102, 241, 0.1); 
-            border: none; border-radius: 10px; color: var(--primary); 
-            font-size: 1rem; cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: all 0.3s; 
-            text-decoration: none; 
+        .header-btn {
+            width: 42px;
+            height: 42px;
+            background: rgba(79, 70, 229, 0.08);
+            border: none;
+            border-radius: 12px;
+            color: var(--primary);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
-        .header-btn:active { background: rgba(99, 102, 241, 0.2); transform: scale(0.95); }
-        
-        /* Profile Card */
-        .profile-page-card { 
-            margin: 16px; 
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 24px; 
-            overflow: hidden; 
-            border: 1px solid rgba(255,255,255,0.5); 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        .profile-cover { 
-            height: 130px; 
-            background: var(--gradient-primary); 
-            position: relative; 
-        }
-        .profile-cover::before { 
-            content: ''; 
-            position: absolute; 
-            top: -40%; 
-            right: -15%; 
-            width: 180px; 
-            height: 180px; 
-            background: rgba(255,255,255,0.1); 
-            border-radius: 50%; 
-        }
-        .profile-avatar-large { 
-            width: 100px; 
-            height: 
-            border-radius: 50%; 
-            border: 4px solid #fff; 
-            object-fit: cover; 
-            position: absolute; 
-            bottom: -50px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-            background: #f1f5f9;
-        }
-        .profile-details { 
-            padding: 60px 18px 20px; 
-            text-align: center; 
-        }
-        .profile-details-name { 
-            font-size: 1.3rem; 
-            font-weight: 700; 
-            margin-bottom: 6px; 
-            color: var(--dark); 
-        }
-        .profile-details-title { 
-            display: inline-block; 
-            background: var(--gradient-primary); 
-            padding: 5px 16px; 
-            border-radius: 9999px; 
-            font-size: 0.8rem; 
-            font-weight: 600; 
-            margin-bottom: 12px; 
-            color: white; 
-        }
-        .profile-details-status { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-            background: rgba(16, 185, 129, 0.15); 
-            color: var(--success); 
-            padding: 5px 12px; 
-            border-radius: 9999px; 
-            font-size: 0.75rem; 
-            font-weight: 600; 
-            margin-bottom: 16px; 
-        }
-        .status-dot { 
-            width: 8px; 
-            height: 8px; 
-            background: var(--success); 
-            border-radius: 50%; 
-            animation: pulse 2s infinite; 
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .header-btn:active { background: rgba(79, 70, 229, 0.15); }
 
-        .profile-info-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 10px; 
-            text-align: left; 
-            margin-top: 10px; 
+        /* Map */
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
-        .profile-info-item { 
-            background: rgba(0,0,0,0.03); 
-            padding: 12px; 
-            border: 1px solid rgba(0,0,0,0.05); 
-        }
-        .profile-info-item:active { background: rgba(0,0,0,0.06); transform: scale(0.98); }
-        .profile-info-item label { 
-            font-size: 0.65rem; 
-            color: var(--gray); 
-            display: flex; 
-            align-items: center; 
-            gap: 5px; 
-            margin-bottom: 4px; 
-        }
-        .profile-info-item i { color: var(--primary); font-size: 0.6rem; }
-        .profile-info-item span { font-weight: 600; font-size: 0.85rem; color: var(--dark); }
-        
-        /* QR Code Section */
-        .qr-section { margin: 0 16px 16px; }
-        .qr-card { 
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 16px; 
-            padding: 16px; 
-            text-align: center; 
-            border: 1px solid rgba(255,255,255,0.5); 
-            box-shadow: 0 4px 20px rgba(0, 0,0,0.08);
-        }
-        .qr-title { 
-            font-size: 0.85rem; 
-            font-weight: 600; 
-            margin-bottom: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            color: var(--dark); 
-        }
-        .qr-title i { color: var(--primary); }
-        .qr-code { 
-            width: 160px; 
-            height: 160px; 
-            background: white; 
-            border-radius: 12px; 
-            margin: 0 auto; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 10px;
-            border: 1px solid rgba(0,0,0,0.05); 
-        }
-        .qr-code img { width: 100%; height: 100%; object-fit: contain; }
-        .qr-desc { font-size: 0.7rem; color: var(--gray); margin-top: 10px; }
 
-        /* Action Buttons */
-        .action-section { margin: 0 16px 16px; }
-        .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .action-btn { 
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.5); 
-            border-radius: 12px; 
-            padding: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            text-decoration: none; 
-            color: inherit; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        /* Map Panel */
+        .map-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px 24px 0 0;
+            padding: 16px;
+            z-index: 1000;
+            max-height: 55vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
         }
-        .action-btn:active { 
-            border-color: var(--primary); 
-            transform: scale(0.98); 
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2); 
+        .map-panel.collapsed { transform: translateY(calc(100% - 55px)); }
+        .map-panel-handle {
+            width: 45px;
+            height: 5px;
+            background: rgba(79, 70, 229, 0.15);
+            border-radius: 3px;
+            margin: 0 auto 14px;
+            cursor: pointer;
         }
-        .action-icon { 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 10px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1rem; 
+        .map-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
         }
-        .action-icon.edit { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
-        .action-icon.share { background: rgba(16, 185, 129, 0.15); color: var(--success); }
-        .action-icon.map { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
-        .action-icon.settings { background: rgba(139, 92, 246, 0.15); color: var(--secondary); }
-        .action-text { font-size: 0.8rem; font-weight: 600; color: var(--dark); }
-        .action-desc { font-size: 0.65rem; color: var(--gray); }
-        
-        /* Stats Card */
-        .stats-section { margin: 0 16px 16px; }
-        .stats-card { 
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px); 
-            border-radius: 16px; 
-            padding: 14px; 
-            border: 1px solid rgba(255,255,255,0.5); 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); 
+        .map-panel-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--dark);
         }
-        .stats-title { 
-            font-size: 0.8rem; 
-            font-weight: 600; 
-            margin-bottom: 10px; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            color: var(--dark); 
+        .map-panel-title i {
+            color: var(--primary);
         }
-        .stats-title i { color: var(--primary); }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .stat-item { 
-            background: rgba(0,0,0,0.03); 
-            border-radius: 10px; 
-            padding: 10px 6px; 
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        /* Stats */
+        .map-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .map-stat {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(79, 70, 229, 0.08);
+            border-radius: 14px;
+            padding: 14px 10px;
             text-align: center;
-            border: 1px solid rgba(0,0,0,0.03); 
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
-        .stat-value { 
-            font-size: 1.1rem; 
-            font-weight: 800; 
-            background: var(--gradient-primary); 
-            background-clip: text; 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
+        .map-stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
         }
-        .stat-label { font-size: 0.6rem; color: var(--gray); margin-top: 2px; }
-
-        /* Bottom Nav */
-        .bottom-nav { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            background: #ffffff; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-around; 
-            border-top: 1px solid rgba(0,0,0,0.05); 
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); 
-            z-index: 100; 
-            height: 70px; 
-            padding: 0 5px; 
+        .map-stat-label {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 3px;
+            font-weight: 500;
         }
-        .nav-item { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 3px; 
-            width: 20%; 
-            height: 100%; 
-            padding: 8px 0; 
-            color: var(--gray); 
-            text-decoration: none; 
-            transition: all 0.3s; 
-        }
-        .nav-item.active { color: var(--primary); }
-        .nav-item:active { transform: scale(0.9; }
-        .nav-item i { font-size: 1.2rem; }
-        .nav-item span { font-size: 0.6rem; font-weight: 500; }
-
-        /* Item Job BGT di tengah */
-        .nav-job { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: flex-end; 
-            width: 20%; 
-            height: 100%; 
-            padding-bottom: 5px; 
-            text-decoration: none; 
-            position: relative; 
+        .map-stat.online .map-stat-value { color: var(--success); }
+        .map-stat.offline .map-stat-value { color: var(--gray); }
+        .map-stat.total .map-stat-value {
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .nav-job-logo { 
-            width: 45px; 
-            height: 45px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            margin-bottom: 0; 
-            position: relative; 
+        /* Legend */
+        .map-legend {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 14px;
+            padding: 12px;
+            background: rgba(79, 70, 229, 0.04);
+            border-radius: 12px;
+            border: 1px solid rgba(79, 70, 229, 0.06);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .legend-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+        .legend-dot.offline {
+            background: var(--gray);
+            opacity: 0.6;
         }
 
-        .nav-job-logo img { width: 45px; height: 45px; object-fit: contain; }
-        .nav-job-text { 
-            font-size: 0.6rem; 
-            font-weight: 700; 
-            color: var(--primary); 
-            text-transform: 
-            uppercase; 
-            margin-top: -2px; 
+        /* Member List */
+        .member-list-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--gray);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+        .map-member-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .map-member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--white);
+            border: 1px solid rgba(79, 70, 229, 0.06);
+            border-radius: 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .map-member-item:active { 
+            background: rgba(79, 70, 229, 0.05);
+            border-color: var(--primary-light);
+        }
+        .map-member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(79, 70, 229, 0.1);
+        }
+        .map-member-info { flex: 1; }
+        .map-member-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: var(--dark);
+        }
+        .map-member-status {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        .map-member-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+        .map-member-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .map-member-dot.offline { background: var(--gray); opacity: 0.5; }
 
-        .job-badge { 
-            position: absolute; 
-            top: -5px; 
-            right: -5px; 
-            min-width: 20px; 
-            height: 20px; 
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
-            border-radius: 50%; 
-            font-size: 0.65rem; 
-            font-weight: 700; 
-            color: white; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); 
-            border: 2px solid #fff; 
-            z-index: 10; 
+        /* Custom Marker */
+        .custom-marker {
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
         }
-        .job-badge.hidden { display: none; }
+        .custom-marker.online { background: var(--success); }
+        .custom-marker.offline { background: var(--gray); opacity: 0.7; }
+
+        /* Leaflet Popup */
+        .leaflet-popup-content-wrapper {
+            background: var(--white) !important;
+            border-radius: 16px !important;
+            color: var(--dark) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
+            border: 1px solid rgba(79, 70, 229, 0.08) !important;
+        }
+        .leaflet-popup-tip { background: var(--white) !important; }
+        .leaflet-popup-content { margin: 14px 16px !important; }
+        .popup-content { min-width: 200px; }
+        .popup-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .popup-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(79, 70, 229, 0.15);
+        }
+        .popup-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+        .popup-status {
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .popup-status.online { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+        .popup-status.offline { background: rgba(100, 116, 139, 0.12); color: var(--gray); }
+        .popup-info {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        .popup-info div {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .popup-info i { width: 16px; color: var(--primary); }
+
+        /* Locate Button */
+        .locate-btn {
+            position: fixed;
+            bottom: 260px;
+            right: 16px;
+            width: 52px;
+            height: 52px;
+            background: var(--white);
+            border: 1px solid rgba(79, 70, 229, 0.1);
+            border-radius: 50%;
+            color: var(--primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        .locate-btn:active {
+            transform: scale(0.95);
+            background: var(--primary);
+            color: white;
+        }
 
         /* Toast */
-        .toast-container { 
-            position: fixed; 
-            top: 70px; 
-            right: 12px; 
-            left: 12px; 
-            z-index: 1000; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px; 
-            pointer-events: none; 
+        .toast {
+            position: fixed;
+            top: 75px;
+            left: 16px;
+            right: 16px;
+            background: var(--white);
+            border: 1px solid rgba(79, 70, 229, 0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-        .toast { 
-            background: #ffffff; 
-            border: 1px solid rgba(0,0,0,0.05); 
-            border-radius: 12px; 
-            padding: 14px 16px; 
-            display: flex; 
-            align-items: flex; 
-            gap: 10px; 
-            z-index: 1000; 
-            animation: slideIn 0.3s ease; 
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); 
-            pointer-events: auto; 
-            color: var(--dark); 
+        .toast.hidden { display: none; }
+        .toast.hiding { animation: slideUp 0.3s ease forwards; }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-        @keyframes slideIn { 
-            from { transform: translateY(-20px); opacity: 0; } 
-            to { transform: translateY(0); opacity: 1; } 
+        @keyframes slideUp {
+            to { transform: translateY(-20px); opacity: 0; }
         }
-        .toast.hiding { 
-            animation: slideOut 0.3s ease forwards; 
+        .toast-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
         }
-        @keyframes slideOut { 
-            to { transform: translateY(-20px); opacity: 0; } 
-        }
-        .toast-icon { 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 8px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1rem; 
-            flex-shrink: 0; 
-        } 
-        .toast-icon.success { background: rgba(16, 185, 129, 0.12); color: var(--success); } 
-        .toast-icon.info { background: rgba(99, 102, 241, 0.12); color: var(--primary); } 
-        .toast-icon.warning { background: rgba(245, 158, 11, 0.12); color: var(--accent); } 
-        .toast-content { flex: 1; } 
-        .toast-title { 
-            font-weight: 700; 
-            font-size: 0.85rem; 
-            margin-bottom: 3px; 
-            color: var(--dark); 
-        } 
-        .toast-message { 
-            font-size: 0.75rem; 
-            color: var(--gray); 
-        }
-        .toast-close { 
-            background: none; 
-            border: none; 
-            color: var(--gray); 
-            cursor: pointer; 
-            padding: 4px; 
-            font-size: 0.8rem; 
-        }
+        .toast-icon.success { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+        .toast-icon.info { background: rgba(79, 70, 229, 0.12); color: var(--primary); }
+        .toast-icon.warning { background: rgba(245, 158, 11, 0.12); color: var(--accent); }
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 3px; color: var(--dark); }
+        .toast-message { font-size: 0.8rem; color: var(--gray); }
 
         /* Empty State */
-        .empty-state { 
-            text-align: center; 
-            padding: 60px 20px; 
-            color: var(--gray-light); 
-        } 
-        .empty-state i { 
-            font-size: 3rem; 
-            margin-bottom: 15px; 
-            opacity: 0.4; 
-            color: var(--primary); 
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--gray);
         }
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+            color: var(--primary-light);
+        }
+        .empty-state p { font-size: 0.9rem; }
 
-        /* ============================================
-           RESPONSIVE UNTUK MOBILE @350px
-           ============================================ */
-        @media (max-width: 350px) {
-            .header { padding: 8px 12px; }
-            .header-title { font-size: 1rem; }
-            .back-btn, .header-btn { width: 34px; height: 34px; font-size: 0.9rem; }
-            
-            .profile-page-card { margin: 12px; }
-            .profile-cover { height: 110px; }
-            .profile-avatar-large { width: 85px; height: 85px; bottom: -42px; }
-            .profile-details { padding: 50px 14px 16px; }
-            .profile-details-name { font-size: 1.15rem; }
-            .profile-details-title { padding: 4px 14px; font-size: 0.75rem; }
-            
-            .qr-section { margin: 0 12px 12px; }
-            .qr-card { padding: 14px; }
-            .qr-code { width: 140px; height: 140px; }
-            
-            .action-section { margin: 0 12px 12px; }
-            .action-grid { gap: 8px; }
-            .action-btn { padding: 10px; gap: 8px; }
-            .action-icon { width: 36px; height: 36px; font-size: 0.9rem; }
-            .action-text { font-size: 0.75rem; }
-            .action-desc { font-size: 0.6rem; }
-            
-            .stats-section { margin: 0 12px 12px; }
-            .stats-card { padding: 12px; }
-            .stat-item { padding: 8px 4px; }
-            .stat-value { font-size: 1rem; }
-            
-            .bottom-nav { height: 65px; }
-            .nav-item i { font-size: 1.1rem; }
-            .nav-item span { font-size: 0.55rem; }
-            .nav-job-logo, .nav-job-logo img { width: 40px; height: 40px; }
-            .nav-job-text { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(79, 70, 229, 0.15); border-radius: 2px; }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Session Kick Overlay -->
-    <div id="sessionKickOverlay" class="session-kick-overlay" style="display:none; background: rgba(0, 0, 0, 0.98); z-index: 99999; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px;">
-        <div class="kick-icon"><i class="fas fa-sign-out-alt"></i></div>
-        <h2 class="kick-title">SESI ANDA BERAKHIR</h2>
-        <p class="kick-message">Akun Anda telah login di perangkat lain.</p>
-        <div class="kick-device-info">
-            <p><i class="fas fa-mobile-alt"></i> <strong>Login Baru Terdeteksi</strong></p>
-            <p id="kickDeviceInfo">Perangkat lain</p>
-        </div>
-        <button class="btn-kick-ok" onclick="handleSessionKick()"><i class="fas fa-check"></i> Mengerti</button>
-    </div>
-
-    <!-- Modal Izin Lengkap -->
-    <div class="modal-overlay" id="permModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 50000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
-        <div class="modal-card" style="background: white; width: 100%; max-width: 320px; border-radius: 24px; padding: 30px 25px; text-align: center; box-shadow: 0 10px 25px rgba(0, 0,0,0.2); border: 1px solid rgba(255,255,255,0.1); animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0); opacity: 1; }">
-            <div style="width: 80px; height: 80px; background: #e0e7ff; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; margin-bottom: 15px;">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: #0f172a; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Izin Akses Diperlukan</h3>
-            <p style="font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 25px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Agar BGT-PRO berfungsi maksimal, silakan izin berikut:</h3>
-            
-            <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 25px; ">
-                <div style="display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: rgba(99, 102, 241, 0.1); border: 2px solid rgba(99, 102, 241, 0.3); border-radius: 15px; cursor: pointer; transition: all 0.3s; }
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(99, 102, 241, 0.1); border: 2px solid rgba(99, 102, 241, 0.3); border-radius: 15px; cursor: pointer; transition: all 0.3s; ">
-                        <i class="fas fa-camera"></i>
-                        <span>Camera</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(249, 115, 22, 0.1); border: 2px solid rgba(249, 115, 22, 0.3); border-radius: 15px; cursor: pointer; transition: all 0.3s;">
-                        <i class="fas fa-images"></i>
-                        <span>Galeri</span>
-                    </div>
-                </div>
-                <button class="perm-btn perm-btn-primary" onclick="handleRequestAllPermissions()" style="width: 100%; padding: 14px; border: border-radius: 12px; border: background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); transition: transform: 0.2s; }
-                <i class="fas fa-check-circle"></i> Izinkan Semua
-            </button>
-                <button class="perm-btn perm-btn-secondary" onclick="handleSkipPermissions()" style="width: 100%; padding: 14px; background: #f1f5f9; color: var(--dark-light); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: all 0.3s;">
-                    Nanti Saja
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading -->
-    <div class="loading-container" id="loadingContainer">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Memuat data...</div>
-    </div>
-
     <!-- Main App -->
-    <div class="app-container" id="mainApp" style="display: none;">
-
+    <div class="app-container" id="appContainer">
+        
+        <!-- Header -->
         <header class="header">
             <div class="header-left">
-                <button class="back-btn" onclick="window.location.href='branda.html'">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <div class="header-title">Profil Saya</div>
+                <button class="back-btn" onclick="goBack()" aria-label="Kembali"><i class="fas fa-arrow-left"></i></button>
+                <div class="header-title">Peta Anggota</div>
             </div>
             <div class="header-right">
-                <button class="header-btn" onclick="openEditModal()">
-                    <i class="fas fa-pen"></i>
+                <button class="header-btn" onclick="togglePanel()" id="togglePanelBtn" aria-label="Toggle Panel">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button class="header-btn" onclick="refreshLocation()" aria-label="Refresh">
+                    <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Profile Card -->
-        <div class="profile-page-card">
-            <div class="profile-cover">
-                <img src="https://ui-images.com/api/?name=U&background=6366f1&color=fff&size=200" alt="Avatar" class="profile-avatar-large" id="profileAvatar">
-            </div>
-            <div class="profile-details">
-                <h2 class="profile-details-name" id="profileName">Loading...</h2>
-                <span class="profile-details-title" id="profileTitle">...</span>
-                <br>
-                <span class="profile-details-status">
-                    <span class="status-dot"></span>
-                    ONLINE
-                </span>
-                
-                <div class="profile-info-grid">
-                    <div class="profile-info-item">
-                        <label><i class="fas fa-envelope"></i> Email</label>
-                        <span id="profileEmail">...</span>
-                    </div>
-                    <div class="profile-info-item">
-                        <label><i class="fas fa-phone"></i> Telepon</label>
-                        <span id="profilePhone">...</span>
-                    </div>
-                    <div class="profile-info-item">
-                        <label><i class="fas fa-car"></i> Plat Mobil</label>
-                        <span id="profilePlat">...</span>
-                    </div>
-                    <div class="profile-info-item">
-                        <label><i class="fas fa-calendar-alt"></i> Bergabung</label>
-                        <span id="profileJoined">...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Map Container -->
+        <div id="map"></div>
 
-        <!-- QR Code -->
-        <div class="qr-section">
-            <div class="qr-card">
-                <div class="qr-title"><i class="fas fa-qrcode"></i> QR Code</div>
-                <div class="qr-code">
-                    <img id="qrImage" src="" alt="QR Code">
-                </div>
-                <p class="qr-desc">Scan QR code ini untuk melihat profil Anda</p>
-            </div>
-        </div>
+        <!-- Locate Button -->
+        <button class="locate-btn" onclick="locateMe()" id="locateBtn" aria-label="Lokasi Saya">
+            <i class="fas fa-crosshairs"></i>
+        </button>
 
-        <!-- Action Buttons -->
-        <div class="action-section">
-            <div class="action-grid">
-                <div class="action-btn" onclick="openEditModal()">
-                    <div class="action-icon edit"><i class="fas fa-pen"></i></div>
-                    <div>
-                        <div class="action-text">Edit Profil</div>
-                        <div class="action-desc">Ubah data diri</div>
-                    </div>
-                </div>
-                <div class="action-btn" onclick="shareProfile()">
-                    <div class="action-icon share"><i class="fas fa-share-alt"></i></div>
-                    <div>
-                        <div class="action-text">Bagikan</div>
-                        <div class="action-desc">Share profil Anda</div>
-                    </div>
-                </div>
-                <div class="action-btn" href="map.html">
-                    <div class="action-icon map"><i class="fas fa-map-marked-alt"></i></div>
-                    <div>
-                        <div class="action-text">Lokasi Saya</div>
-                        <div class="action-desc">Update koordinat</div>
-                    </div>
-                </div>
-                <div class="action-btn" href="pengaturan.html">
-                    <div class="action-icon settings"><i class="fas fa-cog"></i></div>
-                    <div>
-                        <div class="action-text">Pengaturan</div>
-                        <div class="action-desc">Atur akun</div>
-                    </div>
+        <!-- Map Panel -->
+        <div class="map-panel" id="mapPanel">
+            <div class="map-panel-handle" onclick="togglePanelCollapse()"></div>
+            
+            <div class="map-panel-header">
+                <div class="map-panel-title">
+                    <i class="fas fa-users"></i> Lokasi Anggota
+                    <span class="live-indicator">
+                        <span class="live-dot"></span> REALTIME
+                    </span>
                 </div>
             </div>
-        </div>
 
-        <!-- Stats -->
-        <div class="stats-section">
-            <div class="stats-card">
-                <div class="stats-title"><i class="fas fa-chart-bar"></i> Statistik Anda</div>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-value" id="statKopdar">0</div>
-                        <div class="stat-label">Kopdar</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="statKas">0</div>
-                        <div class="stat-label">Kas</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="statPoint">0</div>
-                        <div class="stat-label">Poin</div>
-                    </div>
+            <div class="map-stats">
+                <div class="map-stat total">
+                    <div class="map-stat-value" id="statTotal">0</div>
+                    <div class="map-stat-label">Total</div>
+                </div>
+                <div class="map-stat online">
+                    <div class="map-stat-value" id="statOnline">0</div>
+                    <div class="map-stat-label">Online</div>
+                </div>
+                <div class="map-stat offline">
+                    <div class="map-stat-value" id="statOffline">0</div>
+                    <div class="map-stat-label">Offline</div>
+                </div>
+            </div>
+
+            <div class="map-legend">
+                <div class="legend-item"><div class="legend-dot online"></div> Online</div>
+                <div class="legend-item"><div class="legend-dot offline"></div> Offline</div>
+            </div>
+
+            <div class="member-list-title">Anggota dengan Lokasi</div>
+            <div class="map-member-list" id="memberList">
+                <div class="empty-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Memuat data...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Nav -->
-    <nav class="bottom-nav">
-        <a class="nav-item active" href="branda.html">
-            <i class="fas fa-home"></i>
-            <span>Beranda</span>
-        </a>
-        <a class="nav-item" href="kopdar.html">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Kopdar</span>
-        </a>
-        <a class="nav-job" href="jopbgtpro.html">
-            <div class="nav-job-logo">
-                <img src="/leong.github.io/512B.png" alt="Job BGT" onerror="this.src='https://ui-avatars.com/api/?name=BGT&background=6366f1&color=fff&size=100'">
-                <span class="job-badge hidden" id="jobBadge">0</span>
-            </div>
-            <span class="nav-job-text">Job BGT</span>
-        </a>
-        <a class="nav-item" href="promo.html">
-            <i class="fas fa-tags"></i>
-            <span>Promo</span>
-        </a>
-        <a class="nav-item" href="profil.html" class="active">
-            <i class="fas fa-user"></i>
-            <span>Profil</span>
-        </a>
-    </nav>
+    <!-- Toast -->
+    <div class="toast hidden" id="toast">
+        <div class="toast-icon info"><i class="fas fa-info-circle"></i></div>
+        <div class="toast-content">
+            <div class="toast-title" id="toastTitle">Info</div>
+            <div class="toast-message" id="toastMessage">Pesan</div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https:// QRCode.min.js"></script> <!-- Saya menambahkan library QR Code -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-    <!-- FIREBASE CORE -->
+    <!-- FIREBASE CORE (Menangani Login & Keamanan) -->
+    <!-- Pastikan file ini sudah dibuat -->
     <script src="firebase-core.js"></script>
 
     <script>
         // ============================================
-        // FIREBASE CONFIG
+        // LOGIKA KHUSUS PETA (KODE ASLI ANDA, TIDAK DIUBAH)
         // ============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
-            authDomain: "cedar-setup-425414-d7.firebaseapp.com",
-            databaseURL: "https://rcode.today/api/v1/create-qr-code/?data=BGT-PRO-", // URL QR Code Generator
-            projectId: "cedar-setup-425414-d7",
-            storageBucket: "cedar-setup-425414-d7.firebasestorage.app",
-            messagingSenderId: "723545991983",
-            appId: "1:723545991983:web:379548d2b425a502a60fda"
-        };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
-        const rtdb = firebase.database();
-        
+
         // State
-        let sessionUnsubscribe = null;
-        let currentUserId = null;
-        let localSessionId = null;
-        let isScreenLocked = false;
-        let lockTimerInterval = null;
-        let pendingRedirect = false;
+        let map = null;
+        let markers = {};
+        let membersUnsubscribe = null;
+        let allMembers = [];
 
-        // Global Variable untuk QR Code Library (misalnya dari QRCode.min.js)
-        let QRCode = null; 
-        let qrcode = null;
+        // Default map center (Indonesia center)
+        const DEFAULT_LAT = -2.5489;
+        const DEFAULT_LNG = 118.0149;
+        const DEFAULT_ZOOM = 5;
 
-        // Fungsi Inisialisasi QR Code
-        if (typeof QRCode !== 'undefined') {
-            try {
-                QRCode = new QRCode(document.getElementById("qrImage"), { 
-                    text: "BGT-PRO", 
-                    width: 160, 
-                    height: 160, 
-                    color: "#6366f1", 
-                    background: "#ffffff", 
-                    correctLevel: QRECode.CorrectLevel.H 
-                });
-            } catch (e) {
-                console.error("Gagal memuat QRCode:", e);
-            }
-        }
-
-        // ============================================
-        // FUNGSI UTAMA (CORE)
-        // ============================================
-        
-        // Helper function untuk mengambil data user
-        function safeGetItem(key) { 
-            try { return localStorage.getItem(key); } catch (e) { return null; } 
-        }
-
-        function showUserData(data) {
-            const nama = data.nama || 'User';
-            const avatar = data.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=6366f1&color=fff&size=200`;
-            const title = data.titel || 'ANGGOTA';
-            
-            document.getElementById('profileAvatar').src = avatar;
-            document.getElementById('profileName').textContent = nama;
-            document.getElementById('menuAvatar').src = avatar;
-            document.getElementById('menuName').textContent = nama;
-            document.getElementById('menuTitle').textContent = title;
-            
-            document.getElementById('profileEmail').textContent = data.email || '-';
-            document.getElementById('profilePhone').textContent = data.telepon || '-';
-            document.getElementById('profilePlat').textContent = data.platMobil || '-';
-            document.getElementById('profileJoined').textContent = data.bergabung || '-';
-            
-            document.getElementById('loadingContainer').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            
-            // Render Data QR Code
-            if (QRCode) {
-                QRCode.makeCode({ text: `BGT-PRO-${data.id}`, width: 160, height: 160, correctLevel: QRError.CorrectLevel.H, background: "#ffffff", color: "#6366f1" });
-                document.getElementById('qrImage').src = QRCodeDataURL;
-            }
-
-            // Tampilkan Statistik
-            if (data.totalKopdar) document.getElementById('statKopdar').textContent = data.totalKopdar || 0;
-            if (data.totalKas) document.getElementById('statKas').textContent = data.totalKas || 0;
-            if (data.point) document.getElementById('statPoint').textContent = data.point || 0;
-
-            // Tampilkan Job Badge
-            if (data.jobCount && data.jobCount > 0) {
-                const badge = document.getElementById('jobBadge');
-                badge.textContent = data.jobCount;
-                badge.classList.remove('hidden');
-            } else {
-                document.getElementById('jobBadge').classList.add('hidden');
-            }
-        }
-
-        // ============================================
-        // FUNGSI AUTH & AUTO LOGIC
-        // ============================================
-        auth.onAuthStateChanged((user) => {
-            if (!user) { 
-                window.location.href = 'index.html'; 
-                return; 
-            }
-            
-            currentUserId = user.uid;
-            
-            try {
-                const db = firebase.firestore();
-                const doc = await db.collection('users').doc(user.uid).get();
-                
-                if (doc.exists) {
-                    showUserData(doc.data());
-                } else {
-                    // User tidak ditemukan di database
-                    await auth.signOut();
-                    window.location.href = 'index.html';
-                }
-            } catch (e) { 
-                console.error('Error loading profile:', e); 
-                showToast('warning', 'Error', 'Gagal memuat data profil');
-                document.getElementById('loadingContainer').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-            }
-        });
-
-        // ============================================
-        // LOGIKA EDIT & SHARE
-        // ============================================
-        
-        // Klik Tombol Edit Profil
-        function openEditModal() {
-            if (!userData) return; // Jika data belum ada, jangan buka modal
-            
-            document.getElementById('editNama').value = userData.nama || '';
-            document.getElementById('editTelepon').value = userData.telepon || '';
-            document.getElementById('editPlat').value = userData.platMobil || '';
-            
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-        }
-
-        // Handle Submit Edit Profil
-        document.getElementById('editForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const btn = document.getElementById('btnSave');
-            const originalText = btn.innerHTML;
-            
-            // UI Loading State
-            btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
-            btn.disabled = true;
-
-            const nama = document.getElementById('editNama').value.trim();
-            const telepon = document.getElementById('editTelepon').value.trim();
-            const platMobil = document.getElementById('editPlat').value.trim().toUpperCase();
-            
-            if (!nama) return alert("Nama wajib diisi!");
-            if (!telepon) return alert("Nomor HP wajib diisi!");
-
-            try {
-                // Update ke Firestore
-                await db.collection('users').doc(currentUserId).update({
-                    nama: nama,
-                    telepon: telepon,
-                    platMobil: platMobil,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                // Update Data Lokal
-                if (userData.latitude && userData.longitude) {
-                    await db.collection('users').doc(currentUserId).update({
-                        latitude: firebase.firestore.FieldValue.increment(1), // Tambah poin update untuk update lokasi
-                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-
-                // Update Lokal Variable
-                userData.nama = nama;
-                userData.telepon = telepon;
-                userData.platMobil = platMobil;
-
-                // Update UI
-                document.getElementById('headerAvatar').src = document.getElementById('profileAvatar').src;
-                document.getElementById('headerName').textContent = nama;
-                document.getElementById('menuAvatar').src = document.getElementById('menuAvatar').src;
-                document.getElementById('menuName').textContent = nama;
-                document.getElementById('menuTitle').textContent = userData.titel || 'ANGGOTA';
-                
-                showToast('success', 'Berhasil', 'Profil berhasil diperbarui');
-                closeEditModal();
-
-            } catch (error) {
-                console.error(error);
-                showToast('error', 'Gagal', 'Gagal menyimpan perubahan: ' + error.message);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
-
-        // Fungsi Share Profil
-        async function shareProfile() {
-            const shareData = {
-                title: `Profil ${userData?.nama || 'Saya'}`,
-                text: `Lihat profil lengkap ${userData?.nama || 'Saya'} di BGT-PRO.\n\n\nLink: ${window.location.href}`,
-                url: window.location.href
-            };
-
-            // Gunakan Web Share API jika ada, fallback ke copy link
-            if (navigator.share) {
-                try {
-                    await navigator.share(shareData);
-                    showToast('success', 'Berhasil', 'Terbagikan profil berhasil.');
-                } catch (err) {
-                    // Jika user ada fitur share tapi ditolak: Copy Link
-                    copyTextToClipboard(window.location.href);
-                }
-            } else {
-                // Jika tidak ada fitur share, pakai Copy Link saja
-                copyTextToClipboard(window.location.href);
-            }
-        }
-
-        function copyTextToClipboard(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('success', 'Berhasil', 'Tautan berhasil disalin');
-                }).catch(err => console.error('Gagal menyalin: ', err));
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showToast('success', 'Berhasil', 'Tautan berhasil disalin');
-            }
-        }
-
-        // ============================================
-        // LOGIKA EDIT & SHARE SELESAIKA
-        // ============================================
-        
-        // Fungsi ini hanya jalan di halaman profil saja
-        function checkLoginStatus() {
-            if (!auth.currentUser) {
-                window.location.href = 'index.html';
-            }
-        }
-
-        function handleSessionKick() {
-            localStorage.clear();
-            location.reload();
-        }
-
-        // Handle Logout
-        function handleLogout() {
-            if (!confirm('Yakin ingin keluar?')) return;
-            localStorage.removeItem('userSessionId');
-            if (watchId) navigator.geolocation.clearWatch(watchId);
-            if (sessionUnsubscribe) sessionUnsubscribe();
-            auth.signOut().then(() => window.location.href = 'index.html');
-        }
-
-        // Inisialisasi QR Code
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.QRCode) {
-                document.getElementById('qrImage').src = window.QRCode.makeCode({ text: `BGT-PRO-${auth.currentUser.uid}`, width: 160, height: 160, correctLevel: QRError.CorrectLevel.H, background: "#ffffff", color: "#6366f1" });
-            }
+            initMap();
+            loadMembersRealtime();
         });
 
+        // Go Back
+        function goBack() {
+            window.location.href = 'branda.html';
+        }
+
+        // Initialize Map
+        function initMap() {
+            if (map) return;
+            
+            map = L.map('map', {
+                center: [DEFAULT_LAT, DEFAULT_LNG],
+                zoom: DEFAULT_ZOOM,
+                zoomControl: false
+            });
+            
+            // Add zoom control to bottom left
+            L.control.zoom({ position: 'bottomleft' }).addTo(map);
+            
+            // Add tile layer (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+            
+            console.log('Map initialized');
+        }
+
+        // Check Online Status
+        function checkOnlineStatus(member) {
+            if (!member.currentSessionId) return false;
+            
+            if (member.lastActive) {
+                const lastActiveDate = member.lastActive.toDate ? member.lastActive.toDate() : new Date(member.lastActive);
+                const now = new Date();
+                const diffMinutes = (now - lastActiveDate) / (1000 * 60);
+                
+                if (diffMinutes > 2) return false;
+            }
+            
+            return true;
+        }
+
+        // Create Custom Marker Icon
+        function createMarkerIcon(isOnline) {
+            const size = 38;
+            
+            return L.divIcon({
+                className: `custom-marker ${isOnline ? 'online' : 'offline'}`,
+                html: `
+                    <div style="
+                        width: ${size}px;
+                        height: ${size}px;
+                        border-radius: 50%;
+                        border: 3px solid white;
+                        background: ${isOnline ? '#10b981' : '#94a3b8'};
+                        box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">
+                        <i class="fas fa-user" style="color: white; font-size: 15px;"></i>
+                    </div>
+                `,
+                iconSize: [size, size],
+                iconAnchor: [size/2, size/2],
+                popupAnchor: [0, -size/2]
+            });
+        }
+
+        // Load Members with Realtime Updates
+        function loadMembersRealtime() {
+            if (membersUnsubscribe) {
+                membersUnsubscribe();
+            }
+            
+            membersUnsubscribe = db.collection('users').onSnapshot((snapshot) => {
+                allMembers = [];
+                
+                snapshot.forEach(doc => {
+                    allMembers.push({ id: doc.id, ...doc.data() });
+                });
+                
+                console.log('[REALTIME] Members loaded:', allMembers.length);
+                
+                updateMarkers();
+                updateStats();
+                updateMemberList();
+            }, (error) => {
+                console.error('Realtime listener error:', error);
+            });
+        }
+
+        // Update Markers
+        function updateMarkers() {
+            // Clear existing markers
+            Object.values(markers).forEach(marker => {
+                map.removeLayer(marker);
+            });
+            markers = {};
+            
+            // Add markers for members with location
+            allMembers.forEach(member => {
+                if (member.latitude && member.longitude) {
+                    const isOnline = checkOnlineStatus(member);
+                    
+                    const marker = L.marker([member.latitude, member.longitude], {
+                        icon: createMarkerIcon(isOnline)
+                    });
+                    
+                    // Create popup content
+                    const popupContent = `
+                        <div class="popup-content">
+                            <div class="popup-header">
+                                <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nama || 'User')}&background=4f46e5&color=fff`}" 
+                                     alt="${member.nama}" class="popup-avatar">
+                                <div>
+                                    <div class="popup-name">${member.nama || 'Unknown'}</div>
+                                    <span class="popup-status ${isOnline ? 'online' : 'offline'}">
+                                        ${isOnline ? 'ONLINE' : 'OFFLINE'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="popup-info">
+                                ${member.email ? `<div><i class="fas fa-envelope"></i> ${member.email}</div>` : ''}
+                                ${member.telepon ? `<div><i class="fas fa-phone"></i> ${member.telepon}</div>` : ''}
+                                ${member.platMobil ? `<div><i class="fas fa-car"></i> ${member.platMobil}</div>` : ''}
+                                ${member.titel ? `<div><i class="fas fa-star"></i> ${member.titel}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent);
+                    marker.addTo(map);
+                    markers[member.id] = marker;
+                }
+            });
+            
+            console.log('Markers updated:', Object.keys(markers).length);
+        }
+
+        // Update Stats
+        function updateStats() {
+            const total = allMembers.length;
+            const online = allMembers.filter(m => checkOnlineStatus(m)).length;
+            const offline = total - online;
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statOnline').textContent = online;
+            document.getElementById('statOffline').textContent = offline;
+        }
+
+        // Update Member List
+        function updateMemberList() {
+            const list = document.getElementById('memberList');
+            const membersWithLocation = allMembers.filter(m => m.latitude && m.longitude);
+            
+            if (membersWithLocation.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Belum ada anggota dengan lokasi</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort: online first, then by name
+            membersWithLocation.sort((a, b) => {
+                const aOnline = checkOnlineStatus(a);
+                const bOnline = checkOnlineStatus(b);
+                if (aOnline && !bOnline) return -1;
+                if (!aOnline && bOnline) return 1;
+                return (a.nama || '').localeCompare(b.nama || '');
+            });
+            
+            list.innerHTML = membersWithLocation.map(member => {
+                const isOnline = checkOnlineStatus(member);
+                return `
+                    <div class="map-member-item" onclick="focusMember('${member.id}')">
+                        <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nama || 'User')}&background=4f46e5&color=fff`}" 
+                             alt="${member.nama}" class="map-member-avatar">
+                        <div class="map-member-info">
+                            <div class="map-member-name">${member.nama || 'Unknown'}</div>
+                            <div class="map-member-status">${isOnline ? 'Online' : 'Offline'}</div>
+                        </div>
+                        <div class="map-member-dot ${isOnline ? 'online' : 'offline'}"></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Focus on Member
+        function focusMember(memberId) {
+            const marker = markers[memberId];
+            if (marker) {
+                map.setView(marker.getLatLng(), 15);
+                marker.openPopup();
+            }
+        }
+
+        // Locate Me
+        function locateMe() {
+            if (!navigator.geolocation) {
+                showToast('warning', 'Tidak Didukung', 'Browser tidak mendukung geolokasi');
+                return;
+            }
+            
+            showToast('info', 'Mencari Lokasi', 'Mendapatkan posisi Anda...');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    map.setView([lat, lng], 15);
+                    showToast('success', 'Lokasi Ditemukan', 'Posisi Anda telah ditampilkan');
+                },
+                (error) => {
+                    let msg = 'Gagal mendapatkan lokasi';
+                    if (error.code === 1) msg = 'Izin lokasi ditolak';
+                    if (error.code === 2) msg = 'Lokasi tidak tersedia';
+                    if (error.code === 3) msg = 'Timeout';
+                    showToast('warning', 'Error', msg);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // Refresh Location
+        function refreshLocation() {
+            updateMarkers();
+            updateStats();
+            updateMemberList();
+            showToast('info', 'Diperbarui', 'Data lokasi telah diperbarui');
+        }
+
+        // Toggle Panel
+        function togglePanel() {
+            const panel = document.getElementById('mapPanel');
+            panel.classList.toggle('collapsed');
+        }
+
+        // Toggle Panel Collapse
+        function togglePanelCollapse() {
+            const panel = document.getElementById('mapPanel');
+            panel.classList.toggle('collapsed');
+        }
+
+        // Show Toast
+        function showToast(type, title, message) {
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = toast.querySelector('.toast-icon');
+            
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            toastIcon.className = 'toast-icon ' + type;
+            toastIcon.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : (type === 'warning' ? 'exclamation-triangle' : 'info-circle')}"></i>`;
+            
+            toast.classList.remove('hidden', 'hiding');
+            
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (membersUnsubscribe) {
+                membersUnsubscribe();
+            }
+        });
     </script>
 
 </body>
