@@ -203,20 +203,21 @@
         .skeleton-kopdar { height: 99px; border-radius: 16px; margin-bottom: 10px; }
 
         /* =========================================
-           PERIZINAN MODAL (FIX AGAR TIDAK DITOLAK)
+           MODAL IZIN LENGKAP (ALL PERMISSIONS)
            ========================================= */
         .perm-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 50000;
+            background: rgba(0,0,0,0.7); z-index: 50000;
             display: none; justify-content: center; align-items: center; padding: 20px;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
         .perm-modal.active { display: flex; }
         .perm-card {
-            background: white; width: 100%; max-width: 380px;
-            border-radius: 24px; padding: 30px 20px;
+            background: white; width: 100%; max-width: 400px;
+            border-radius: 24px; padding: 30px 25px;
             text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh; overflow-y: auto;
         }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
@@ -225,9 +226,20 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 2rem; margin: 0 auto 20px;
         }
-        .perm-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; color: var(--dark); }
-        .perm-desc { font-size: 0.9rem; color: var(--gray); line-height: 1.5; margin-bottom: 25px; }
+        .perm-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; color: var(--dark); }
+        .perm-desc { font-size: 0.85rem; color: var(--gray); line-height: 1.5; margin-bottom: 25px; }
         
+        .perm-list {
+            text-align: left; background: #f8fafc; padding: 15px; border-radius: 12px;
+            margin-bottom: 25px; border: 1px solid #e2e8f0;
+        }
+        .perm-item {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+            font-size: 0.85rem; font-weight: 500; color: var(--dark);
+        }
+        .perm-item:last-child { margin-bottom: 0; }
+        .perm-item i { width: 20px; text-align: center; color: var(--primary); }
+
         .perm-btn {
             width: 100%; padding: 14px; border-radius: 12px; border: none;
             font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 10px;
@@ -236,6 +248,14 @@
         .perm-btn:active { transform: scale(0.97); }
         .perm-btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
         .perm-btn-secondary { background: #f1f5f9; color: var(--dark); }
+        
+        /* Loading kecil di tombol */
+        .btn-spinner {
+            width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%;
+            animation: spin 0.8s linear infinite; display: inline-block;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -254,16 +274,23 @@
     <button class="btn-kick-ok" onclick="handleSessionKick()"><i class="fas fa-check"></i> Mengerti</button>
 </div>
 
-<!-- PERIZINAN MODAL (MODAL BARU AGAR IZIN DITERIMA) -->
+<!-- MODAL IZIN LENGKAP -->
 <div class="perm-modal" id="permModal">
     <div class="perm-card">
         <div class="perm-icon"><i class="fas fa-shield-alt"></i></div>
-        <h3 class="perm-title">Aktifkan Fitur</h3>
-        <p class="perm-desc">
-            Untuk pengalaman terbaik, BGT-PRO memerlukan akses ke <strong>Lokasi</strong> (untuk tracking) dan <strong>Notifikasi</strong> (untuk info Job).
-        </p>
-        <button class="perm-btn perm-btn-primary" onclick="handleAllowPermissions()">
-            <i class="fas fa-check-circle"></i> Izinkan Sekarang
+        <h3 class="perm-title">Izin Akses Diperlukan</h3>
+        <p class="perm-desc">Agar BGT-PRO berfungsi maksimal, silakan aktifkan izin berikut:</p>
+        
+        <div class="perm-list">
+            <div class="perm-item"><i class="fas fa-map-marker-alt"></i> <span>Lokasi (Untuk Tracking)</span></div>
+            <div class="perm-item"><i class="fas fa-camera"></i> <span>Kamera (Untuk Foto Profil)</span></div>
+            <div class="perm-item"><i class="fas fa-microphone"></i> <span>Mikrofon (Untuk Fitur Suara)</span></div>
+            <div class="perm-item"><i class="fas fa-phone"></i> <span>Telepon (Untuk Hubungi Admin)</span></div>
+            <div class="perm-item"><i class="fas fa-bell"></i> <span>Notifikasi (Info Job & Pesan)</span></div>
+        </div>
+        
+        <button class="perm-btn perm-btn-primary" id="btnAllowAll" onclick="handleRequestAllPermissions()">
+            <i class="fas fa-check-circle"></i> Izinkan Semua
         </button>
         <button class="perm-btn perm-btn-secondary" onclick="handleSkipPermissions()">
             Nanti Saja
@@ -408,15 +435,11 @@
     const db = firebase.firestore();
     const rtdb = firebase.database();
 
-    // ============================================
-    // STATE
-    // ============================================
+    // State
     let sessionUnsubscribe = null;
     let currentUserId = null;
     let localSessionId = null;
     let messaging = null;
-
-    // Variable Tracking
     let watchId = null;
     let currentAppUser = null;
 
@@ -433,60 +456,73 @@
     ];
 
     // ============================================
-    // LOGIKA IZIN (FIX AGAR TIDAK DITOLAK BROWSER)
+    // FUNGSI IZIN LENGKAP (ALL IN ONE)
     // ============================================
     
-    // Fungsi ini hanya dijalankan saat user MENKLIK tombol "Izinkan"
-    async function handleAllowPermissions() {
-        // 1. Tutup Modal
-        document.getElementById('permModal').classList.remove('active');
-        
-        // 2. Minta Izin Lokasi (Karena ini di-trigger KLIK, browser akan mengizinkan)
-        if (navigator.geolocation) {
-            showToast('info', 'Lokasi', 'Sedang meminta izin lokasi...');
-            startAutoTracking();
-        } else {
-            showToast('error', 'Error', 'Browser tidak mendukung lokasi');
-        }
+    // Fungsi utama yang dipanggil saat tombol "Izinkan Semua" diklik
+    async function handleRequestAllPermissions() {
+        const btn = document.getElementById('btnAllowAll');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
+        btn.disabled = true;
 
-        // 3. Minta Izin Notifikasi
-        if ('Notification' in window) {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    initFCM(); // Jalankan FCM jika diizinkan
-                } else {
-                    showToast('warning', 'Notifikasi', 'Izin notifikasi ditolak.');
-                }
-            } catch (e) {
-                console.error(e);
+        try {
+            // 1. Izin Notifikasi
+            if ('Notification' in window) {
+                await Notification.requestPermission();
             }
+
+            // 2. Izin Lokasi
+            if (navigator.geolocation) {
+                // Kita panggil sekali untuk memicu prompt browser
+                navigator.geolocation.getCurrentPosition(() => {}, () => {});
+            }
+
+            // 3. Izin Kamera & Mikrofon
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    // Langsung matikan stream setelah dapat izin (agar indikator rekam tidak nyala terus)
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (err) {
+                    console.warn('Kamera/Mic ditolak atau tidak tersedia:', err);
+                }
+            }
+            
+            // 4. Catatan untuk Izin Telpon/Kontak:
+            // Browser (Chrome/Safari/Firefox) TIDAK mengizinkan web membaca Kontak/Log Telp.
+            // Ini diblokir demi keamanan privasi global.
+            // Jadi kita tidak bisa meminta izin ini lewat kode, hanya bisa meminta user menekan link tel: nanti.
+
+            // 5. Jalankan FCM & Tracking setelah izin diminta
+            initFCM();
+            startAutoTracking();
+
+            showToast('success', 'Berhasil', 'Izin yang diperlukan telah diatur.');
+            document.getElementById('permModal').classList.remove('active');
+
+        } catch (error) {
+            console.error(error);
+            showToast('warning', 'Info', 'Beberapa izin mungkin diblokir browser.');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     }
 
     function handleSkipPermissions() {
         document.getElementById('permModal').classList.remove('active');
-        showToast('info', 'Info', 'Anda bisa mengaktifkan fitur nanti di Pengaturan.');
+        // Coba jalankan tracking silent saja (jika sudah pernah diizinkan sebelumnya)
+        startAutoTracking();
+        if(Notification.permission === 'granted') initFCM();
     }
 
     function showPermissionModal() {
-        // Cek apakah izin sudah pernah diminta
-        const locPerm = 'geolocation' in navigator; // Tidak bisa cek status loc detail di web
-        const notifPerm = Notification.permission;
-
-        // Jika notifikasi sudah 'granted' atau 'denied', jangan tampilkan modal lagi
-        if (notifPerm !== 'default') {
-            // Jika sudah granted, langsung jalanin fcm
-            if(notifPerm === 'granted') initFCM();
-            // Lokasi kita coba jalanin silent (watchPosition akan meminta izin jika belum ada)
-            startAutoTracking(); 
-            return;
-        }
-
-        // Tampilkan Modal jika izin masih 'default' (belum pernah ditentukan)
+        // Tampilkan modal jika notifikasi masih default (belum pernah ditentukan)
+        // atau paksa tampilkan jika ingin user selalu melihatnya saat buka app
         setTimeout(() => {
             document.getElementById('permModal').classList.add('active');
-        }, 1000); // Delay sedikit biar loading selesai
+        }, 1000);
     }
 
     // ============================================
@@ -496,44 +532,26 @@
         if (!currentAppUser) return;
         try {
             await db.collection('users').doc(currentAppUser.uid).update({
-                latitude: lat,
-                longitude: lng,
-                accuracy: accuracy || 0,
+                latitude: lat, longitude: lng, accuracy: accuracy || 0,
                 locationUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastActive: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('📍 Location updated');
-        } catch (e) {
-            console.error('Error updating location:', e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     function startAutoTracking() {
         if (!navigator.geolocation) return;
         if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-
         const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
         
-        // Paksa setting ON
         let settings = JSON.parse(localStorage.getItem('appSettings')) || {};
         settings.backgroundTracking = true; 
         localStorage.setItem('appSettings', JSON.stringify(settings));
 
         watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                updateLocationToFirebase(position.coords.latitude, position.coords.longitude, position.coords.accuracy);
-            }, 
-            (error) => {
-                if(error.code === error.PERMISSION_DENIED) {
-                    showToast('warning', 'Lokasi', 'Izin lokasi diblokir. Aktifkan di pengaturan browser.');
-                }
-            }, 
+            (p) => updateLocationToFirebase(p.coords.latitude, p.coords.longitude, p.coords.accuracy), 
+            (e) => { if(e.code === e.PERMISSION_DENIED) showToast('warning', 'Lokasi', 'Izin lokasi diblokir.'); }, 
             options
-        );
-        
-        navigator.geolocation.getCurrentPosition(
-            (p) => updateLocationToFirebase(p.coords.latitude, p.coords.longitude, p.coords.accuracy),
-            () => {}, options
         );
     }
 
@@ -545,39 +563,18 @@
             messaging = firebase.messaging();
             const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
             const token = await messaging.getToken({ vapidKey: VAPID_KEY });
-            
-            if (token) {
-                const user = auth.currentUser;
-                if (user) {
-                    await db.collection('users').doc(user.uid).set({
-                        fcmToken: token,
-                        fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-                }
+            if (token && currentAppUser) {
+                await db.collection('users').doc(currentAppUser.uid).set({
+                    fcmToken: token, fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
             }
-            
             messaging.onMessage((payload) => {
                 const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
                 const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
                 showToast('info', title, body);
                 if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
             });
-        } catch (error) {
-            console.error('FCM Error:', error.message);
-        }
-    }
-
-    // ============================================
-    // SERVICE WORKER
-    // ============================================
-    async function registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            try {
-                const swUrl = '/leong.github.io/firebase-messaging-sw.js';
-                await navigator.serviceWorker.register(swUrl, { scope: '/leong.github.io/' });
-                await navigator.serviceWorker.ready;
-            } catch (error) { console.error('SW Error:', error.message); }
-        }
+        } catch (error) { console.error('FCM Error:', error.message); }
     }
 
     // ============================================
@@ -678,7 +675,7 @@
         document.getElementById('loadingContainer').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         
-        // PERUBAHAN: Panggil Modal Izin di sini (Setelah UI tampil)
+        // Tampilkan Modal Izin
         showPermissionModal();
     }
 
@@ -737,7 +734,7 @@
         }
     });
 
-    // Session Monitor Logic (Simplified for brevity, assumed from previous code)
+    // Session Monitor
     function showSessionKick(deviceInfo) {
         document.getElementById('kickDeviceInfo').textContent = deviceInfo || 'Perangkat lain';
         document.getElementById('sessionKickOverlay').classList.add('active');
@@ -760,6 +757,17 @@
                 showSessionKick(data.currentDevice || 'Perangkat lain');
             }
         }, (err) => console.error('Session error:', err));
+    }
+
+    // Service Worker
+    async function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const swUrl = '/leong.github.io/firebase-messaging-sw.js';
+                await navigator.serviceWorker.register(swUrl, { scope: '/leong.github.io/' });
+                await navigator.serviceWorker.ready;
+            } catch (error) { console.error('SW Error:', error.message); }
+        }
     }
 
     window.addEventListener('beforeunload', () => {
