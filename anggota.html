@@ -11,135 +11,247 @@
     <style>
         :root {
             --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
             --secondary: #8b5cf6;
             --accent: #f59e0b;
             --success: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #06b6d4;
             --dark: #0f172a;
             --dark-light: #1e293b;
             --gray: #64748b;
             --gray-light: #94a3b8;
             --white: #ffffff;
+            --text-primary: #1e3a5f;
+            --text-secondary: #4a6d8c;
             --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --shadow-soft: 0 4px 15px rgba(99, 102, 241, 0.08);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow-x: hidden; }
-        body { font-family: 'Poppins', sans-serif; background: var(--dark); color: var(--white); min-height: 100dvh; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%); 
+            color: var(--text-primary); 
+            min-height: 100dvh; 
+        }
 
-        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
-        .loading-screen.hidden { opacity: 0; pointer-events: none; }
-        .loading-spinner { width: 35px; height: 35px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Hide Scrollbar */
+        html, body, .app-container { scrollbar-width: none; -ms-overflow-style: none; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar, .app-container::-webkit-scrollbar { display: none; }
 
-        .app-container { width: 100%; min-height: 100dvh; padding-bottom: 80px; }
+        .app-container { 
+            width: 100%; 
+            min-height: 100dvh; 
+            padding-bottom: 90px; 
+            overflow-y: auto; 
+            padding-top: 70px; 
+        }
 
         /* Header */
-        .header { position: sticky; top: 0; z-index: 100; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .header-row { display: flex; justify-content: space-between; align-items: center; }
+        .header { 
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 100; 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px); 
+            padding: 10px 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        }
         .header-left { display: flex; align-items: center; gap: 10px; }
-        .header-title { font-size: 1.1rem; font-weight: 700; }
-        .back-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.05); border: none; border-radius: 10px; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .back-btn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+        .header-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .header-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .header-user-info { display: flex; flex-direction: column; }
+        .header-name { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+        .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+        
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .header-btn { 
+            width: 38px; height: 38px; background: rgba(99, 102, 241, 0.1); 
+            border: none; border-radius: 10px; color: var(--primary); 
+            font-size: 1rem; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center; transition: all 0.3s; 
+        }
+        .header-btn:active { background: rgba(99, 102, 241, 0.2); transform: scale(0.95); }
 
         /* Search */
-        .search-box { margin-top: 12px; position: relative; }
-        .search-input { width: 100%; padding: 12px 16px 12px 42px; background: var(--dark-light); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; color: white; font-size: 0.9rem; font-family: inherit; }
-        .search-input::placeholder { color: var(--gray-light); }
-        .search-input:focus { outline: none; border-color: var(--primary); }
-        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        .search-box { margin: 0 16px 12px; position: relative; }
+        .search-input { 
+            width: 100%; padding: 12px 16px 12px 42px; 
+            background: white; border: 1px solid rgba(99, 102, 241, 0.15); 
+            border-radius: 12px; color: var(--text-primary); font-size: 0.9rem; 
+            font-family: inherit; transition: all 0.3s;
+        }
+        .search-input::placeholder { color: rgba(0, 0,0,0.4); }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--primary); }
 
         /* Stats Bar */
-        .stats-bar { display: flex; gap: 12px; padding: 12px 16px; overflow-x: auto; }
-        .stat-chip { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--dark-light); border: 1px solid rgba(255,255,255,0.05); border-radius: 9999px; font-size: 0.8rem; white-space: nowrap; }
+        .stats-bar { display: flex; gap: 12px; padding: 0 16px 16px; overflow-x: auto; }
+        .stat-chip { 
+            display: flex; align-items: center; gap: 6px; padding: 8px 14px; 
+            background: rgba(255, 255, 255, 0.9); border-radius: 9999px; 
+            font-size: 0.8rem; white-space: nowrap; box-shadow: 0 2px 8px rgba(0, 0,0,0.03); 
+        }
         .stat-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
-        .stat-chip .dot.total { background: var(--primary); }
-        .stat-chip .dot.online { background: var(--success); }
-        .stat-chip .dot.offline { background: var(--gray); }
-        .stat-chip .count { font-weight: 700; }
+        .stat-chip .dot.total { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
+        .stat-chip .online { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+        .stat-chip .offline { background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 100%); }
+        .stat-chip .count { font-weight: 700; color: var(--text-primary); }
 
-        /* Member List */
-        .member-list { padding: 0 16px; }
-        .member-card { background: var(--dark-light); border-radius: 14px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s; }
-        .member-card:active { border-color: var(--primary); transform: scale(0.99); }
-        .member-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
-        .member-info { flex: 1; }
-        .member-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
-        .member-title { font-size: 0.7rem; color: var(--primary); display: flex; align-items: center; gap: 4px; }
-        .member-status { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
-        .member-status.online { background: rgba(16, 185, 129, 0.15); color: var(--success); }
-        .member-status.offline { background: rgba(100, 116, 139, 0.15); color: var(--gray); }
-        .member-status .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        /* Section Header */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 0 16px 12px; }
+        .section-title { font-size: 0.95rem; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+        .section-title i { color: var(--primary); font-size: 0.9rem; }
+        .section-link { font-size: 0.8rem; color: var(--primary); font-weight: 600; text-decoration: none; }
+
+        /* Member / Kopdar List */
+        .kopdar-list, .member-list { margin: 0 16px 20px; }
+        
+        .kopdar-card, .member-card { 
+            background: rgba(255, 255, 255, 0.95); border-radius: 14px; 
+            padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; 
+            border: 1px solid rgba(0,0,0,0.03); cursor: pointer; 
+            transition: all 0.2s; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03); 
+            align-items: center; text-decoration: none; color: inherit;
+        }
+        .kopdar-card:active, .member-card:active { transform: scale(0.98); border-color: var(--primary-light); }
+        
+        .kopdar-image, .member-avatar-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: #f1f5f9; }
+        
+        .kopdar-info, .member-info { flex: 1; min-width: 0; }
+        .kopdar-title, .member-name-text { font-weight: 600; margin-bottom: 4px; font-size: 0.95rem; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .kopdar-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+        .kopdar-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--gray); }
+        .kopdar-meta i { font-size: 0.7rem; color: var(--primary); }
+        
+        .kopdar-badge, .status-badge { display: inline-block; padding: 3px 8px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
+        .kopdar-badge.soon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .kopdar-badge.open, .status-badge.online { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .status-badge.offline { background: rgba(148, 163, 184, 0.1); color: var(--gray); }
 
         /* Empty State */
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-light); }
-        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-light); }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; color: var(--primary); }
+
+        /* Loading */
+        .loading-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Skeleton */
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton-card { height: 120px; margin: 0 16px 12px; border-radius: 14px; }
+        .skeleton-list { height: 70px; margin: 0 16px 10px; border-radius: 14px; }
 
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); padding: 8px 16px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 12px; border-radius: 10px; cursor: pointer; color: var(--gray); text-decoration: none; }
-        .nav-item.active { color: var(--primary); background: rgba(99, 102, 241, 0.1); }
-        .nav-item i { font-size: 1.15rem; }
-        .nav-item span { font-size: 0.65rem; font-weight: 500; }
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 8px 5px; border-top: 1px solid rgba(0,0,0,0.05);
+            z-index: 1000; height: 70px;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--gray); font-size: 0.65rem; gap: 2px; transition: all 0.2s; }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item.active { color: var(--primary); }
+        .nav-job { display: flex; flex-direction: column; align-items: center; position: relative; top: -15px; }
+        .nav-job-logo { width: 50px; height: 50px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); overflow: hidden; }
+        .nav-job-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .nav-job-text { font-size: 0.6rem; font-weight: 700; color: var(--primary); margin-top: 4px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
+    <!-- Loading Container -->
+    <div class="loading-container" id="loadingContainer">
         <div class="loading-spinner"></div>
-        <p style="color: var(--gray-light); font-size: 0.85rem; margin-top: 15px;">Memuat Anggota...</p>
+        <div class="loading-text">Memuat data...</div>
     </div>
 
-    <!-- App Container -->
+    <!-- Main App -->
     <div class="app-container" id="mainApp" style="display: none;">
 
         <header class="header">
-            <div class="header-row">
-                <div class="header-left">
-                    <button class="back-btn" onclick="window.location.href='branda.html'"><i class="fas fa-arrow-left"></i></button>
-                    <div class="header-title">Daftar Anggota</div>
+            <div class="header-left">
+                <div class="header-profile" onclick="window.location.href='profil.html'">
+                    <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff" alt="Avatar" class="header-avatar" id="headerAvatar">
+                    <div class="header-user-info">
+                        <div class="header-name" id="headerName">Loading...</div>
+                        <div class="header-status"><span class="status-dot"></span><span id="headerStatusText">Online</span></div>
+                    </div>
                 </div>
             </div>
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Cari anggota..." id="searchInput" oninput="filterMembers()">
+            <div class="header-right">
+                <button class="header-btn" onclick="window.location.href='peta.html'"><i class="fas fa-map-marker-alt"></i></button>
+                <button class="header-btn" onclick="shareProfile()"><i class="fas fa-share-alt"></i></button>
             </div>
         </header>
+
+        <!-- Search -->
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Cari anggota..." oninput="handleSearch()">
+        </div>
 
         <!-- Stats Bar -->
         <div class="stats-bar">
             <div class="stat-chip">
-                <span class="dot total"></span>
-                <span>Total</span>
+                <div class="dot total"></div>
                 <span class="count" id="statTotal">0</span>
+                <span>Total</span>
             </div>
             <div class="stat-chip">
-                <span class="dot online"></span>
-                <span>Online</span>
+                <div class="dot online"></div>
                 <span class="count" id="statOnline">0</span>
+                <span>Online</span>
             </div>
             <div class="stat-chip">
-                <span class="dot offline"></span>
-                <span>Offline</span>
+                <div class="dot offline"></div>
                 <span class="count" id="statOffline">0</span>
+                <span>Offline</span>
             </div>
         </div>
 
-        <!-- Member List -->
-        <div class="member-list" id="memberList"></div>
+        <!-- Member List Section -->
+        <div class="section-header">
+            <h3 class="section-title"><i class="fas fa-users"></i> Daftar Anggota</h3>
+        </div>
+
+        <div class="member-list" id="memberList">
+            <!-- Skeleton awal -->
+            <div class="skeleton skeleton-list"></div>
+            <div class="skeleton skeleton-list"></div>
+        </div>
 
     </div>
 
-    <!-- Bottom Navigation -->
+    <!-- Bottom Nav -->
     <nav class="bottom-nav">
         <a class="nav-item" href="branda.html">
             <i class="fas fa-home"></i>
             <span>Beranda</span>
         </a>
-        <a class="nav-item" href="kopdar.html">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Kopdar</span>
+        <a class="nav-item active" href="anggota.html">
+            <i class="fas fa-users"></i>
+            <span>Anggota</span>
+        </a>
+        <a class="nav-item nav-job" href="jopbgtpro.html">
+            <div class="nav-job-logo">
+                <img src="/leong.github.io/512B.png" alt="Job" onerror="this.src='https://ui-avatars.com/api/?name=BGT&background=6366f1&color=fff'">
+            </div>
+            <span class="nav-job-text">Job BGT</span>
         </a>
         <a class="nav-item" href="promo.html">
             <i class="fas fa-tags"></i>
@@ -157,7 +269,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase Config
+        // ================= KONFIGURASI FIREBASE =================
         const firebaseConfig = {
             apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
             authDomain: "cedar-setup-425414-d7.firebaseapp.com",
@@ -171,103 +283,160 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        
+        // State
+        let allMembers = []; 
+        let currentAppUser = null;
 
-        let allMembers = [];
+        // ============================================
+        // LOGIKA UTAMA
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) { 
+                    window.location.href = 'index.html'; 
+                    return; 
+                }
+                
+                currentAppUser = user;
+                
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        showUserData(doc.data());
+                        loadMembersRealtime();
+                    } else {
+                        await auth.signOut();
+                        window.location.href = 'index.html';
+                    }
+                } catch (e) { 
+                    console.error(e); 
+                    alert('Gagal memuat data aplikasi.');
+                    document.getElementById('loadingContainer').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                }
+            });
+        });
 
-        function checkOnlineStatus(member) {
-            if (!member.currentSessionId) return false;
-            if (member.lastActive) {
-                const lastActive = member.lastActive.toDate ? member.lastActive.toDate() : new Date(member.lastActive);
-                const diff = (new Date() - lastActive) / (1000 * 60);
-                if (diff > 2) return false;
-            }
-            return true;
+        // Tampilkan Data User di Header
+        function showUserData(userData) {
+            const photoURL = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'User')}&background=6366f1&color=fff`;
+            document.getElementById('headerAvatar').src = photoURL;
+            document.getElementById('headerName').textContent = userData.nama || 'User';
+            
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
         }
 
-        function loadMembers() {
+        // Load Data Anggota (Realtime)
+        function loadMembersRealtime() {
             db.collection('users').onSnapshot((snapshot) => {
                 allMembers = [];
-                snapshot.forEach(doc => allMembers.push({ id: doc.id, ...doc.data() }));
-                renderMembers();
+                snapshot.forEach(doc => {
+                    allMembers.push({ id: doc.id, ...doc.data() });
+                });
+                renderMembers(allMembers); // Render semua dulu
                 updateStats();
+            }, (error) => {
+                console.error("Error loading members:", error);
             });
         }
 
-        function updateStats() {
-            const total = allMembers.length;
-            const online = allMembers.filter(m => checkOnlineStatus(m)).length;
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statOnline').textContent = online;
-            document.getElementById('statOffline').textContent = total - online;
-        }
-
-        function filterMembers() {
-            renderMembers();
-        }
-
-        function renderMembers() {
+        // Render Daftar Anggota
+        function renderMembers(dataToRender) {
             const list = document.getElementById('memberList');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            let filtered = allMembers;
-
-            if (search) {
-                filtered = allMembers.filter(m => (m.nama || '').toLowerCase().includes(search));
-            }
-
-            // Sort: online first
-            filtered.sort((a, b) => {
-                const aOnline = checkOnlineStatus(a);
-                const bOnline = checkOnlineStatus(b);
-                if (aOnline && !bOnline) return -1;
-                if (!aOnline && bOnline) return 1;
-                return (a.nama || '').localeCompare(b.nama || '');
-            });
-
-            if (filtered.length === 0) {
+            
+            if (dataToRender.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-users"></i>
-                        <p>Tidak ada anggota ditemukan</p>
+                        <i class="fas fa-users-slash"></i>
+                        <p>Tidak ada anggota ditemukan.</p>
                     </div>
                 `;
                 return;
             }
 
-            list.innerHTML = filtered.map(m => {
-                const isOnline = checkOnlineStatus(m);
+            // Sort: Online First
+            dataToRender.sort((a, b) => {
+                const aOnline = checkOnline(a);
+                const bOnline = checkOnline(b);
+                if (aOnline && !bOnline) return -1;
+                if (!aOnline && bOnline) return 1;
+                return (a.nama || '').localeCompare(b.nama || '');
+            });
+
+            list.innerHTML = dataToRender.map(m => {
+                const isOnline = checkOnline(m);
                 const avatar = m.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.nama || 'User')}&background=6366f1&color=fff`;
+                const statusClass = isOnline ? 'online' : 'offline';
+                const statusText = isOnline ? 'Online' : 'Offline';
+
                 return `
-                    <div class="member-card" onclick="showMember('${m.id}')">
-                        <img src="${avatar}" alt="${m.nama}" class="member-avatar" loading="lazy">
+                    <div class="member-card" onclick="window.location.href='profil.html?id=${m.id}'">
+                        <img src="${avatar}" alt="${m.nama}" class="member-avatar-img" onerror="this.src='https://ui-avatars.com/api/?name=Err'">
                         <div class="member-info">
-                            <div class="member-name">${m.nama || 'Unknown'}</div>
-                            <div class="member-title"><i class="fas fa-crown"></i> ${m.titel || 'ANGGOTA'}</div>
+                            <div class="member-name-text">${escapeHtml(m.nama || 'Unknown')}</div>
+                            <div class="kopdar-meta">
+                                ${m.titel ? `<span><i class="fas fa-star"></i> ${escapeHtml(m.titel)}</span>` : ''}
+                                ${m.platMobil ? `<span><i class="fas fa-car"></i> ${escapeHtml(m.platMobil)}</span>` : ''}
+                            </div>
                         </div>
-                        <div class="member-status ${isOnline ? 'online' : 'offline'}">
-                            <span class="dot"></span>
-                            ${isOnline ? 'Online' : 'Offline'}
-                        </div>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
                     </div>
                 `;
             }).join('');
         }
 
-        function showMember(id) {
-            alert('Detail anggota akan segera hadir');
+        // Fungsi Pencarian
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allMembers.filter(m => {
+                const name = (m.nama || '').toLowerCase();
+                const plat = (m.platMobil || '').toLowerCase();
+                return name.includes(query) || plat.includes(query);
+            });
+            renderMembers(filtered);
         }
 
-        function showApp() {
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('mainApp').style.display = 'block';
-            loadMembers();
+        // Update Statistik
+        function updateStats() {
+            const total = allMembers.length;
+            const online = allMembers.filter(m => checkOnline(m)).length;
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statOnline').textContent = online;
+            document.getElementById('statOffline').textContent = total - online;
         }
 
-        // Auth State
-        auth.onAuthStateChanged((user) => {
-            if (!user) { window.location.href = 'index.html'; return; }
-            showApp();
-        });
+        // Cek Status Online
+        function checkOnline(m) {
+            if (!m.currentSessionId) return false;
+            if (m.lastActive) {
+                const last = m.lastActive.toDate ? m.lastActive.toDate() : new Date(m.lastActive);
+                const diffMinutes = (new Date() - last) / (1000 * 60);
+                if (diffMinutes > 5) return false; // Anggap offline setelah 5 menit
+            }
+            return true;
+        }
+
+        // Share Profile
+        async function shareProfile() {
+            const url = window.location.href;
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'BGT-PRO Anggota', url: url });
+                } catch (e) {}
+            } else {
+                // Fallback copy
+                navigator.clipboard.writeText(url).then(() => alert('Link disalin!'));
+            }
+        }
+
+        // Helper Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
     </script>
-
 </body>
 </html>
