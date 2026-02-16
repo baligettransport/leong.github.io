@@ -80,8 +80,19 @@
             border: none; border-radius: 10px; color: var(--primary); 
             font-size: 1rem; cursor: pointer; display: flex; 
             align-items: center; justify-content: center; transition: all 0.3s; 
+            position: relative;
         }
         .header-btn:active { background: rgba(99, 102, 241, 0.2); transform: scale(0.95); }
+        .header-btn.loading i { display: none; }
+        .header-btn.loading::after {
+            content: '';
+            width: 16px; height: 16px;
+            border: 2px solid transparent;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Search */
         .search-box { margin: 0 16px 12px; position: relative; }
@@ -145,8 +156,6 @@
 
         /* Loading */
         .loading-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; }
-        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Skeleton */
         .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
@@ -167,15 +176,15 @@
         .nav-item.active { color: var(--primary); font-weight: 600; }
         
         /* Style khusus untuk Logo Job BGT (Tanpa Background) */
-        .nav-job { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .nav-job { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -5px; }
         .nav-job-link { display: flex; flex-direction: column; align-items: center; text-decoration: none; }
         .nav-job-logo { 
-            width: 32px; 
+            width: 32px; /* Ukuran logo */
             height: 32px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            /* Background, border, shadow dihapus */
+            /* Background, border, shadow dihapus total */
             background: transparent; 
             border-radius: 0; 
             border: none;
@@ -187,7 +196,7 @@
             height: 100%; 
             object-fit: contain; 
         }
-        .nav-job-text { font-size: 0.6rem; font-weight: 600; color: var(--gray); margin-top: 2px; text-transform: uppercase; }
+        .nav-job-text { font-size: 0.6rem; font-weight: 600; color: var(--gray); margin-top: 4px; text-transform: uppercase; }
         .nav-job-link.active .nav-job-text { color: var(--primary); }
 
         /* Toast Notification */
@@ -222,13 +231,13 @@
                 </div>
             </a>
             <div class="header-right">
-                <!-- Tombol Peta: Menuju halaman peta -->
+                <!-- Tombol Peta -->
                 <button class="header-btn" onclick="window.location.href='peta.html'" title="Lihat Peta">
                     <i class="fas fa-map-marker-alt"></i>
                 </button>
-                <!-- Tombol Share: Membagikan aplikasi -->
-                <button class="header-btn" onclick="shareApp()" title="Bagikan Aplikasi">
-                    <i class="fas fa-share-alt"></i>
+                <!-- Tombol Share Lokasi Realtime -->
+                <button class="header-btn" id="shareLocBtn" onclick="shareMyLocation()" title="Bagikan Lokasi Saya">
+                    <i class="fas fa-share-nodes"></i>
                 </button>
             </div>
         </header>
@@ -281,7 +290,7 @@
             <span>Anggota</span>
         </a>
         
-        <!-- Job BGT Logo Only (No Background) -->
+        <!-- Job BGT Logo Only -->
         <a class="nav-item nav-job nav-job-link" href="jopbgtpro.html">
             <div class="nav-job-logo">
                 <img src="/leong.github.io/512B.png" alt="Job BGT" onerror="this.src='https://ui-avatars.com/api/?name=JOB&background=ffffff&color=6366f1&size=128'">
@@ -460,24 +469,83 @@
             return true;
         }
 
-        // Share App Function
-        function shareApp() {
-            const url = window.location.href; // Atau ganti dengan link play store jika ada
-            const title = 'BGT-PRO App';
-            const text = 'Yuk gabung di komunitas BGT-PRO!';
-
-            if (navigator.share) {
-                navigator.share({ title: title, text: text, url: url })
-                    .then(() => console.log('Berhasil berbagi'))
-                    .catch((error) => console.log('Gagal berbagi', error));
-            } else {
-                // Fallback: Copy to clipboard
-                navigator.clipboard.writeText(url).then(() => {
-                    showToast('Link berhasil disalin!');
-                }).catch(err => {
-                    console.error('Gagal menyalin: ', err);
-                });
+        // ==================================================
+        // FUNGSI SHARE LOKASI REALTIME (Tombol Kanan Atas)
+        // ==================================================
+        function shareMyLocation() {
+            const btn = document.getElementById('shareLocBtn');
+            
+            if (!navigator.geolocation) {
+                showToast("GPS tidak didukung perangkat");
+                return;
             }
+
+            // Tampilkan loading di tombol
+            btn.classList.add('loading');
+            showToast("Mendapatkan lokasi realtime...");
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    btn.classList.remove('loading');
+                    
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Buat Link Google Maps
+                    const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
+                    
+                    // Data untuk di-share
+                    const shareData = {
+                        title: 'Lokasi Saya (BGT-PRO)',
+                        text: `Hai, ini posisi terkini saya sekarang. Buka peta: `,
+                        url: mapLink
+                    };
+
+                    // Logika Share / Copy
+                    if (navigator.share) {
+                        navigator.share(shareData)
+                            .then(() => showToast("Lokasi berhasil dibagikan"))
+                            .catch((err) => {
+                                console.error("Share dibatalkan/error:", err);
+                                // Fallback jika user cancel atau error
+                                copyToClipboard(mapLink);
+                            });
+                    } else {
+                        // Fallback browser lama: Salin Link
+                        copyToClipboard(mapLink);
+                    }
+                    
+                    // Update lokasi ke Firebase agar terlihat di Peta Anggota
+                    if(currentAppUser) {
+                        db.collection('users').doc(currentAppUser.uid).update({
+                            latitude: lat,
+                            longitude: lng,
+                            lastLocationUpdate: firebase.firestore.FieldValue.serverTimestamp()
+                        }).catch(e => console.log("Gagal update lokasi ke DB", e));
+                    }
+                },
+                (error) => {
+                    btn.classList.remove('loading');
+                    let msg = "Gagal mendapatkan lokasi.";
+                    if(error.code === 1) msg = "Izin lokasi ditolak.";
+                    if(error.code === 2) msg = "Sinyal GPS tidak ditemukan.";
+                    if(error.code === 3) msg = "Timeout mendapatkan lokasi.";
+                    showToast(msg);
+                },
+                { 
+                    enableHighAccuracy: true, // Akurasi tinggi (Realtime)
+                    timeout: 10000 
+                }
+            );
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Link lokasi berhasil disalin!");
+            }).catch(err => {
+                console.error('Gagal menyalin:', err);
+                showToast("Gagal menyalin link");
+            });
         }
 
         // Helper Escape HTML
