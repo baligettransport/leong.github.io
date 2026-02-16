@@ -41,44 +41,30 @@
             position: relative;
         }
 
-        /* Subtle animated clouds background */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: 
                 radial-gradient(ellipse 80% 50% at 20% 40%, rgba(186, 230, 253, 0.6) 0%, transparent 50%),
-                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(224, 242, 254, 0.8) 0%, transparent 50%),
-                radial-gradient(ellipse 50% 30% at 60% 70%, rgba(186, 230, 253, 0.4) 0%, transparent 50%);
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(224, 242, 254, 0.8) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
-            animation: cloudFloat 20s ease-in-out infinite;
         }
 
-        @keyframes cloudFloat {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            50% { transform: translateX(-10px) translateY(-5px); }
-        }
-
-        /* Main App */
         .app-container {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         /* Header */
         .header {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.85);
+            top: 0; left: 0; right: 0;
+            z-index: 1100; /* Pastikan di atas peta */
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             padding: 14px 16px;
             display: flex;
             justify-content: space-between;
@@ -86,420 +72,182 @@
             border-bottom: 1px solid rgba(79, 70, 229, 0.08);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
-        .header-left { display: flex; align-items: center; gap: 12px; }
+        
+        .header-left, .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .header-title { 
-            font-size: 1.15rem; 
-            font-weight: 700;
+            font-size: 1.1rem; font-weight: 700;
             background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
+            text-align: center;
         }
-        .back-btn {
-            width: 42px;
-            height: 42px;
+        .header-btn, .back-btn {
+            width: 42px; height: 42px;
             background: rgba(79, 70, 229, 0.08);
-            border: none;
-            border-radius: 12px;
+            border: none; border-radius: 12px;
             color: var(--primary);
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
             transition: all 0.2s;
         }
-        .back-btn:active { background: rgba(79, 70, 229, 0.15); transform: scale(0.95); }
-        .header-right { display: flex; align-items: center; gap: 8px; }
-        .header-btn {
-            width: 42px;
-            height: 42px;
-            background: rgba(79, 70, 229, 0.08);
-            border: none;
-            border-radius: 12px;
-            color: var(--primary);
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .header-btn:active { background: rgba(79, 70, 229, 0.15); }
+        .header-btn:active, .back-btn:active { background: rgba(79, 70, 229, 0.2); transform: scale(0.95); }
 
-        /* Map */
+        /* Map Container */
         #map {
             width: 100%;
             height: 100%;
-            z-index: 1;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 1; /* Di bawah header & panel */
         }
 
         /* Map Panel */
         .map-panel {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.92);
+            bottom: 0; left: 0; right: 0;
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border-radius: 24px 24px 0 0;
             padding: 16px;
-            z-index: 1000;
+            z-index: 1050; /* Di atas peta */
             max-height: 55vh;
             overflow-y: auto;
-            transition: transform 0.3s ease;
-            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
         }
-        .map-panel.collapsed { transform: translateY(calc(100% - 55px)); }
+        .map-panel.collapsed { transform: translateY(calc(100% - 60px)); }
         .map-panel-handle {
-            width: 45px;
-            height: 5px;
-            background: rgba(79, 70, 229, 0.15);
+            width: 45px; height: 5px;
+            background: rgba(79, 70, 229, 0.2);
             border-radius: 3px;
-            margin: 0 auto 14px;
-            cursor: pointer;
+            margin: 0 auto 14px; cursor: pointer;
         }
-        .map-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
+        .map-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .map-panel-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--dark);
+            font-size: 1.05rem; font-weight: 700;
+            display: flex; align-items: center; gap: 10px; color: var(--dark);
         }
-        .map-panel-title i {
-            color: var(--primary);
-        }
+        .map-panel-title i { color: var(--primary); }
         .live-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
             font-size: 0.72rem;
             background: rgba(16, 185, 129, 0.1);
             color: var(--success);
-            padding: 4px 10px;
-            border-radius: 9999px;
+            padding: 4px 10px; border-radius: 9999px;
             font-weight: 600;
         }
-        .live-dot {
-            width: 7px;
-            height: 7px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.9); }
-        }
+        .live-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
         /* Stats */
-        .map-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 14px;
-        }
+        .map-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
         .map-stat {
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(79, 70, 229, 0.08);
-            border-radius: 14px;
-            padding: 14px 10px;
-            text-align: center;
+            border-radius: 14px; padding: 14px 10px; text-align: center;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
-        .map-stat-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-        }
-        .map-stat-label {
-            font-size: 0.7rem;
-            color: var(--gray);
-            margin-top: 3px;
-            font-weight: 500;
-        }
+        .map-stat-value { font-size: 1.5rem; font-weight: 800; }
+        .map-stat-label { font-size: 0.7rem; color: var(--gray); margin-top: 3px; font-weight: 500; }
         .map-stat.online .map-stat-value { color: var(--success); }
         .map-stat.offline .map-stat-value { color: var(--gray); }
-        .map-stat.total .map-stat-value {
-            background: var(--gradient-primary);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .map-stat.total .map-stat-value { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* Legend */
-        .map-legend {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 14px;
-            padding: 12px;
-            background: rgba(79, 70, 229, 0.04);
-            border-radius: 12px;
-            border: 1px solid rgba(79, 70, 229, 0.06);
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.78rem;
-            color: var(--dark);
-            font-weight: 500;
-        }
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-        .legend-dot.online {
-            background: var(--success);
-            box-shadow: 0 0 8px var(--success);
-        }
-        .legend-dot.offline {
-            background: var(--gray);
-            opacity: 0.6;
-        }
-
-        /* Member List */
-        .member-list-title {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: var(--gray);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .map-member-list {
-            max-height: 200px;
-            overflow-y: auto;
-        }
+        /* Legend & List */
+        .map-legend { display: flex; gap: 16px; margin-bottom: 14px; padding: 12px; background: rgba(79, 70, 229, 0.04); border-radius: 12px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--dark); font-weight: 500; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .legend-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .legend-dot.offline { background: var(--gray); opacity: 0.6; }
+        
+        .member-list-title { font-size: 0.78rem; font-weight: 700; color: var(--gray); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .map-member-list { max-height: 200px; overflow-y: auto; }
         .map-member-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px;
             padding: 12px;
             background: var(--white);
             border: 1px solid rgba(79, 70, 229, 0.06);
-            border-radius: 14px;
-            margin-bottom: 8px;
-            cursor: pointer;
+            border-radius: 14px; margin-bottom: 8px; cursor: pointer;
             transition: all 0.2s;
         }
-        .map-member-item:active { 
-            background: rgba(79, 70, 229, 0.05);
-            border-color: var(--primary-light);
-        }
-        .map-member-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(79, 70, 229, 0.1);
-        }
-        .map-member-info { flex: 1; }
-        .map-member-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 3px;
-            color: var(--dark);
-        }
-        .map-member-status {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-        .map-member-dot {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-        }
+        .map-member-item:active { background: rgba(79, 70, 229, 0.05); transform: scale(0.98); }
+        .map-member-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(79, 70, 229, 0.1); }
+        .map-member-info { flex: 1; min-width: 0; }
+        .map-member-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 3px; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .map-member-status { font-size: 0.75rem; color: var(--gray); }
+        .map-member-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
         .map-member-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
         .map-member-dot.offline { background: var(--gray); opacity: 0.5; }
 
-        /* Custom Marker */
-        .custom-marker {
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
-        }
-        .custom-marker.online { background: var(--success); }
-        .custom-marker.offline { background: var(--gray); opacity: 0.7; }
-
-        /* Leaflet Popup */
-        .leaflet-popup-content-wrapper {
-            background: var(--white) !important;
-            border-radius: 16px !important;
-            color: var(--dark) !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
-            border: 1px solid rgba(79, 70, 229, 0.08) !important;
-        }
-        .leaflet-popup-tip { background: var(--white) !important; }
-        .leaflet-popup-content { margin: 14px 16px !important; }
-        .popup-content { min-width: 200px; }
-        .popup-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .popup-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(79, 70, 229, 0.15);
-        }
-        .popup-name {
-            font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 4px;
-            color: var(--dark);
-        }
-        .popup-status {
-            font-size: 0.72rem;
-            padding: 3px 10px;
-            border-radius: 9999px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .popup-status.online { background: rgba(16, 185, 129, 0.12); color: var(--success); }
-        .popup-status.offline { background: rgba(100, 116, 139, 0.12); color: var(--gray); }
-        .popup-info {
-            font-size: 0.85rem;
-            color: var(--gray);
-        }
-        .popup-info div {
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .popup-info i { width: 16px; color: var(--primary); }
-
         /* Locate Button */
         .locate-btn {
-            position: fixed;
-            bottom: 260px;
-            right: 16px;
-            width: 52px;
-            height: 52px;
+            position: fixed; right: 16px;
+            width: 52px; height: 52px;
             background: var(--white);
             border: 1px solid rgba(79, 70, 229, 0.1);
             border-radius: 50%;
-            color: var(--primary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: var(--primary); font-size: 1.2rem; cursor: pointer;
+            z-index: 1000; /* Di atas peta, di bawah panel */
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s;
+            transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            bottom: 80px; /* Posisi default saat panel collapsed */
         }
-        .locate-btn:active {
-            transform: scale(0.95);
-            background: var(--primary);
-            color: white;
-        }
+        .locate-btn:active { transform: scale(0.95); background: var(--primary); color: white; }
 
-        /* Toast */
+        /* Toast & Popup */
         .toast {
-            position: fixed;
-            top: 75px;
-            left: 16px;
-            right: 16px;
+            position: fixed; top: 80px; left: 16px; right: 16px;
             background: var(--white);
             border: 1px solid rgba(79, 70, 229, 0.08);
-            border-radius: 14px;
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            border-radius: 14px; padding: 14px 16px;
+            display: flex; align-items: center; gap: 12px;
             z-index: 2000;
             animation: slideDown 0.3s ease;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         .toast.hidden { display: none; }
-        .toast.hiding { animation: slideUp 0.3s ease forwards; }
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes slideUp {
-            to { transform: translateY(-20px); opacity: 0; }
-        }
-        .toast-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-        }
+        .toast-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
         .toast-icon.success { background: rgba(16, 185, 129, 0.12); color: var(--success); }
         .toast-icon.info { background: rgba(79, 70, 229, 0.12); color: var(--primary); }
         .toast-icon.warning { background: rgba(245, 158, 11, 0.12); color: var(--accent); }
         .toast-content { flex: 1; }
         .toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 3px; color: var(--dark); }
         .toast-message { font-size: 0.8rem; color: var(--gray); }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 30px;
-            color: var(--gray);
-        }
-        .empty-state i {
-            font-size: 2.5rem;
-            margin-bottom: 12px;
-            opacity: 0.4;
-            color: var(--primary-light);
-        }
+        .leaflet-popup-content-wrapper { border-radius: 16px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important; }
+        .popup-content { min-width: 200px; }
+        .popup-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .popup-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(79, 70, 229, 0.15); }
+        .popup-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; color: var(--dark); }
+        .popup-status { font-size: 0.72rem; padding: 3px 10px; border-radius: 9999px; font-weight: 600; display: inline-block; }
+        .popup-status.online { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+        .popup-status.offline { background: rgba(100, 116, 139, 0.12); color: var(--gray); }
+        .popup-info { font-size: 0.85rem; color: var(--gray); }
+        .popup-info div { margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .popup-info i { width: 16px; color: var(--primary); }
+
+        .empty-state { text-align: center; padding: 30px; color: var(--gray); }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; color: var(--primary-light); }
         .empty-state p { font-size: 0.9rem; }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(79, 70, 229, 0.15); border-radius: 2px; }
-
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
+        /* Custom Marker styling via divIcon html */
+        .marker-container { display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <!-- Main App -->
-    <div class="app-container" id="appContainer">
-        
-        <!-- Header -->
+    <div class="app-container">
         <header class="header">
             <div class="header-left">
                 <button class="back-btn" onclick="goBack()" aria-label="Kembali"><i class="fas fa-arrow-left"></i></button>
                 <div class="header-title">Peta Anggota</div>
             </div>
             <div class="header-right">
-                <button class="header-btn" onclick="togglePanel()" id="togglePanelBtn" aria-label="Toggle Panel">
-                    <i class="fas fa-list"></i>
-                </button>
-                <button class="header-btn" onclick="refreshLocation()" aria-label="Refresh">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
+                <button class="header-btn" onclick="togglePanel()" aria-label="Toggle Panel"><i class="fas fa-list"></i></button>
+                <button class="header-btn" onclick="refreshLocation()" aria-label="Refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
         </header>
 
@@ -512,7 +260,7 @@
         </button>
 
         <!-- Map Panel -->
-        <div class="map-panel" id="mapPanel">
+        <div class="map-panel collapsed" id="mapPanel">
             <div class="map-panel-handle" onclick="togglePanelCollapse()"></div>
             
             <div class="map-panel-header">
@@ -554,7 +302,6 @@
         </div>
     </div>
 
-    <!-- Toast -->
     <div class="toast hidden" id="toast">
         <div class="toast-icon info"><i class="fas fa-info-circle"></i></div>
         <div class="toast-content">
@@ -565,316 +312,301 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-    <!-- FIREBASE CORE (Menangani Login & Keamanan) -->
-    <!-- Pastikan file ini sudah dibuat -->
     <script src="firebase-core.js"></script>
 
     <script>
         // ============================================
-        // LOGIKA KHUSUS PETA (KODE ASLI ANDA, TIDAK DIUBAH)
+        // 1. INISIALISASI VARIABEL GLOBAL
         // ============================================
-
-        const db = firebase.firestore();
-
-        // State
         let map = null;
         let markers = {};
         let membersUnsubscribe = null;
         let allMembers = [];
+        let userLocationMarker = null;
 
-        // Default map center (Indonesia center)
-        const DEFAULT_LAT = -2.5489;
+        const DEFAULT_LAT = -2.5489; // Pusat Indonesia
         const DEFAULT_LNG = 118.0149;
         const DEFAULT_ZOOM = 5;
 
-        // Initialize
+        // ============================================
+        // 2. FUNGSI UTAMA MAP (MULAI SAAT HALAMAN SIAP)
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            loadMembersRealtime();
+            initMap(); // Langsung inisialisasi peta, jangan tunggu firebase
+            checkFirebaseAndLoad(); // Cek firebase baru muat data
+            updateLocateBtnPosition();
         });
 
-        // Go Back
-        function goBack() {
-            window.location.href = 'branda.html';
-        }
-
-        // Initialize Map
         function initMap() {
-            if (map) return;
+            if (map) return; // Hindari double init
             
             map = L.map('map', {
                 center: [DEFAULT_LAT, DEFAULT_LNG],
                 zoom: DEFAULT_ZOOM,
                 zoomControl: false
             });
-            
-            // Add zoom control to bottom left
+
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
-            
-            // Add tile layer (OpenStreetMap)
+
+            // Gunakan OpenStreetMap Tile
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-            
-            console.log('Map initialized');
+
+            console.log('Peta berhasil dimuat.');
         }
 
-        // Check Online Status
-        function checkOnlineStatus(member) {
-            if (!member.currentSessionId) return false;
-            
-            if (member.lastActive) {
-                const lastActiveDate = member.lastActive.toDate ? member.lastActive.toDate() : new Date(member.lastActive);
-                const now = new Date();
-                const diffMinutes = (now - lastActiveDate) / (1000 * 60);
+        // ============================================
+        // 3. LOGIKA FIREBASE
+        // ============================================
+        function checkFirebaseAndLoad() {
+            if (typeof firebase !== 'undefined' && firebase.app) {
+                const db = firebase.firestore();
                 
-                if (diffMinutes > 2) return false;
-            }
-            
-            return true;
-        }
-
-        // Create Custom Marker Icon
-        function createMarkerIcon(isOnline) {
-            const size = 38;
-            
-            return L.divIcon({
-                className: `custom-marker ${isOnline ? 'online' : 'offline'}`,
-                html: `
-                    <div style="
-                        width: ${size}px;
-                        height: ${size}px;
-                        border-radius: 50%;
-                        border: 3px solid white;
-                        background: ${isOnline ? '#10b981' : '#94a3b8'};
-                        box-shadow: 0 3px 12px rgba(0,0,0,0.2);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    ">
-                        <i class="fas fa-user" style="color: white; font-size: 15px;"></i>
-                    </div>
-                `,
-                iconSize: [size, size],
-                iconAnchor: [size/2, size/2],
-                popupAnchor: [0, -size/2]
-            });
-        }
-
-        // Load Members with Realtime Updates
-        function loadMembersRealtime() {
-            if (membersUnsubscribe) {
-                membersUnsubscribe();
-            }
-            
-            membersUnsubscribe = db.collection('users').onSnapshot((snapshot) => {
-                allMembers = [];
-                
-                snapshot.forEach(doc => {
-                    allMembers.push({ id: doc.id, ...doc.data() });
+                // Listener Realtime
+                membersUnsubscribe = db.collection('users').onSnapshot((snapshot) => {
+                    allMembers = [];
+                    snapshot.forEach(doc => {
+                        allMembers.push({ id: doc.id, ...doc.data() });
+                    });
+                    updateMapMarkers();
+                    updateStats();
+                    updateMemberListUI();
+                }, (error) => {
+                    console.error('Error Firebase:', error);
+                    showEmptyState('Gagal memuat data Firebase.');
                 });
-                
-                console.log('[REALTIME] Members loaded:', allMembers.length);
-                
-                updateMarkers();
-                updateStats();
-                updateMemberList();
-            }, (error) => {
-                console.error('Realtime listener error:', error);
-            });
+            } else {
+                console.warn('Firebase tidak ditemukan. Menampilkan peta kosong.');
+                showEmptyState('Firebase tidak terkonfigurasi.');
+            }
         }
 
-        // Update Markers
-        function updateMarkers() {
-            // Clear existing markers
-            Object.values(markers).forEach(marker => {
-                map.removeLayer(marker);
-            });
+        function showEmptyState(message) {
+            const list = document.getElementById('memberList');
+            list.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // 4. FUNGSI HELPER MAP
+        // ============================================
+        
+        function updateMapMarkers() {
+            // Hapus marker lama
+            Object.values(markers).forEach(m => map.removeLayer(m));
             markers = {};
-            
-            // Add markers for members with location
+
             allMembers.forEach(member => {
                 if (member.latitude && member.longitude) {
                     const isOnline = checkOnlineStatus(member);
                     
-                    const marker = L.marker([member.latitude, member.longitude], {
-                        icon: createMarkerIcon(isOnline)
+                    // Buat Icon
+                    const iconHtml = `
+                        <div style="
+                            width: 38px; height: 38px;
+                            background: ${isOnline ? '#10b981' : '#94a3b8'};
+                            border-radius: 50%;
+                            border: 3px solid white;
+                            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+                            display: flex; align-items: center; justify-content: center;
+                        ">
+                            <i class="fas fa-user" style="color: white; font-size: 14px;"></i>
+                        </div>
+                    `;
+
+                    const customIcon = L.divIcon({
+                        html: iconHtml,
+                        className: 'marker-container', // class pembungkos
+                        iconSize: [38, 38],
+                        iconAnchor: [19, 19],
+                        popupAnchor: [0, -22]
                     });
+
+                    const marker = L.marker([member.latitude, member.longitude], { icon: customIcon }).addTo(map);
                     
-                    // Create popup content
+                    // Popup
+                    const safeName = escapeHtml(member.nama || 'Unknown');
                     const popupContent = `
                         <div class="popup-content">
                             <div class="popup-header">
-                                <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nama || 'User')}&background=4f46e5&color=fff`}" 
-                                     alt="${member.nama}" class="popup-avatar">
+                                <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${safeName}&background=4f46e5&color=fff`}" 
+                                     class="popup-avatar" alt="${safeName}">
                                 <div>
-                                    <div class="popup-name">${member.nama || 'Unknown'}</div>
+                                    <div class="popup-name">${safeName}</div>
                                     <span class="popup-status ${isOnline ? 'online' : 'offline'}">
                                         ${isOnline ? 'ONLINE' : 'OFFLINE'}
                                     </span>
                                 </div>
                             </div>
-                            <div class="popup-info">
-                                ${member.email ? `<div><i class="fas fa-envelope"></i> ${member.email}</div>` : ''}
-                                ${member.telepon ? `<div><i class="fas fa-phone"></i> ${member.telepon}</div>` : ''}
-                                ${member.platMobil ? `<div><i class="fas fa-car"></i> ${member.platMobil}</div>` : ''}
-                                ${member.titel ? `<div><i class="fas fa-star"></i> ${member.titel}</div>` : ''}
-                            </div>
                         </div>
                     `;
-                    
                     marker.bindPopup(popupContent);
-                    marker.addTo(map);
                     markers[member.id] = marker;
                 }
             });
-            
-            console.log('Markers updated:', Object.keys(markers).length);
         }
 
-        // Update Stats
         function updateStats() {
             const total = allMembers.length;
             const online = allMembers.filter(m => checkOnlineStatus(m)).length;
-            const offline = total - online;
-            
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statOnline').textContent = online;
-            document.getElementById('statOffline').textContent = offline;
+            document.getElementById('statOffline').textContent = total - online;
         }
 
-        // Update Member List
-        function updateMemberList() {
+        function updateMemberListUI() {
             const list = document.getElementById('memberList');
-            const membersWithLocation = allMembers.filter(m => m.latitude && m.longitude);
-            
-            if (membersWithLocation.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <p>Belum ada anggota dengan lokasi</p>
-                    </div>
-                `;
+            const membersWithLoc = allMembers.filter(m => m.latitude);
+
+            if (membersWithLoc.length === 0) {
+                showEmptyState('Belum ada anggota dengan lokasi.');
                 return;
             }
-            
-            // Sort: online first, then by name
-            membersWithLocation.sort((a, b) => {
-                const aOnline = checkOnlineStatus(a);
-                const bOnline = checkOnlineStatus(b);
-                if (aOnline && !bOnline) return -1;
-                if (!aOnline && bOnline) return 1;
-                return (a.nama || '').localeCompare(b.nama || '');
+
+            // Sort: Online first
+            membersWithLoc.sort((a, b) => {
+                const aOn = checkOnlineStatus(a);
+                const bOn = checkOnlineStatus(b);
+                return bOn - aOn;
             });
-            
-            list.innerHTML = membersWithLocation.map(member => {
-                const isOnline = checkOnlineStatus(member);
+
+            list.innerHTML = membersWithLoc.map(m => {
+                const isOn = checkOnlineStatus(m);
+                const name = escapeHtml(m.nama || 'Unknown');
                 return `
-                    <div class="map-member-item" onclick="focusMember('${member.id}')">
-                        <img src="${member.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nama || 'User')}&background=4f46e5&color=fff`}" 
-                             alt="${member.nama}" class="map-member-avatar">
+                    <div class="map-member-item" onclick="focusMember('${m.id}')">
+                        <img src="${m.profilePicUrl || `https://ui-avatars.com/api/?name=${name}&background=4f46e5&color=fff`}" class="map-member-avatar">
                         <div class="map-member-info">
-                            <div class="map-member-name">${member.nama || 'Unknown'}</div>
-                            <div class="map-member-status">${isOnline ? 'Online' : 'Offline'}</div>
+                            <div class="map-member-name">${name}</div>
+                            <div class="map-member-status">${isOn ? 'Online' : 'Offline'}</div>
                         </div>
-                        <div class="map-member-dot ${isOnline ? 'online' : 'offline'}"></div>
+                        <div class="map-member-dot ${isOn ? 'online' : 'offline'}"></div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Focus on Member
-        function focusMember(memberId) {
-            const marker = markers[memberId];
+        function checkOnlineStatus(member) {
+            if (!member.currentSessionId) return false;
+            if (member.lastActive) {
+                const last = member.lastActive.toDate ? member.lastActive.toDate() : new Date(member.lastActive);
+                const mins = (new Date() - last) / (1000 * 60);
+                if (mins > 2) return false;
+            }
+            return true;
+        }
+
+        function focusMember(id) {
+            const marker = markers[id];
             if (marker) {
-                map.setView(marker.getLatLng(), 15);
+                map.setView(marker.getLatLng(), 16);
                 marker.openPopup();
+                document.getElementById('mapPanel').classList.add('collapsed');
+                updateLocateBtnPosition();
             }
         }
 
-        // Locate Me
+        // ============================================
+        // 5. KONTROL UI (Tombol, Toast, dll)
+        // ============================================
+
+        function goBack() {
+            window.history.back();
+        }
+
         function locateMe() {
             if (!navigator.geolocation) {
-                showToast('warning', 'Tidak Didukung', 'Browser tidak mendukung geolokasi');
+                showToast('warning', 'Error', 'Browser tidak mendukung GPS');
                 return;
             }
-            
-            showToast('info', 'Mencari Lokasi', 'Mendapatkan posisi Anda...');
+            showToast('info', 'Mencari...', 'Mendapatkan lokasi Anda');
             
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
                     
-                    map.setView([lat, lng], 15);
-                    showToast('success', 'Lokasi Ditemukan', 'Posisi Anda telah ditampilkan');
+                    if (userLocationMarker) map.removeLayer(userLocationMarker);
+                    
+                    // Blue dot
+                    userLocationMarker = L.circleMarker([lat, lng], {
+                        radius: 8,
+                        fillColor: "#4f46e5",
+                        color: "#fff",
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 1
+                    }).addTo(map);
+                    
+                    map.setView([lat, lng], 16);
+                    showToast('success', 'Sukses', 'Lokasi ditemukan');
                 },
-                (error) => {
-                    let msg = 'Gagal mendapatkan lokasi';
-                    if (error.code === 1) msg = 'Izin lokasi ditolak';
-                    if (error.code === 2) msg = 'Lokasi tidak tersedia';
-                    if (error.code === 3) msg = 'Timeout';
-                    showToast('warning', 'Error', msg);
+                (err) => {
+                    showToast('warning', 'Gagal', 'Izin lokasi ditolak atau error.');
                 },
                 { enableHighAccuracy: true, timeout: 10000 }
             );
         }
 
-        // Refresh Location
         function refreshLocation() {
-            updateMarkers();
-            updateStats();
-            updateMemberList();
-            showToast('info', 'Diperbarui', 'Data lokasi telah diperbarui');
+            if (typeof firebase !== 'undefined') {
+                showToast('info', 'Refresh', 'Memperbarui data...');
+                // Firestore listener otomatis update, jadi cukup trigger loading kosong atau manual fetch ulang jika perlu
+            } else {
+                showToast('warning', 'Offline', 'Tidak terhubung Firebase');
+            }
         }
 
-        // Toggle Panel
         function togglePanel() {
             const panel = document.getElementById('mapPanel');
             panel.classList.toggle('collapsed');
+            updateLocateBtnPosition();
         }
 
-        // Toggle Panel Collapse
         function togglePanelCollapse() {
+            togglePanel();
+        }
+
+        function updateLocateBtnPosition() {
+            const btn = document.getElementById('locateBtn');
             const panel = document.getElementById('mapPanel');
-            panel.classList.toggle('collapsed');
-        }
-
-        // Show Toast
-        function showToast(type, title, message) {
-            const toast = document.getElementById('toast');
-            const toastTitle = document.getElementById('toastTitle');
-            const toastMessage = document.getElementById('toastMessage');
-            const toastIcon = toast.querySelector('.toast-icon');
-            
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-            
-            toastIcon.className = 'toast-icon ' + type;
-            toastIcon.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : (type === 'warning' ? 'exclamation-triangle' : 'info-circle')}"></i>`;
-            
-            toast.classList.remove('hidden', 'hiding');
-            
-            setTimeout(() => {
-                toast.classList.add('hiding');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                }, 300);
-            }, 3000);
-        }
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (membersUnsubscribe) {
-                membersUnsubscribe();
+            // Jika panel collapsed (tinggi 60px), tombol di 80px. 
+            // Jika expanded (55vh), tombol naik ke atas -> tapi biarkan tertimpa panel saja? 
+            // Biasanya better tombol naik.
+            if (panel.classList.contains('collapsed')) {
+                btn.style.bottom = '80px';
+            } else {
+                // Naikkan tombol agar tidak tertutup panel (perkiraan tinggi panel 300px+)
+                btn.style.bottom = '380px'; 
             }
-        });
-    </script>
+        }
 
+        function showToast(type, title, msg) {
+            const el = document.getElementById('toast');
+            const iconClass = type === 'success' ? 'check-circle' : (type === 'warning' ? 'exclamation-triangle' : 'info-circle');
+            
+            el.querySelector('.toast-icon').className = `toast-icon ${type}`;
+            el.querySelector('.toast-icon i').className = `fas fa-${iconClass}`;
+            el.querySelector('.toast-title').textContent = title;
+            el.querySelector('.toast-message').textContent = msg;
+            
+            el.classList.remove('hidden');
+            setTimeout(() => { el.classList.add('hidden'); }, 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return text;
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
 </body>
 </html>
