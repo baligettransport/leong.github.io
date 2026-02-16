@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- PWA Setup untuk GitHub Pages -->
+    <!-- PWA Setup -->
     <link rel="manifest" href="/leong.github.io/manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -401,27 +401,23 @@
             
             console.log('✅ Notifikasi diizinkan');
             
-            // ============================================
-            // PENTING: GANTI VAPID KEY DENGAN KEY ANDA!
-            // ============================================
-            // 1. Buka Firebase Console > Settings > Cloud Messaging
-            // 2. Generate key pair (jika belum ada)
-            // 3. Copy key yang dimulai dengan "B..."
-            // 4. Paste di bawah ini:
-            
+            // VAPID KEY ANDA SUDAH TERISI DI BAWAH INI:
             const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
             
             const token = await messaging.getToken({ vapidKey: VAPID_KEY });
             
             if (token) {
-                console.log('✅ FCM Token:', token.substring(0, 30) + '...');
+                console.log('✅ FCM Token:', token);
                 const user = auth.currentUser;
                 if (user) {
                     await db.collection('users').doc(user.uid).set({
                         fcmToken: token,
                         fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     }, { merge: true });
+                    console.log('✅ Token disimpan ke database');
                 }
+            } else {
+                console.log('❌ Gagal mendapat token');
             }
             
             // Foreground message
@@ -665,4 +661,3 @@
 
 </body>
 </html>
-
