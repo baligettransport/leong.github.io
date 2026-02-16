@@ -25,14 +25,25 @@
 
         /* Loading Screen */
         .loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
         }
         .loading-spinner {
-            width: 50px; height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.3); border-top-color: white;
-            border-radius: 50%; animation: spin 1s linear infinite;
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         .loading-text { color: white; font-size: 1rem; margin-top: 16px; font-weight: 500; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -60,19 +71,31 @@
             border: 1px solid var(--border-light); border-radius: 9999px; 
             font-size: 0.8rem; font-weight: 500; color: var(--text-gray); 
             cursor: pointer; white-space: nowrap; transition: all 0.3s; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03); position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            position: relative;
         }
         .filter-tab.active { 
             background: var(--gradient-primary); border-color: transparent; 
             color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); 
         }
+        
+        /* Badge counter di tab */
         .tab-badge {
-            position: absolute; top: -4px; right: -4px;
-            min-width: 16px; height: 16px;
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 16px;
+            height: 16px;
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            border-radius: 50%; font-size: 0.55rem; font-weight: 700; color: white;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.3); z-index: 10;
+            border-radius: 50%;
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.3);
+            z-index: 10;
         }
         .tab-badge.hidden { display: none; }
 
@@ -82,7 +105,8 @@
             background: var(--bg-card); border-radius: 12px; 
             margin-bottom: 10px; overflow: hidden; 
             border: 1px solid var(--border-light); 
-            box-shadow: var(--shadow-soft); transition: transform 0.2s;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.2s;
         }
         .order-card:active { transform: scale(0.99); }
         
@@ -95,14 +119,46 @@
         .order-badge.progress { background: rgba(37, 99, 235, 0.1); color: var(--primary); }
         .order-badge.done { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 
+        /* Customer Info */
+        .customer-info {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }
+        .customer-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+        .customer-name i { color: var(--primary); font-size: 0.8rem; }
+        .customer-phone {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .customer-phone a { color: var(--primary); text-decoration: none; }
+        
         /* Split Info - Customer & Driver */
         .split-info {
-            display: flex; gap: 12px; margin-bottom: 8px;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 8px;
         }
         .info-box {
-            flex: 1; background: rgba(255,255,255,0.8);
+            flex: 1;
+            background: rgba(255,255,255,0.8);
             border: 1px solid var(--border-light);
-            border-radius: 8px; padding: 8px 10px;
+            border-radius: 8px;
+            padding: 8px 10px;
         }
         .info-box.customer {
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
@@ -113,40 +169,65 @@
             border-color: #86efac;
         }
         .info-header {
-            font-size: 0.6rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin-bottom: 4px; display: flex; align-items: center; gap: 4px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .info-box.customer .info-header { color: var(--primary); }
         .info-box.driver .info-header { color: #15803d; }
         .info-avatar {
-            width: 24px; height: 24px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 0.65rem;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.65rem;
         }
         .info-box.customer .info-avatar { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
         .info-box.driver .info-avatar { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
         .info-name {
-            font-size: 0.8rem; font-weight: 600; color: var(--text-dark);
-            display: flex; align-items: center; gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .info-phone {
-            font-size: 0.7rem; color: var(--text-gray);
-            display: flex; align-items: center; gap: 4px; margin-top: 2px;
+            font-size: 0.7rem;
+            color: var(--text-gray);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
         }
-        .info-phone a { color: var(--primary); text-decoration: none; font-weight: 500; }
-        .info-phone a:hover { text-decoration: underline; }
+        .info-phone a { color: var(--primary); text-decoration: none; }
         
         /* Keterangan Box */
         .keterangan-box {
             background: rgba(239, 68, 68, 0.05);
             border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 6px; padding: 6px 8px; margin-top: 6px;
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin-top: 6px;
         }
         .keterangan-label {
-            font-size: 0.6rem; color: #dc2626; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin-bottom: 2px; display: flex; align-items: center; gap: 4px;
+            font-size: 0.6rem;
+            color: #dc2626;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .keterangan-text { font-size: 0.75rem; color: var(--text-dark); line-height: 1.3; }
 
@@ -154,12 +235,20 @@
         .deskripsi-box {
             background: rgba(37, 99, 235, 0.05);
             border: 1px solid rgba(37, 99, 235, 0.2);
-            border-radius: 6px; padding: 6px 8px; margin-top: 6px;
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin-top: 6px;
         }
         .deskripsi-label {
-            font-size: 0.6rem; color: var(--primary); font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin-bottom: 2px; display: flex; align-items: center; gap: 4px;
+            font-size: 0.6rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .deskripsi-text { font-size: 0.75rem; color: var(--text-dark); line-height: 1.3; }
 
@@ -167,12 +256,20 @@
         .koper-box {
             background: rgba(251, 191, 36, 0.1);
             border: 1px solid rgba(251, 191, 36, 0.3);
-            border-radius: 6px; padding: 5px 8px; margin-top: 5px;
+            border-radius: 6px;
+            padding: 5px 8px;
+            margin-top: 5px;
         }
         .koper-label {
-            font-size: 0.6rem; color: #d97706; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin-bottom: 2px; display: flex; align-items: center; gap: 4px;
+            font-size: 0.6rem;
+            color: #d97706;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .koper-text { font-size: 0.75rem; color: var(--text-dark); }
 
@@ -191,8 +288,15 @@
         .route-point:last-child { margin-bottom: 0; }
         .route-label { font-size: 0.6rem; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px; font-weight: 600; }
         .route-address {
-            font-size: 0.8rem; font-weight: 500; line-height: 1.3; color: var(--text-dark);
-            cursor: pointer; display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;
+            font-size: 0.8rem;
+            font-weight: 500;
+            line-height: 1.3;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            transition: color 0.2s;
         }
         .route-address:hover { color: var(--primary); }
         .route-address i { color: var(--primary); font-size: 0.7rem; margin-top: 2px; flex-shrink: 0; }
@@ -215,18 +319,14 @@
         .datetime-time { font-size: 0.7rem; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 4px; }
         .datetime-time i { color: var(--primary); font-size: 0.65rem; }
         
-        /* Action Buttons */
-        .action-buttons-container { display: flex; gap: 8px; }
         .action-btn { 
             padding: 6px 14px; border: none; border-radius: 6px; 
             color: white; font-size: 0.7rem; font-weight: 600; cursor: pointer; 
             transition: transform 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex; align-items: center; justify-content: center; gap: 5px;
         }
         .action-btn:active { transform: scale(0.95); }
         .action-btn.take { background: var(--primary); }
         .action-btn.finish { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
-        .action-btn.cancel { background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); }
         .action-btn.done { background: #cbd5e1; color: #64748b; pointer-events: none; box-shadow: none; }
 
         /* Empty */
@@ -235,9 +335,17 @@
 
         /* Camera Modal */
         .camera-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 1000;
-            flex-direction: column; align-items: center; justify-content: center;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .camera-modal.active { display: flex; }
         .camera-container { width: 100%; max-width: 400px; position: relative; }
@@ -245,8 +353,16 @@
         .camera-canvas { display: none; }
         .camera-controls { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
         .camera-btn {
-            width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: transform 0.2s;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
         }
         .camera-btn:active { transform: scale(0.9); }
         .camera-btn.capture { background: white; color: #000; }
@@ -288,16 +404,24 @@
 
     <!-- Camera Modal -->
     <div class="camera-modal" id="cameraModal">
-        <div class="camera-instruction"><i class="fas fa-camera"></i> Foto Selfie dengan Tamu</div>
+        <div class="camera-instruction">
+            <i class="fas fa-camera"></i> Foto Selfie dengan Tamu
+        </div>
         <div class="camera-container">
             <video class="camera-video" id="cameraVideo" autoplay playsinline></video>
             <canvas class="camera-canvas" id="cameraCanvas"></canvas>
             <img class="camera-preview-img" id="cameraPreviewImg">
         </div>
         <div class="camera-controls">
-            <button class="camera-btn cancel" id="cancelCameraBtn" onclick="closeCamera()"><i class="fas fa-times"></i></button>
-            <button class="camera-btn capture" id="captureBtn" onclick="capturePhoto()"><i class="fas fa-camera"></i></button>
-            <button class="camera-btn confirm" id="confirmBtn" onclick="confirmPhoto()" style="display:none;"><i class="fas fa-check"></i></button>
+            <button class="camera-btn cancel" id="cancelCameraBtn" onclick="closeCamera()">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="camera-btn capture" id="captureBtn" onclick="capturePhoto()">
+                <i class="fas fa-camera"></i>
+            </button>
+            <button class="camera-btn confirm" id="confirmBtn" onclick="confirmPhoto()" style="display:none;">
+                <i class="fas fa-check"></i>
+            </button>
         </div>
     </div>
 
@@ -342,29 +466,50 @@
         let currentFinishingOrderId = null;
 
         // ============================================
-        // AUTH STATE
+        // AUTO-LOGIN FIX: Auth Persistence LOCAL
         // ============================================
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .then(() => console.log('✅ Auth persistence set to LOCAL'))
-            .catch((error) => console.error('❌ Error setting persistence:', error));
+            .then(() => {
+                console.log('✅ Auth persistence set to LOCAL');
+            })
+            .catch((error) => {
+                console.error('❌ Error setting persistence:', error);
+            });
 
+        // ============================================
+        // AUTO-LOGIN FIX: Check Session on Page Load
+        // ============================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
+                // User sudah login - TAMPILKAN HALAMAN JOP
+                console.log('✅ User sudah login:', user.uid);
                 currentUserId = user.uid;
+                
                 try {
                     const userDoc = await firestore.collection('users').doc(user.uid).get();
                     if (userDoc.exists) {
                         currentUserData = userDoc.data();
+                        console.log('User data:', currentUserData);
                         localStorage.setItem('userData', JSON.stringify(currentUserData));
                     }
                 } catch (err) {
                     console.error('Error getting user data:', err);
+                    // Coba ambil dari localStorage
                     const localUserData = localStorage.getItem('userData');
-                    if (localUserData) currentUserData = JSON.parse(localUserData);
+                    if (localUserData) {
+                        try {
+                            currentUserData = JSON.parse(localUserData);
+                        } catch(e) {}
+                    }
                 }
+                
+                // Sembunyikan loading, tampilkan main app
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('mainApp').style.display = 'block';
+                
             } else {
+                // User BELUM login - REDIRECT KE INDEX (Login Page)
+                console.log('⚠️ User belum login, redirect ke index.html');
                 window.location.href = 'index.html';
             }
         });
@@ -376,15 +521,20 @@
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioContext.state === 'suspended') audioContext.resume();
+                
+                // Ding-ding sound
                 [880, 1100].forEach((freq, i) => {
                     setTimeout(() => {
                         const osc = audioContext.createOscillator();
                         const gain = audioContext.createGain();
-                        osc.connect(gain); gain.connect(audioContext.destination);
-                        osc.frequency.value = freq; osc.type = 'sine';
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = freq;
+                        osc.type = 'sine';
                         gain.gain.setValueAtTime(0.5, audioContext.currentTime);
                         gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                        osc.start(audioContext.currentTime); osc.stop(audioContext.currentTime + 0.15);
+                        osc.start(audioContext.currentTime);
+                        osc.stop(audioContext.currentTime + 0.15);
                     }, i * 200);
                 });
             } catch (e) { console.log('Audio error:', e); }
@@ -395,12 +545,14 @@
             if ('speechSynthesis' in window) {
                 setTimeout(() => {
                     const utterance = new SpeechSynthesisUtterance('Ada job baru');
-                    utterance.lang = 'id-ID'; utterance.rate = 1;
+                    utterance.lang = 'id-ID';
+                    utterance.rate = 1;
                     window.speechSynthesis.speak(utterance);
                 }, 500);
             }
         }
 
+        // Aktifkan audio saat user interaksi
         document.addEventListener('click', function initAudio() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -419,10 +571,15 @@
             renderOrders();
         }
 
+        // Cek apakah order milik driver ini
         function isMyOrder(order) {
             const myId = currentUserId || '';
             const myName = (currentUserData && currentUserData.nama) ? currentUserData.nama : '';
-            return (order.driverId && order.driverId === myId) || (order.driverName && myName && order.driverName === myName);
+            const orderDriverId = order.driverId || '';
+            const orderDriverName = order.driverName || '';
+            
+            return (orderDriverId && orderDriverId === myId) || 
+                   (orderDriverName && myName && orderDriverName === myName);
         }
 
         // ============================================
@@ -433,6 +590,7 @@
             
             let filtered = orderData;
             
+            // Filter Logic berdasarkan tab
             if (currentFilter === 'all') {
                 filtered = orderData;
             } else if (currentFilter === 'order') {
@@ -453,39 +611,48 @@
             }
 
             list.innerHTML = filtered.map(o => {
-                let badgeClass = 'new', badgeText = 'ORDER BARU';
+                let badgeClass = 'new';
+                let badgeText = 'ORDER BARU';
                 let btnHtml = '';
                 let isDisabled = false;
                 
+                // Logic untuk SEMUA (hanya lihat)
                 if (currentFilter === 'all') {
-                    if (o.status === 'order') { badgeClass = 'new'; badgeText = 'ORDER BARU'; }
-                    else if (o.status === 'berjalan') { badgeClass = 'progress'; badgeText = 'SEDANG BERJALAN'; }
-                    else if (o.status === 'selesai') { badgeClass = 'done'; badgeText = 'SELESAI'; }
+                    if (o.status === 'order') {
+                        badgeClass = 'new'; badgeText = 'ORDER BARU';
+                    } else if (o.status === 'berjalan') {
+                        badgeClass = 'progress'; badgeText = 'SEDANG BERJALAN';
+                    } else if (o.status === 'selesai') {
+                        badgeClass = 'done'; badgeText = 'SELESAI';
+                    }
                     btnHtml = '';
                     isDisabled = true;
                 }
+                // Logic untuk ORDER tab
                 else if (currentFilter === 'order') {
                     badgeClass = 'new'; badgeText = 'TERSEDIA';
-                    btnHtml = `<button class="action-btn take" onclick="takeOrder(event, '${o.id}')"><i class="fas fa-hand-holding-heart"></i> Ambil</button>`;
+                    btnHtml = `<button class="action-btn take" onclick="takeOrder(event, '${o.id}')"><i class="fas fa-hand-holding-heart"></i> Ambil Order</button>`;
                 }
+                // Logic untuk BERJALAN tab
                 else if (currentFilter === 'berjalan') {
                     badgeClass = 'progress'; badgeText = 'SEDANG BERJALAN';
-                    // Tambah tombol batal
-                    btnHtml = `
-                        <div class="action-buttons-container">
-                            <button class="action-btn cancel" onclick="cancelOrder(event, '${o.id}')"><i class="fas fa-times"></i> Batal</button>
-                            <button class="action-btn finish" onclick="openCameraForFinish(event, '${o.id}')"><i class="fas fa-camera"></i> Selesai</button>
-                        </div>`;
+                    btnHtml = `<button class="action-btn finish" onclick="openCameraForFinish(event, '${o.id}')"><i class="fas fa-camera"></i> Selesai</button>`;
                 }
+                // Logic untuk SELESAI tab
                 else if (currentFilter === 'selesai') {
                     badgeClass = 'done'; badgeText = 'SELESAI';
                     btnHtml = '';
                 }
 
+                // Image Logic
                 let imgHtml = '';
-                if (o.finishPhoto) imgHtml = `<img src="${o.finishPhoto}" class="photo-preview" alt="Foto Selesai">`;
-                else if (o.imageUrl) imgHtml = `<img src="${o.imageUrl}" class="order-image" alt="Gambar Order">`;
+                if (o.finishPhoto) {
+                    imgHtml = `<img src="${o.finishPhoto}" class="photo-preview" alt="Foto Selesai">`;
+                } else if (o.imageUrl) {
+                    imgHtml = `<img src="${o.imageUrl}" class="order-image" alt="Gambar Order">`;
+                }
 
+                // Format waktu
                 function formatTime12Hour(timeStr) {
                     if (!timeStr) return '';
                     const [hours, minutes] = timeStr.split(':');
@@ -496,50 +663,94 @@
                 }
 
                 function formatDateCustom(dateInput) {
-                    let dateObj = new Date(dateInput);
+                    let dateObj;
+                    if (typeof dateInput === 'string' && dateInput.includes('-')) {
+                        dateObj = new Date(dateInput);
+                    } else {
+                        dateObj = new Date(dateInput);
+                    }
                     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                     return `${days[dateObj.getDay()]}, ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
                 }
 
-                let displayTime = o.pickupTime ? formatTime12Hour(o.pickupTime) : (o.timestamp ? formatTime12Hour(`${new Date(o.timestamp).getHours().toString().padStart(2, '0')}:${new Date(o.timestamp).getMinutes().toString().padStart(2, '0')}`) : '');
-                let displayDate = o.tanggalJemput ? formatDateCustom(o.tanggalJemput) : (o.timestamp ? formatDateCustom(o.timestamp) : '');
+                let displayTime = '';
+                if (o.pickupTime) {
+                    displayTime = formatTime12Hour(o.pickupTime);
+                } else if (o.timestamp) {
+                    const dateObj = new Date(o.timestamp);
+                    displayTime = formatTime12Hour(`${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`);
+                }
                 
+                let displayDate = '';
+                if (o.tanggalJemput) {
+                    displayDate = formatDateCustom(o.tanggalJemput);
+                } else if (o.timestamp) {
+                    displayDate = formatDateCustom(o.timestamp);
+                }
+
                 const namaCustomer = o.nama || o.customerName || o.name || 'Pelanggan';
                 const teleponCustomer = o.telepon || o.phone || o.noHp || '';
                 
                 const keterangan = o.keterangan || o.notes || o.catatan || o.note || '';
-                const keteranganHtml = keterangan ? `<div class="keterangan-box"><div class="keterangan-label"><i class="fas fa-sticky-note"></i> Keterangan</div><div class="keterangan-text">${keterangan}</div></div>` : '';
+                const keteranganHtml = keterangan ? `
+                    <div class="keterangan-box">
+                        <div class="keterangan-label"><i class="fas fa-sticky-note"></i> Keterangan</div>
+                        <div class="keterangan-text">${keterangan}</div>
+                    </div>
+                ` : '';
 
                 const deskripsi = o.deskripsi || o.description || o.desk || o.pesanCustomer || '';
-                const deskripsiHtml = deskripsi ? `<div class="deskripsi-box"><div class="deskripsi-label"><i class="fas fa-comment-dots"></i> Deskripsi</div><div class="deskripsi-text">${deskripsi}</div></div>` : '';
+                const deskripsiHtml = deskripsi ? `
+                    <div class="deskripsi-box">
+                        <div class="deskripsi-label"><i class="fas fa-comment-dots"></i> Deskripsi Customer</div>
+                        <div class="deskripsi-text">${deskripsi}</div>
+                    </div>
+                ` : '';
 
                 const koper = o.koper || o.luggage || '';
-                const koperHtml = koper && koper !== '-' ? `<div class="koper-box"><div class="koper-label"><i class="fas fa-suitcase-rolling"></i> Koper</div><div class="koper-text">${koper}</div></div>` : '';
+                const koperHtml = koper && koper !== '-' ? `
+                    <div class="koper-box">
+                        <div class="koper-label"><i class="fas fa-suitcase-rolling"></i> Koper</div>
+                        <div class="koper-text">${koper}</div>
+                    </div>
+                ` : '';
 
-                const driverName = o.driverName || o.driver || '-';
-                const driverPlate = o.driverPlate || o.nopol || o.plat || '-';
-                const driverPhone = o.driverPhone || '-';
+                // Driver info
+                const driverName = o.driverName || o.driver || '';
+                const driverPlate = o.driverPlate || o.nopol || o.plat || '';
+                const driverPhone = o.driverPhone || '';
+                const hasDriverInfo = (driverName || driverPlate);
                 
-                // Jika di tab Berjalan, WAJIB tampilkan info Driver
-                const showDriverInfo = (currentFilter === 'berjalan') || (currentFilter === 'all' && o.status !== 'order');
+                const disabledClass = isDisabled ? 'disabled' : '';
                 
-                // Info Section Logic
+                // Phone HTML
+                let phoneHtml = '';
+                if (isDisabled) {
+                    phoneHtml = teleponCustomer ? `<div class="customer-phone"><i class="fas fa-phone"></i> ${teleponCustomer}</div>` : '';
+                } else {
+                    phoneHtml = teleponCustomer ? `<div class="customer-phone"><a href="tel:${teleponCustomer}"><i class="fas fa-phone"></i> ${teleponCustomer}</a></div>` : '';
+                }
+                
+                // Info Section
                 let infoSectionHtml = '';
-                if (showDriverInfo) {
-                    // Tampilkan Split Info (Customer & Driver)
+                if (currentFilter === 'all' && hasDriverInfo) {
+                    let driverPhoneHtml = isDisabled 
+                        ? (driverPhone ? `<div class="info-phone"><i class="fas fa-phone"></i> ${driverPhone}</div>` : '')
+                        : (driverPhone ? `<div class="info-phone"><a href="tel:${driverPhone}"><i class="fas fa-phone"></i> ${driverPhone}</a></div>` : '');
+                    
                     infoSectionHtml = `
                         <div class="split-info">
                             <div class="info-box customer">
                                 <div class="info-header"><div class="info-avatar"><i class="fas fa-user"></i></div> Customer</div>
                                 <div class="info-name">${namaCustomer}</div>
-                                ${teleponCustomer ? `<div class="info-phone"><a href="tel:${teleponCustomer}"><i class="fas fa-phone"></i> ${teleponCustomer}</a></div>` : ''}
+                                ${phoneHtml}
                             </div>
                             <div class="info-box driver">
                                 <div class="info-header"><div class="info-avatar"><i class="fas fa-user-tie"></i></div> Driver</div>
-                                <div class="info-name">${driverName}</div>
-                                ${driverPhone ? `<div class="info-phone"><a href="tel:${driverPhone}"><i class="fas fa-phone"></i> ${driverPhone}</a></div>` : ''}
-                                <div class="info-phone"><i class="fas fa-car"></i> ${driverPlate}</div>
+                                <div class="info-name">${driverName || 'Driver'}</div>
+                                ${driverPhoneHtml}
+                                ${driverPlate ? `<div class="info-phone"><i class="fas fa-car"></i> ${driverPlate}</div>` : ''}
                             </div>
                         </div>
                         ${deskripsiHtml}
@@ -547,11 +758,13 @@
                         ${keteranganHtml}
                     `;
                 } else {
-                     // Tampilkan Info Customer saja
                     infoSectionHtml = `
                         <div class="customer-info">
-                            <div class="customer-name"><i class="fas fa-user-circle"></i> ${namaCustomer}</div>
-                            ${teleponCustomer ? `<div class="customer-phone"><a href="tel:${teleponCustomer}"><i class="fas fa-phone"></i> ${teleponCustomer}</a></div>` : ''}
+                            <div class="customer-name">
+                                <i class="fas fa-user-circle"></i>
+                                ${namaCustomer}
+                            </div>
+                            ${phoneHtml}
                             ${deskripsiHtml}
                             ${koperHtml}
                             ${keteranganHtml}
@@ -559,6 +772,7 @@
                     `;
                 }
 
+                // Route click
                 let routeClickAttr = !isDisabled ? `onclick="openNavigation('${encodeURIComponent(o.pickup)}')"` : '';
                 let dropoffClickAttr = !isDisabled ? `onclick="openNavigation('${encodeURIComponent(o.dropoff)}')"` : '';
 
@@ -580,14 +794,16 @@
                             
                             <div class="route-point">
                                 <div class="route-label">Jemput</div>
-                                <div class="route-address ${isDisabled ? 'disabled' : ''}" ${routeClickAttr}>
-                                    <i class="fas fa-location-arrow"></i><span>${o.pickup}</span>
+                                <div class="route-address ${disabledClass}" ${routeClickAttr}>
+                                    <i class="fas fa-location-arrow"></i>
+                                    <span>${o.pickup}</span>
                                 </div>
                             </div>
                             <div class="route-point">
                                 <div class="route-label">Tujuan</div>
-                                <div class="route-address ${isDisabled ? 'disabled' : ''}" ${dropoffClickAttr}>
-                                    <i class="fas fa-flag-checkered"></i><span>${o.dropoff}</span>
+                                <div class="route-address ${disabledClass}" ${dropoffClickAttr}>
+                                    <i class="fas fa-flag-checkered"></i>
+                                    <span>${o.dropoff}</span>
                                 </div>
                             </div>
                         </div>
@@ -632,6 +848,7 @@
                 orderData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             }
             
+            // Update badge
             const orderTabBadge = document.getElementById('orderTabBadge');
             if (orderTabBadge) {
                 if (newOrderCount > 0) {
@@ -642,7 +859,11 @@
                 }
             }
             
-            if (hasInitializedNotif && newOrderCount > previousOrderCount) speakNewJob();
+            // Notifikasi suara
+            if (hasInitializedNotif && newOrderCount > previousOrderCount) {
+                speakNewJob();
+            }
+            
             previousOrderCount = newOrderCount;
             hasInitializedNotif = true;
             
@@ -659,7 +880,9 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengambil...';
             
-            let driverName = 'Driver', driverPhone = '-', driverPlate = '-';
+            let driverName = 'Driver';
+            let driverPhone = '-';
+            let driverPlate = '-';
             
             try {
                 if (currentUserData) {
@@ -703,83 +926,118 @@
         }
 
         // ============================================
-        // BATALKAN ORDER
-        // ============================================
-        async function cancelOrder(e, id) {
-            e.preventDefault();
-            const btn = e.target.closest('button');
-            
-            if (!confirm('Yakin ingin membatalkan order ini? Order akan kembali tersedia untuk driver lain.')) return;
-            
-            const originalHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-            try {
-                await db.ref('orders/' + id).update({
-                    status: 'order',
-                    driverId: null,
-                    driverName: null,
-                    driverPhone: null,
-                    driverPlate: null,
-                    takenAt: null
-                });
-                alert('Order berhasil dibatalkan.');
-            } catch (err) {
-                console.error("Gagal membatalkan order:", err);
-                alert("Gagal membatalkan: " + err.message);
-                btn.disabled = false;
-                btn.innerHTML = originalHtml;
-            }
-        }
-
-        // ============================================
-        // KAMERA & SELESAIKAN ORDER
+        // KAMERA UNTUK SELESAI ORDER
         // ============================================
         async function openCameraForFinish(e, id) {
             e.preventDefault();
             currentFinishingOrderId = id;
+            
+            console.log('📸 Membuka kamera untuk order:', id);
+            
             const modal = document.getElementById('cameraModal');
             const video = document.getElementById('cameraVideo');
             const previewImg = document.getElementById('cameraPreviewImg');
             const captureBtn = document.getElementById('captureBtn');
             const confirmBtn = document.getElementById('confirmBtn');
             
+            // Reset state
             previewImg.style.display = 'none';
             video.style.display = 'block';
             captureBtn.style.display = 'flex';
             confirmBtn.style.display = 'none';
             capturedPhotoBlob = null;
+            
             modal.classList.add('active');
             
+            // Cek apakah getUserMedia tersedia
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('Browser tidak mendukung kamera.'); closeCamera(); return;
+                alert('Browser tidak mendukung akses kamera. Silakan gunakan browser modern seperti Chrome, Firefox, atau Safari.');
+                closeCamera();
+                return;
             }
             
             try {
                 let stream = null;
+                
+                // Coba kamera depan (selfie) dulu
                 try {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'user',
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        },
+                        audio: false
+                    });
+                    console.log('✅ Kamera depan berhasil dibuka');
                 } catch (frontErr) {
+                    console.log('Kamera depan gagal, coba kamera belakang:', frontErr.message);
+                    
+                    // Fallback ke kamera belakang
                     try {
-                        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+                        stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { 
+                                facingMode: 'environment',
+                                width: { ideal: 640 },
+                                height: { ideal: 480 }
+                            },
+                            audio: false
+                        });
+                        console.log('✅ Kamera belakang berhasil dibuka');
                     } catch (backErr) {
-                        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                        // Fallback terakhir - tanpa constraint
+                        stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: true,
+                            audio: false
+                        });
+                        console.log('✅ Kamera berhasil dibuka (fallback)');
                     }
                 }
                 
                 if (stream) {
                     cameraStream = stream;
                     video.srcObject = stream;
+                    
+                    // Tunggu video ready
+                    video.onloadedmetadata = () => {
+                        video.play().catch(e => console.log('Video play error:', e));
+                        console.log('📹 Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+                    };
+                    
+                    // Play video
                     await video.play();
+                    console.log('🎥 Video playing');
                 }
+                
             } catch (err) {
-                console.error('Camera error:', err);
-                alert('Gagal akses kamera: ' + err.message);
+                console.error('❌ Error accessing camera:', err);
+                
+                let errorMsg = 'Tidak dapat mengakses kamera.\n\n';
+                
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    errorMsg += 'Izin kamera ditolak.\n\nSilakan izinkan akses kamera di pengaturan browser Anda.';
+                } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                    errorMsg += 'Kamera tidak ditemukan di perangkat ini.';
+                } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                    errorMsg += 'Kamera sedang digunakan aplikasi lain.\n\nTutup aplikasi lain yang menggunakan kamera.';
+                } else if (err.name === 'NotSupportedError') {
+                    errorMsg += 'Browser tidak mendukung akses kamera.';
+                } else if (err.name === 'TypeError') {
+                    errorMsg += 'Kesalahan konfigurasi kamera.';
+                } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                    errorMsg += 'Kamera membutuhkan koneksi HTTPS.\n\nGunakan HTTPS atau localhost.';
+                } else {
+                    errorMsg += 'Error: ' + err.message;
+                }
+                
+                alert(errorMsg);
                 closeCamera();
             }
         }
 
+        // ============================================
+        // CAPTURE PHOTO
+        // ============================================
         function capturePhoto() {
             const video = document.getElementById('cameraVideo');
             const canvas = document.getElementById('cameraCanvas');
@@ -787,82 +1045,201 @@
             const captureBtn = document.getElementById('captureBtn');
             const confirmBtn = document.getElementById('confirmBtn');
             
-            if (video.videoWidth === 0) { alert('Kamera belum siap.'); return; }
+            console.log('📷 Mengambil foto...');
             
+            // Cek apakah video sudah ready
+            if (video.videoWidth === 0 || video.videoHeight === 0) {
+                alert('Kamera belum siap. Tunggu beberapa detik lalu coba lagi.');
+                return;
+            }
+            
+            // Set canvas size sama dengan video
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
+            
+            console.log('📐 Canvas size:', canvas.width, 'x', canvas.height);
+            
+            // Draw video frame ke canvas (mirror untuk selfie)
             const ctx = canvas.getContext('2d');
-            ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0);
             
+            // Convert ke blob
             canvas.toBlob(blob => {
-                if (!blob) { alert('Gagal ambil foto.'); return; }
+                if (!blob) {
+                    alert('Gagal mengambil foto. Coba lagi.');
+                    return;
+                }
+                
                 capturedPhotoBlob = blob;
+                console.log('✅ Foto berhasil diambil, size:', blob.size, 'bytes');
+                
+                // Show preview
                 const url = URL.createObjectURL(blob);
                 previewImg.src = url;
                 previewImg.style.display = 'block';
                 video.style.display = 'none';
+                
+                // Show confirm button
                 captureBtn.style.display = 'none';
                 confirmBtn.style.display = 'flex';
             }, 'image/jpeg', 0.8);
         }
 
+        // ============================================
+        // CONFIRM PHOTO - SIMPAN LANGSUNG KE DATABASE (BASE64)
+        // ============================================
         async function confirmPhoto() {
-            if (!capturedPhotoBlob || !currentFinishingOrderId) return;
+            if (!capturedPhotoBlob || !currentFinishingOrderId) {
+                alert('Tidak ada foto untuk disimpan.');
+                return;
+            }
+            
             const btn = event.target.closest('button');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
             btn.disabled = true;
             
+            console.log('📤 Menyimpan foto ke database...');
+            
             try {
+                // Kompres dan convert ke base64 (langsung ke database, tanpa storage)
                 const base64Photo = await compressAndConvertToBase64(capturedPhotoBlob);
+                
+                console.log('✅ Foto berhasil dikompres, size:', base64Photo.length, 'chars');
+                
+                // Update order status di Realtime Database
                 await db.ref('orders/' + currentFinishingOrderId).update({
-                    status: 'selesai', finishPhoto: base64Photo, finishedAt: firebase.database.ServerValue.TIMESTAMP
+                    status: 'selesai',
+                    finishPhoto: base64Photo,
+                    finishedAt: firebase.database.ServerValue.TIMESTAMP
                 });
+                
+                console.log('✅ Order status updated to selesai');
                 alert('Order selesai! 🎉');
                 closeCamera();
+                
             } catch (err) {
-                alert('Gagal simpan: ' + err.message);
-                btn.innerHTML = '<i class="fas fa-check"></i>'; btn.disabled = false;
+                console.error('❌ Error:', err);
+                
+                let errorMsg = 'Gagal menyimpan foto.\n';
+                if (err.message) {
+                    errorMsg += err.message;
+                }
+                alert(errorMsg);
+                
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.disabled = false;
             }
         }
         
+        // ============================================
+        // KOMPRES DAN CONVERT KE BASE64
+        // ============================================
         function compressAndConvertToBase64(blob) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 const url = URL.createObjectURL(blob);
+                
                 img.onload = function() {
                     URL.revokeObjectURL(url);
+                    
+                    // Buat canvas dengan ukuran yang lebih kecil
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const maxWidth = 800, maxHeight = 600;
-                    let width = img.width, height = img.height;
+                    
+                    // Max width/height untuk kompresi
+                    const maxWidth = 800;
+                    const maxHeight = 600;
+                    
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Hitung rasio
                     if (width > maxWidth || height > maxHeight) {
                         const ratio = Math.min(maxWidth / width, maxHeight / height);
-                        width *= ratio; height *= ratio;
+                        width = width * ratio;
+                        height = height * ratio;
                     }
-                    canvas.width = width; canvas.height = height;
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw image
                     ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    
+                    // Convert ke base64 dengan kualitas 0.7
+                    const base64 = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    resolve(base64);
                 };
-                img.onerror = () => reject(new Error('Gagal memuat gambar'));
+                
+                img.onerror = function() {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Gagal memuat gambar'));
+                };
+                
                 img.src = url;
             });
         }
 
+        // ============================================
+        // CLOSE CAMERA
+        // ============================================
         function closeCamera() {
+            console.log('🚪 Menutup kamera...');
+            
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('cameraVideo');
+            const previewImg = document.getElementById('cameraPreviewImg');
+            const captureBtn = document.getElementById('captureBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            // Stop camera stream
             if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log('⏹️ Track stopped:', track.kind);
+                });
                 cameraStream = null;
             }
-            document.getElementById('cameraVideo').srcObject = null;
-            document.getElementById('cameraModal').classList.remove('active');
+            
+            // Clear video source
+            if (video) {
+                video.srcObject = null;
+                video.pause();
+            }
+            
+            // Clear preview
+            if (previewImg && previewImg.src) {
+                URL.revokeObjectURL(previewImg.src);
+                previewImg.src = '';
+            }
+            
+            // Reset buttons
+            if (captureBtn) captureBtn.style.display = 'flex';
+            if (confirmBtn) confirmBtn.style.display = 'none';
+            
+            // Hide modal
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            
+            // Reset variables
             currentFinishingOrderId = null;
             capturedPhotoBlob = null;
+            
+            console.log('✅ Kamera ditutup');
         }
 
+        // ============================================
+        // BUKA NAVIGASI GOOGLE MAPS
+        // ============================================
         function openNavigation(address) {
             if (!address) return;
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(decodeURIComponent(address))}`;
+            const decodedAddress = decodeURIComponent(address);
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(decodedAddress)}`;
             window.open(url, '_blank');
         }
     </script>
