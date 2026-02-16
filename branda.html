@@ -7,16 +7,16 @@
     <!-- ============================================
          PWA & NOTIFICATION SETUP
          ============================================ -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#6366f1">
     
     <!-- iOS Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BGT-PRO">
-    <link rel="apple-touch-icon" href="512B.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="512B.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="512B.png">
+    <link rel="apple-touch-icon" href="./512B.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./512B.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./512B.png">
     
     <!-- Windows Tiles -->
     <meta name="msapplication-TileColor" content="#6366f1">
@@ -623,9 +623,22 @@
         // ============================================
         async function initFCM() {
             try {
-                if (!('Notification' in window)) {
-                    console.log('Browser tidak mendukung notifikasi');
-                    return;
+                async function registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                try {
+                const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js', {
+                                scope: './'  // <- PENTING: gunakan scope relatif
+                            });
+                            console.log('Service Worker registered:', registration.scope);
+                            await navigator.serviceWorker.ready;
+                            console.log('Service Worker is ready');
+                            return registration;
+                        } catch (error) {
+                            console.log('Service Worker error:', error.message);
+                            return null;
+                        }
+                    }
+                    return null;
                 }
                 
                 messaging = firebase.messaging();
