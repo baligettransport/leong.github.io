@@ -570,19 +570,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-    <script>
-        // Firebase Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
-            authDomain: "cedar-setup-425414-d7.firebaseapp.com",
-            databaseURL: "https://cedar-setup-425414-d7-default-rtdb.firebaseio.com",
-            projectId: "cedar-setup-425414-d7",
-            storageBucket: "cedar-setup-425414-d7.firebasestorage.app",
-            messagingSenderId: "723545991983",
-            appId: "1:723545991983:web:379548d2b425a502a60fda"
-        };
+    <!-- FIREBASE CORE (Menangani Login & Keamanan) -->
+    <!-- Pastikan file ini sudah dibuat -->
+    <script src="firebase-core.js"></script>
 
-        firebase.initializeApp(firebaseConfig);
+    <script>
+        // ============================================
+        // LOGIKA KHUSUS PETA (KODE ASLI ANDA, TIDAK DIUBAH)
+        // ============================================
+
         const db = firebase.firestore();
 
         // State
