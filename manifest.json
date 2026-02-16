@@ -2,21 +2,21 @@
     "name": "BGT-PRO - Portal Anggota",
     "short_name": "BGT-PRO",
     "description": "Aplikasi Portal Anggota PT. Bali Global Trans",
-    "start_url": "/leong.github.io/branda.html",
-    "scope": "/leong.github.io/",
+    "start_url": "branda.html",
+    "scope": "./",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#6366f1",
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "/leong.github.io/512B.png",
+            "src": "512B.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/leong.github.io/512B.png",
+            "src": "512B.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
