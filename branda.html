@@ -196,7 +196,6 @@
             padding: 0 5px;
         }
 
-        /* Semua item memiliki lebar sama (20%) */
         .nav-item { 
             display: flex; 
             flex-direction: column; 
@@ -211,24 +210,11 @@
             transition: all 0.3s;
         }
         
-        .nav-item.active { 
-            color: var(--primary);
-        }
-        
-        .nav-item:active { 
-            transform: scale(0.9); 
-        }
-        
-        .nav-item i { 
-            font-size: 1.2rem; 
-        }
-        
-        .nav-item span { 
-            font-size: 0.6rem; 
-            font-weight: 500; 
-        }
+        .nav-item.active { color: var(--primary); }
+        .nav-item:active { transform: scale(0.9); }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item span { font-size: 0.6rem; font-weight: 500; }
 
-        /* Item khusus Job BGT di tengah */
         .nav-job {
             display: flex;
             flex-direction: column;
@@ -267,7 +253,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Badge notifikasi di logo Job BGT */
         .job-badge {
             position: absolute;
             top: -5px;
@@ -318,6 +303,7 @@
         .toast-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
         .toast-icon.info { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
         .toast-icon.warning { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+        .toast-icon.error { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
         .toast-content { flex: 1; }
         .toast-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; }
         .toast-message { font-size: 0.75rem; color: var(--gray); }
@@ -395,6 +381,27 @@
         }
         .loading-text { color: var(--gray); font-size: 0.9rem; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-card {
+            min-width: 280px;
+            height: 160px;
+            border-radius: 18px;
+        }
+        .skeleton-kopdar {
+            height: 99px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -488,7 +495,11 @@
 
         <!-- PROMO SLIDER -->
         <div class="promo-slider-wrapper">
-            <div class="promo-slider" id="promoSliderHome"></div>
+            <div class="promo-slider" id="promoSliderHome">
+                <!-- Skeleton Loading -->
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+            </div>
         </div>
 
         <!-- Feature Menu -->
@@ -521,10 +532,6 @@
                 <div class="feature-icon anggota"><i class="fas fa-users"></i></div>
                 <span class="feature-label">Anggota</span>
             </a>
-            <!-- <a class="feature-item" onclick="shareApp()">
-                <div class="feature-icon share"><i class="fas fa-share-alt"></i></div>
-                <span class="feature-label">Bagikan</span>
-            </a> -->
         </div>
 
         <!-- Kopdar Section -->
@@ -532,43 +539,35 @@
             <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Kopdar Mendatang</h3>
             <a class="section-link" href="kopdar.html">Lihat Semua</a>
         </div>
-        <div class="kopdar-list" id="kopdarListHome"></div>
+        <div class="kopdar-list" id="kopdarListHome">
+            <!-- Skeleton Loading -->
+            <div class="skeleton skeleton-kopdar"></div>
+            <div class="skeleton skeleton-kopdar"></div>
+        </div>
 
     </div>
 
-    <!-- ============================================
-         BOTTOM NAV - 5 ITEM SAMA RATA
-         ============================================ -->
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-        <!-- 1. Beranda -->
         <a class="nav-item active" href="branda.html">
             <i class="fas fa-home"></i>
             <span>Beranda</span>
         </a>
-
-        <!-- 2. Kopdar -->
         <a class="nav-item" href="kopdar.html">
             <i class="fas fa-calendar-alt"></i>
             <span>Kopdar</span>
         </a>
-
-        <!-- 3. Job BGT (Tengah dengan Logo) -->
         <a class="nav-job" href="jopbgtpro.html">
             <div class="nav-job-logo">
                 <img src="512B.png" alt="Job BGT" onerror="this.src='https://ui-avatars.com/api/?name=BGT&background=6366f1&color=fff&size=100'">
-                <!-- Badge notifikasi di logo -->
                 <span class="job-badge hidden" id="jobBadge">0</span>
             </div>
             <span class="nav-job-text">Job BGT</span>
         </a>
-
-        <!-- 4. Promo -->
         <a class="nav-item" href="promo.html">
             <i class="fas fa-tags"></i>
             <span>Promo</span>
         </a>
-
-        <!-- 5. Profil -->
         <a class="nav-item" href="profil.html">
             <i class="fas fa-user"></i>
             <span>Profil</span>
@@ -602,102 +601,113 @@
         const rtdb = firebase.database();
 
         // ============================================
-        // PUSH NOTIFICATION - FIREBASE CLOUD MESSAGING
-        // ============================================
-        let messaging = null;
-
-        // Inisialisasi FCM
-        async function initFCM() {
-            try {
-                messaging = firebase.messaging();
-                
-                // Request permission untuk notifikasi
-                const permission = await Notification.requestPermission();
-                
-                if (permission === 'granted') {
-                    console.log('✅ Notifikasi diizinkan');
-                    
-                    // Get FCM token
-                    const token = await messaging.getToken({
-                        vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ'
-                    });
-                    
-                    if (token) {
-                        console.log('📱 FCM Token:', token);
-                        // Simpan token ke user document
-                        const user = auth.currentUser;
-                        if (user) {
-                            await db.collection('users').doc(user.uid).update({
-                                fcmToken: token,
-                                fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        }
-                    }
-                } else {
-                    console.log('❌ Notifikasi ditolak');
-                }
-                
-                // Listen untuk pesan saat app di foreground
-                messaging.onMessage((payload) => {
-                    console.log('📬 Pesan diterima (foreground):', payload);
-                    
-                    // Tampilkan notifikasi custom
-                    showPushNotification(payload);
-                    
-                    // Bicara "Ada job baru"
-                    speakNewJob();
-                });
-                
-            } catch (error) {
-                console.log('FCM Error:', error.message);
-            }
-        }
-
-        // Tampilkan notifikasi push
-        function showPushNotification(payload) {
-            const title = payload.notification?.title || 'BGT-PRO';
-            const body = payload.notification?.body || 'Ada notifikasi baru!';
-            
-            // Tampilkan toast
-            showToast('info', title, body);
-            
-            // Update badge
-            updateJobBadge(1);
-        }
-
-        // ============================================
-        // SERVICE WORKER UNTUK NOTIFIKASI DI BACKGROUND
-        // ============================================
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                .then((registration) => {
-                    console.log('✅ Service Worker terdaftar:', registration.scope);
-                })
-                .catch((error) => {
-                    console.log('Service Worker error:', error);
-                });
-        }
-
-        // ============================================
         // STATE MANAGEMENT
         // ============================================
         let sessionUnsubscribe = null;
         let currentUserId = null;
         let localSessionId = null;
+        let messaging = null;
 
-        // Sample Data
-        const promoData = [
+        // ============================================
+        // FALLBACK DATA (Jika Firestore gagal)
+        // ============================================
+        const fallbackPromoData = [
             { id: 1, title: 'Kopdar Bulanan', desc: 'Diskon 20% untuk anggota BGT!', badge: 'HOT', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', gradient: 'promo-1', date: '25 Jan 2025' },
             { id: 2, title: 'Member Premium', desc: 'Fitur eksklusif untuk member!', badge: 'NEW', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', gradient: 'promo-2', date: '01 Feb 2025' },
             { id: 3, title: 'Tour Bareng', desc: 'Jalan-jalan bersama komunitas!', badge: 'EVENT', image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400', gradient: 'promo-3', date: '15 Feb 2025' },
             { id: 4, title: 'Cashback 10%', desc: 'Setiap transaksi dengan mitra BGT!', badge: 'PROMO', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400', gradient: 'promo-4', date: '28 Feb 2025' }
         ];
 
-        const kopdarData = [
+        const fallbackKopdarData = [
             { id: 1, title: 'Kopdar Bulanan Januari', date: '25 Jan 2025', time: '18:00 - 21:00', location: 'Warung Mak Beng, Sanur', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', status: 'soon', attendees: 45 },
             { id: 2, title: 'Makan Malam Bersama', date: '01 Feb 2025', time: '19:00 - 22:00', location: 'Jimbaran Beach Cafe', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', status: 'open', attendees: 32 }
         ];
+
+        // ============================================
+        // PUSH NOTIFICATION - FIREBASE CLOUD MESSAGING
+        // ============================================
+        async function initFCM() {
+            try {
+                // Cek dukungan browser
+                if (!('Notification' in window)) {
+                    console.log('⚠️ Browser tidak mendukung notifikasi');
+                    return;
+                }
+                
+                messaging = firebase.messaging();
+                
+                // Request permission
+                const permission = await Notification.requestPermission();
+                
+                if (permission !== 'granted') {
+                    console.log('❌ Notifikasi ditolak user');
+                    return;
+                }
+                
+                console.log('✅ Notifikasi diizinkan');
+                
+                // Get token dengan error handling
+                let token = null;
+                try {
+                    token = await messaging.getToken({
+                        vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ'
+                    });
+                } catch (tokenError) {
+                    console.log('⚠️ Gagal mendapat FCM token:', tokenError.message);
+                    return;
+                }
+                
+                if (token) {
+                    console.log('📱 FCM Token:', token.substring(0, 20) + '...');
+                    
+                    const user = auth.currentUser;
+                    if (user) {
+                        await db.collection('users').doc(user.uid).set({
+                            fcmToken: token,
+                            fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                }
+                
+                // Foreground message handler
+                messaging.onMessage((payload) => {
+                    console.log('📬 Pesan foreground:', payload);
+                    
+                    const title = payload.notification?.title || 'BGT-PRO';
+                    const body = payload.notification?.body || 'Ada notifikasi baru!';
+                    
+                    // Tampilkan notifikasi native
+                    if (Notification.permission === 'granted') {
+                        new Notification(title, {
+                            body: body,
+                            icon: '/512B.png',
+                            badge: '/512B.png'
+                        });
+                    }
+                    
+                    // Tampilkan toast
+                    showToast('info', title, body);
+                    
+                    // Bicara "Ada job baru"
+                    speakNewJob();
+                });
+                
+            } catch (error) {
+                console.log('⚠️ FCM init error:', error.message);
+            }
+        }
+
+        // Register service worker
+        async function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                    console.log('✅ Service Worker terdaftar:', registration.scope);
+                } catch (error) {
+                    console.log('⚠️ Service Worker error:', error.message);
+                }
+            }
+        }
 
         // ============================================
         // LOCAL STORAGE FUNCTIONS
@@ -748,27 +758,47 @@
             currentUserId = userId;
             localSessionId = safeGetItem('userSessionId');
             
+            if (!localSessionId) {
+                console.log('⚠️ No local session');
+                handleSessionKick();
+                return;
+            }
+            
             if (sessionUnsubscribe) sessionUnsubscribe();
             
             sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
                 (doc) => {
                     if (!doc.exists) {
+                        console.log('⚠️ User document deleted');
                         handleSessionKick();
                         return;
                     }
+                    
                     const data = doc.data();
                     const serverSessionId = data.currentSessionId;
                     const serverDevice = data.currentDevice;
                     
-                    if (serverSessionId && localSessionId && serverSessionId !== localSessionId) {
+                    if (serverSessionId && serverSessionId !== localSessionId) {
+                        console.log('⚠️ Session mismatch - another device logged in');
+                        
                         if (sessionUnsubscribe) {
                             sessionUnsubscribe();
                             sessionUnsubscribe = null;
                         }
+                        
                         showSessionKick(serverDevice || 'Perangkat lain');
                     }
                 },
-                (error) => console.error('Session monitor error:', error)
+                (error) => {
+                    console.error('❌ Session monitor error:', error.message);
+                    
+                    // Reconnect after error
+                    setTimeout(() => {
+                        if (currentUserId && !sessionUnsubscribe) {
+                            startSessionMonitor(currentUserId);
+                        }
+                    }, 5000);
+                }
             );
         }
 
@@ -788,20 +818,12 @@
             document.getElementById('menuOverlay').classList.remove('active');
         }
 
-        function shareApp() {
-            if (navigator.share) {
-                navigator.share({ title: 'BGT-PRO', text: 'Gabung komunitas PT. Bali Global Trans!', url: window.location.href });
-            } else {
-                showToast('info', 'Bagikan', 'Link berhasil disalin!');
-            }
-        }
-
         function showToast(type, title, message) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            let iconClass = type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
-            let iconName = type === 'success' ? 'fa-check' : type === 'warning' ? 'fa-exclamation' : 'fa-info';
+            let iconClass = type === 'success' ? 'success' : type === 'warning' ? 'warning' : type === 'error' ? 'error' : 'info';
+            let iconName = type === 'success' ? 'fa-check' : type === 'warning' ? 'fa-exclamation' : type === 'error' ? 'fa-times' : 'fa-info';
             toast.innerHTML = `
                 <div class="toast-icon ${iconClass}"><i class="fas ${iconName}"></i></div>
                 <div class="toast-content">
@@ -814,34 +836,103 @@
             setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 4000);
         }
 
-        function loadPromoData() {
+        // ============================================
+        // DYNAMIC DATA LOADING - DARI FIRESTORE
+        // ============================================
+        async function loadPromoData() {
             const slider = document.getElementById('promoSliderHome');
-            const allPromos = [...promoData, ...promoData];
-            slider.innerHTML = allPromos.map(promo => `
-                <div class="promo-card ${promo.gradient}" onclick="window.location.href='promo.html'">
-                    <span class="promo-badge">${promo.badge}</span>
-                    <h4 class="promo-title">${promo.title}</h4>
-                    <p class="promo-desc">${promo.desc}</p>
-                    <img src="${promo.image}" alt="${promo.title}" class="promo-image" loading="lazy">
-                </div>
-            `).join('');
+            
+            try {
+                // Coba ambil dari Firestore
+                const snapshot = await db.collection('promos')
+                    .where('active', '==', true)
+                    .orderBy('createdAt', 'desc')
+                    .limit(5)
+                    .get();
+                
+                let promos = [];
+                snapshot.forEach(doc => {
+                    promos.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (promos.length === 0) {
+                    throw new Error('Tidak ada promo aktif');
+                }
+                
+                console.log('✅ Promo loaded from Firestore:', promos.length);
+                renderPromoSlider(promos);
+                
+            } catch (error) {
+                console.log('⚠️ Menggunakan fallback promo:', error.message);
+                renderPromoSlider(fallbackPromoData);
+            }
         }
 
-        function loadKopdarData() {
-            const html = kopdarData.map(k => `
+        function renderPromoSlider(promos) {
+            const slider = document.getElementById('promoSliderHome');
+            const gradients = ['promo-1', 'promo-2', 'promo-3', 'promo-4'];
+            
+            // Double array for infinite scroll
+            const allPromos = [...promos, ...promos];
+            
+            slider.innerHTML = allPromos.map((promo, index) => {
+                const gradient = promo.gradient || gradients[index % gradients.length];
+                return `
+                    <div class="promo-card ${gradient}" onclick="window.location.href='promo.html'">
+                        <span class="promo-badge">${promo.badge || 'PROMO'}</span>
+                        <h4 class="promo-title">${promo.title}</h4>
+                        <p class="promo-desc">${promo.desc || promo.description || ''}</p>
+                        <img src="${promo.image}" alt="${promo.title}" class="promo-image" loading="lazy" onerror="this.style.display='none'">
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadKopdarData() {
+            const container = document.getElementById('kopdarListHome');
+            
+            try {
+                // Coba ambil dari Firestore
+                const snapshot = await db.collection('kopdar')
+                    .where('status', 'in', ['soon', 'open'])
+                    .orderBy('date', 'asc')
+                    .limit(3)
+                    .get();
+                
+                let kopdars = [];
+                snapshot.forEach(doc => {
+                    kopdars.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (kopdars.length === 0) {
+                    throw new Error('Tidak ada kopdar mendatang');
+                }
+                
+                console.log('✅ Kopdar loaded from Firestore:', kopdars.length);
+                renderKopdarList(kopdars);
+                
+            } catch (error) {
+                console.log('⚠️ Menggunakan fallback kopdar:', error.message);
+                renderKopdarList(fallbackKopdarData);
+            }
+        }
+
+        function renderKopdarList(kopdars) {
+            const container = document.getElementById('kopdarListHome');
+            
+            container.innerHTML = kopdars.map(k => `
                 <a class="kopdar-card" href="kopdar.html">
-                    <img src="${k.image}" alt="${k.title}" class="kopdar-image" loading="lazy">
+                    <img src="${k.image}" alt="${k.title}" class="kopdar-image" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=KOPDAR&background=6366f1&color=fff&size=200'">
                     <div class="kopdar-info">
                         <h4 class="kopdar-title">${k.title}</h4>
                         <div class="kopdar-meta">
                             <span><i class="fas fa-calendar"></i> ${k.date}</span>
-                            <span><i class="fas fa-clock"></i> ${k.time}</span>
+                            <span><i class="fas fa-clock"></i> ${k.time || ''}</span>
                         </div>
                         <span class="kopdar-badge ${k.status}">${k.status === 'soon' ? 'Coming Soon' : 'Open Registration'}</span>
                     </div>
                 </a>
             `).join('');
-            document.getElementById('kopdarListHome').innerHTML = html;
         }
 
         // ============================================
@@ -877,6 +968,7 @@
             document.getElementById('menuName').textContent = namaUser;
             document.getElementById('menuTitle').textContent = data.titel || 'ANGGOTA';
             
+            // Load dynamic data
             loadPromoData();
             loadKopdarData();
             
@@ -891,7 +983,10 @@
                 stopSessionMonitor();
                 await auth.signOut();
                 window.location.href = 'index.html';
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error('Logout error:', e);
+                window.location.href = 'index.html';
+            }
         }
 
         // ============================================
@@ -928,7 +1023,7 @@
             
             if (jobBadge) {
                 if (count > 0) {
-                    jobBadge.textContent = count;
+                    jobBadge.textContent = count > 99 ? '99+' : count;
                     jobBadge.classList.remove('hidden');
                 } else {
                     jobBadge.classList.add('hidden');
@@ -937,7 +1032,7 @@
             
             if (jobNotifBadge) {
                 if (count > 0) {
-                    jobNotifBadge.textContent = count;
+                    jobNotifBadge.textContent = count > 99 ? '99+' : count;
                     jobNotifBadge.classList.remove('hidden');
                 } else {
                     jobNotifBadge.classList.add('hidden');
@@ -951,32 +1046,38 @@
         let previousOrderCount = 0;
         let hasInitialized = false;
 
-        const ordersRef = rtdb.ref('orders');
-        ordersRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            let newOrderCount = 0;
+        function startOrderListener() {
+            const ordersRef = rtdb.ref('orders');
             
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    const item = data[key];
-                    if (item && item.status === 'order' && key !== 'undefined') {
-                        newOrderCount++;
-                    }
-                });
-            }
-            
-            updateJobBadge(newOrderCount);
-            
-            // Notifikasi jika ada order baru
-            if (hasInitialized && newOrderCount > previousOrderCount) {
-                speakNewJob();
-                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru tersedia.');
-                console.log('Ada job baru! Total:', newOrderCount);
-            }
-            
-            previousOrderCount = newOrderCount;
-            hasInitialized = true;
-        });
+            ordersRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                let newOrderCount = 0;
+                
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const item = data[key];
+                        if (item && item.status === 'order' && key !== 'undefined') {
+                            newOrderCount++;
+                        }
+                    });
+                }
+                
+                updateJobBadge(newOrderCount);
+                
+                // Notifikasi jika ada order baru
+                if (hasInitialized && newOrderCount > previousOrderCount) {
+                    speakNewJob();
+                    showToast('info', 'Job Baru!', 'Ada lowongan kerja baru tersedia.');
+                    console.log('🆕 Ada job baru! Total:', newOrderCount);
+                }
+                
+                previousOrderCount = newOrderCount;
+                hasInitialized = true;
+                
+            }, (error) => {
+                console.error('❌ Order listener error:', error.message);
+            });
+        }
 
         // ============================================
         // AUTH STATE LISTENER
@@ -1009,8 +1110,14 @@
                 startSessionMonitor(user.uid);
                 showUserData(data);
                 
-                // Init FCM untuk push notification
+                // Init FCM
                 initFCM();
+                
+                // Register service worker
+                registerServiceWorker();
+                
+                // Start order listener
+                startOrderListener();
                 
                 // Speak welcome
                 const hasSpoken = sessionStorage.getItem('welcomeSpoken');
@@ -1020,8 +1127,21 @@
                 }
                 
             } catch (e) {
-                console.error('Auth state error:', e);
+                console.error('❌ Auth state error:', e);
+                showToast('error', 'Error', 'Gagal memuat data. Coba refresh halaman.');
             }
+        });
+
+        // ============================================
+        // GLOBAL ERROR HANDLER
+        // ============================================
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            event.preventDefault();
+        });
+
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
         });
     </script>
 
