@@ -507,19 +507,32 @@
         } finally {
             btn.innerHTML = originalText;
             btn.disabled = false;
+            // SIMPAN FLAG: Izin sudah pernah diminta
+            localStorage.setItem('bgt_permissions_asked', 'true');
         }
     }
 
     function handleSkipPermissions() {
         document.getElementById('permModal').classList.remove('active');
+        // SIMPAN FLAG: User memilih skip, jangan muncul lagi
+        localStorage.setItem('bgt_permissions_asked', 'true');
+        
         // Coba jalankan tracking silent saja (jika sudah pernah diizinkan sebelumnya)
         startAutoTracking();
         if(Notification.permission === 'granted') initFCM();
     }
 
     function showPermissionModal() {
-        // Tampilkan modal jika notifikasi masih default (belum pernah ditentukan)
-        // atau paksa tampilkan jika ingin user selalu melihatnya saat buka app
+        // CEK FLAG: Jika sudah pernah diminta, JANGAN tampilkan modal lagi
+        if (localStorage.getItem('bgt_permissions_asked')) {
+            // Jika modal tidak muncul karena sudah pernah diminta,
+            // pastikan fitur tracking tetap berjalan di background
+            startAutoTracking();
+            if(Notification.permission === 'granted') initFCM();
+            return;
+        }
+
+        // Jika belum pernah, tampilkan modal setelah delay 1 detik
         setTimeout(() => {
             document.getElementById('permModal').classList.add('active');
         }, 1000);
@@ -675,13 +688,16 @@
         document.getElementById('loadingContainer').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         
-        // Tampilkan Modal Izin
+        // Tampilkan Modal Izin (fungsi ini sekarang sudah cek flag internal)
         showPermissionModal();
     }
 
     async function handleLogout() {
         if (!confirm('Yakin ingin keluar?')) return;
         localStorage.removeItem('userSessionId');
+        // Opsional: Jika ingin reset izin modal saat logout, uncomment baris di bawah:
+        // localStorage.removeItem('bgt_permissions_asked');
+        
         if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
         if (sessionUnsubscribe) sessionUnsubscribe();
         await auth.signOut();
