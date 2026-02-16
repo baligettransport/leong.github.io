@@ -1,14 +1,12 @@
 // ============================================
 // firebase-messaging-sw.js
-// Service Worker untuk Push Notification Background
+// Service Worker untuk Push Notification
 // ============================================
 
 importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js');
 
-// ============================================
-// KONFIGURASI FIREBASE
-// ============================================
+// Firebase Config
 firebase.initializeApp({
     apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
     authDomain: "cedar-setup-425414-d7.firebaseapp.com",
@@ -20,152 +18,48 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// ============================================
-// BACKGROUND MESSAGE HANDLER
-// ============================================
+// Background Message Handler
 messaging.onBackgroundMessage((payload) => {
-    console.log('[SW] 📬 Background message received:', payload);
+    console.log('[SW] Background message:', payload);
 
     const data = payload.data || {};
     const notification = payload.notification || {};
 
     const title = data.title || notification.title || 'BGT-PRO';
     const body = data.body || notification.body || 'Ada notifikasi baru!';
-    const icon = data.icon || './512B.png';
-    const image = data.image || notification.image || null;
-    const clickUrl = data.click_url || data.url || './branda.html';
-    const tag = data.tag || 'bgt-notification';
+    const icon = '/leong.github.io/512B.png';
+    const clickUrl = data.click_url || '/leong.github.io/branda.html';
 
     const options = {
         body: body,
         icon: icon,
-        badge: './512B.png',
-        image: image,
-        vibrate: [200, 100, 200, 100, 200],
-        tag: tag + '-' + Date.now(),
-        renotify: true,
+        badge: '/leong.github.io/512B.png',
+        vibrate: [200, 100, 200],
+        tag: 'bgt-notification',
         requireInteraction: true,
-        silent: false,
-        data: {
-            click_url: clickUrl,
-            timestamp: Date.now()
-        },
-        actions: [
-            { 
-                action: 'open', 
-                title: '📝 Buka Aplikasi'
-            },
-            { 
-                action: 'close', 
-                title: '❌ Tutup'
-            }
-        ]
+        data: { click_url: clickUrl }
     };
 
     return self.registration.showNotification(title, options);
 });
 
-// ============================================
-// NOTIFICATION CLICK HANDLER
-// ============================================
+// Notification Click Handler
 self.addEventListener('notificationclick', (event) => {
-    console.log('[SW] 👆 Notification clicked:', event.action);
-    
     event.notification.close();
-
-    if (event.action === 'close') {
-        return;
-    }
-
-    const clickUrl = event.notification.data?.click_url || './branda.html';
-
+    
+    const clickUrl = event.notification.data?.click_url || '/leong.github.io/branda.html';
+    
     event.waitUntil(
-        clients.matchAll({ 
-            type: 'window', 
-            includeUncontrolled: true 
-        })
-        .then((clientList) => {
-            for (const client of clientList) {
-                if ('focus' in client) {
-                    client.postMessage({
-                        type: 'NOTIFICATION_CLICKED',
-                        url: clickUrl
-                    });
-                    return client.focus();
+        clients.matchAll({ type: 'window', includeUncontrolled: true })
+            .then((clientList) => {
+                for (const client of clientList) {
+                    if ('focus' in client) return client.focus();
                 }
-            }
-            
-            if (clients.openWindow) {
-                return clients.openWindow(clickUrl);
-            }
-        })
+                if (clients.openWindow) return clients.openWindow(clickUrl);
+            })
     );
 });
 
-// ============================================
-// PUSH EVENT HANDLER (Fallback)
-// ============================================
-self.addEventListener('push', (event) => {
-    console.log('[SW] 📨 Push event received');
-    
-    if (!event.data) {
-        console.log('[SW] No data in push event');
-        return;
-    }
-
-    try {
-        const payload = event.data.json();
-        console.log('[SW] Push payload:', payload);
-        
-        if (payload.data || payload.notification) {
-            return;
-        }
-        
-        const title = 'BGT-PRO';
-        const options = {
-            body: 'Anda memiliki notifikasi baru',
-            icon: './512B.png',
-            badge: './512B.png',
-            vibrate: [200, 100, 200]
-        };
-        
-        event.waitUntil(
-            self.registration.showNotification(title, options)
-        );
-        
-    } catch (error) {
-        console.error('[SW] Error parsing push data:', error);
-    }
-});
-
-// ============================================
-// SERVICE WORKER LIFECYCLE
-// ============================================
-self.addEventListener('install', (event) => {
-    console.log('[SW] ✅ Service Worker installing...');
-    self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-    console.log('[SW] ✅ Service Worker activating...');
-    event.waitUntil(clients.claim());
-});
-
-// ============================================
-// MESSAGE FROM CLIENT
-// ============================================
-self.addEventListener('message', (event) => {
-    console.log('[SW] 📩 Message from client:', event.data);
-    
-    if (event.data && event.data.type === 'TEST_NOTIFICATION') {
-        const { title, body } = event.data;
-        self.registration.showNotification(title || 'Test', {
-            body: body || 'Test notification',
-            icon: './512B.png',
-            badge: './512B.png',
-            vibrate: [200, 100, 200]
-        });
-    }
-});
-
-console.log('[SW] 🚀 Service Worker loaded');
+// Service Worker Lifecycle
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
