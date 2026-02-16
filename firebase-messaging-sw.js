@@ -27,16 +27,18 @@ messaging.onBackgroundMessage((payload) => {
 
     const title = data.title || notification.title || 'BGT-PRO';
     const body = data.body || notification.body || 'Ada notifikasi baru!';
-    const icon = '/leong.github.io/512B.png';
-    const clickUrl = data.click_url || '/leong.github.io/branda.html';
+    
+    // PERBAIKAN: Gunakan path relatif atau URL absolut yang pasti ada
+    const icon = '512B.png'; 
+    const clickUrl = data.click_url || 'branda.html';
 
     const options = {
         body: body,
         icon: icon,
-        badge: '/leong.github.io/512B.png',
+        badge: '512B.png', // Badge kecil untuk status bar
         vibrate: [200, 100, 200],
-        tag: 'bgt-notification',
-        requireInteraction: true,
+        tag: 'bgt-notification', // Agar notifikasi lama terganti dengan baru
+        requireInteraction: true, // Notifikasi tidak langsung hilang
         data: { click_url: clickUrl }
     };
 
@@ -47,14 +49,16 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     
-    const clickUrl = event.notification.data?.click_url || '/leong.github.io/branda.html';
+    const clickUrl = event.notification.data?.click_url || 'branda.html';
     
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true })
             .then((clientList) => {
+                // Jika ada window yang terbuka, fokuskan
                 for (const client of clientList) {
                     if ('focus' in client) return client.focus();
                 }
+                // Jika tidak, buka window baru
                 if (clients.openWindow) return clients.openWindow(clickUrl);
             })
     );
