@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- PWA Setup (Menggunakan Relative Path) -->
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA Setup untuk GitHub Pages -->
+    <link rel="manifest" href="/leong.github.io/manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BGT-PRO">
-    <link rel="apple-touch-icon" href="512B.png">
+    <link rel="apple-touch-icon" href="/leong.github.io/512B.png">
     
     <title>BGT-PRO - Portal Anggota</title>
     
@@ -18,7 +18,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* CSS tetap sama seperti kode asli Anda */
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
@@ -56,11 +55,11 @@
         .header-name { font-size: 0.9rem; font-weight: 600; }
         .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
         .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
-        .header-right { display: flex; align-items: center; gap: 8px; position: relative; }
+        .header-right { display: flex; align-items: center; gap: 8px; }
         .notif-btn { 
             width: 38px; height: 38px; background: transparent; border: none; 
             border-radius: 10px; color: var(--dark); font-size: 1.1rem; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative;
+            display: flex; align-items: center; justify-content: center; text-decoration: none; 
         }
         .notif-badge { 
             position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; 
@@ -322,8 +321,7 @@
     <a class="nav-item" href="kopdar.html"><i class="fas fa-calendar-alt"></i><span>Kopdar</span></a>
     <a class="nav-job" href="jopbgtpro.html">
         <div class="nav-job-logo">
-            <!-- PERBAIKAN: Path gambar dibuat relatif -->
-            <img src="512B.png" alt="Job BGT" onerror="this.src='https://ui-avatars.com/api/?name=BGT&background=6366f1&color=fff&size=100'">
+            <img src="/leong.github.io/512B.png" alt="Job BGT" onerror="this.src='https://ui-avatars.com/api/?name=BGT&background=6366f1&color=fff&size=100'">
             <span class="job-badge hidden" id="jobBadge">0</span>
         </div>
         <span class="nav-job-text">Job BGT</span>
@@ -366,10 +364,15 @@
     let localSessionId = null;
     let messaging = null;
 
+    /* --- TAMBAHAN AUTO TRACKING VARIABLES --- */
+    let watchId = null;
+    let currentAppUser = null;
+    /* ----------------------------------------- */
+
     // Fallback Data
     const fallbackPromoData = [
         { id: 1, title: 'Kopdar Bulanan', desc: 'Diskon 20% untuk anggota!', badge: 'HOT', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', gradient: 'promo-1' },
-        { id: 2, title: 'Member Premium', desc: 'Fitur eksklusif!', badge: 'NEW', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', gradient: 'promo-2' },
+        { id: 2, title: 'Member Premium', desc: 'Fitur eksklusif!', badge: 'NEW', image: 'https://images.unsplash.com/photo-1523275335684-378989a2e8c0?w=400', gradient: 'promo-2' },
         { id: 3, title: 'Tour Bareng', desc: 'Jalan-jalan bersama!', badge: 'EVENT', image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400', gradient: 'promo-3' }
     ];
 
@@ -377,6 +380,77 @@
         { id: 1, title: 'Kopdar Bulanan', date: '25 Jan 2025', time: '18:00', location: 'Sanur', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', status: 'soon' },
         { id: 2, title: 'Makan Malam', date: '01 Feb 2025', time: '19:00', location: 'Jimbaran', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', status: 'open' }
     ];
+
+    /* ============================================
+       TAMBAHAN: AUTO TRACKING LOGIC
+       ============================================ */
+    async function updateLocationToFirebase(lat, lng, accuracy) {
+        if (!currentAppUser) return;
+        try {
+            // Kita TIDAK mengupdate currentSessionId di sini agar tidak bentrok dengan fitur Single Device Login
+            // Kita hanya mengupdate koordinat dan waktu aktif terakhir
+            await db.collection('users').doc(currentAppUser.uid).update({
+                latitude: lat,
+                longitude: lng,
+                accuracy: accuracy || 0,
+                locationUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastActive: firebase.firestore.FieldValue.serverTimestamp() // Penting untuk status Online di Admin
+            });
+            console.log('📍 [BRANDA] Location updated');
+        } catch (e) {
+            console.error('Error updating location:', e);
+        }
+    }
+
+    function startAutoTracking() {
+        if (!navigator.geolocation) {
+            console.log("Browser tidak mendukung Geolocation");
+            return;
+        }
+
+        // Stop yang lama agar tidak double
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+        }
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        };
+
+        // 1. Paksa Setting di LocalStorage jadi TRUE
+        let settings = JSON.parse(localStorage.getItem('appSettings')) || {};
+        settings.backgroundTracking = true; 
+        localStorage.setItem('appSettings', JSON.stringify(settings));
+        console.log('✅ [BRANDA] Background Tracking dipaksa ON');
+
+        // 2. Mulai WatchPosition
+        watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+                updateLocationToFirebase(lat, lng, accuracy);
+            }, 
+            (error) => {
+                console.warn('GPS Error di BrandA:', error.message);
+            }, 
+            options
+        );
+
+        // 3. Ambil posisi pertama kali segera
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                updateLocationToFirebase(position.coords.latitude, position.coords.longitude, position.coords.accuracy);
+            },
+            (error) => {
+                console.warn('GPS Init Error:', error.message);
+            },
+            options
+        );
+    }
+    /* ============================================ */
 
     // ============================================
     // FCM - PUSH NOTIFICATION
@@ -403,10 +477,17 @@
             
             console.log('✅ Notifikasi diizinkan');
             
-            // VAPID KEY
+            // ============================================
+            // PENTING: GANTI VAPID KEY DENGAN KEY ANDA!
+            // ============================================
+            // 1. Buka Firebase Console > Settings > Cloud Messaging
+            // 2. Generate key pair (jika belum ada)
+            // 3. Copy key yang dimulai dengan "B..."
+            // 4. Paste di bawah ini:
+            
             const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
             
-            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+            const token = await messaging.getToken({ vapidKey: 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0'});
             
             if (token) {
                 console.log('✅ FCM Token:', token.substring(0, 30) + '...');
@@ -419,7 +500,7 @@
                 }
             }
             
-            // Foreground message handler
+            // Foreground message
             messaging.onMessage((payload) => {
                 console.log('📬 Foreground:', payload);
                 const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
@@ -434,14 +515,15 @@
     }
 
     // ============================================
-    // SERVICE WORKER REGISTRATION (PERBAIKAN PATH)
+    // SERVICE WORKER REGISTRATION
     // ============================================
     async function registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
-                // Path relatif, pastikan file ada di folder yang sama
-                const swUrl = 'firebase-messaging-sw.js';
-                const registration = await navigator.serviceWorker.register(swUrl);
+                const swUrl = '/leong.github.io/firebase-messaging-sw.js';
+                const registration = await navigator.serviceWorker.register(swUrl, {
+                    scope: '/leong.github.io/'
+                });
                 console.log('✅ SW Registered:', registration.scope);
                 await navigator.serviceWorker.ready;
                 return registration;
@@ -595,6 +677,13 @@
     async function handleLogout() {
         if (!confirm('Yakin ingin keluar?')) return;
         localStorage.removeItem('userSessionId');
+        
+        // TAMBAHAN: Stop Tracking saat Logout
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+        }
+
         if (sessionUnsubscribe) sessionUnsubscribe();
         await auth.signOut();
         window.location.href = 'index.html';
@@ -634,6 +723,10 @@
     // ============================================
     auth.onAuthStateChanged(async (user) => {
         if (!user) { window.location.href = 'index.html'; return; }
+        
+        // TAMBAHAN: Simpan user ke variable global
+        currentAppUser = user;
+
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             if (!doc.exists) { await auth.signOut(); window.location.href = 'index.html'; return; }
@@ -647,12 +740,23 @@
             }
             startSessionMonitor(user.uid);
             showUserData(data);
+            
+            // TAMBAHAN: Mulai Auto Tracking setelah data user dimuat
+            startAutoTracking();
+
             initFCM();
             registerServiceWorker();
             startOrderListener();
         } catch (e) {
             console.error('Auth error:', e);
             showToast('error', 'Error', 'Gagal memuat data');
+        }
+    });
+
+    // TAMBAHAN: Bersihkan tracking saat tab ditutup
+    window.addEventListener('beforeunload', () => {
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
         }
     });
 </script>
