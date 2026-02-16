@@ -4,23 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- ============================================
-         PWA & NOTIFICATION SETUP
-         ============================================ -->
-    <link rel="manifest" href="./manifest.json">
+    <!-- PWA Setup untuk GitHub Pages -->
+    <link rel="manifest" href="/leong.github.io/manifest.json">
     <meta name="theme-color" content="#6366f1">
-    
-    <!-- iOS Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BGT-PRO">
-    <link rel="apple-touch-icon" href="./512B.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="./512B.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="./512B.png">
-    
-    <!-- Windows Tiles -->
-    <meta name="msapplication-TileColor" content="#6366f1">
-    <meta name="msapplication-TileImage" content="512B.png">
+    <link rel="apple-touch-icon" href="/leong.github.io/512B.png">
     
     <title>BGT-PRO - Portal Anggota</title>
     
@@ -31,18 +21,11 @@
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
-            --primary-light: #818cf8;
-            --secondary: #8b5cf6;
-            --accent: #f59e0b;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --info: #06b6d4;
             --dark: #0f172a;
-            --dark-light: #1e293b;
             --gray: #64748b;
-            --gray-light: #94a3b8;
-            --white: #ffffff;
             --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
         }
 
@@ -56,1068 +39,629 @@
             min-height: 100dvh; 
         }
 
-        html, body, .app-container {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        html::-webkit-scrollbar, body::-webkit-scrollbar, .app-container::-webkit-scrollbar {
-            display: none;
-        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
 
         .app-container { width: 100%; min-height: 100dvh; padding-bottom: 90px; overflow-y: auto; padding-top: 60px; }
 
         /* Header */
         .header { 
-            position: fixed;
-            top: 0; 
-            left: 0;
-            width: 100%;
-            z-index: 100; 
-            background: rgba(255, 255, 255, 0.8); 
-            backdrop-filter: blur(15px); 
-            padding: 10px 16px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid rgba(0,0,0,0.05); 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 100; 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); 
+            padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        .header-left { display: flex; align-items: center; gap: 12px; }
         .header-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .header-avatar { 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid rgba(0,0,0,0.1); 
-            background: #f1f5f9;
-        }
-        .header-user-info { display: flex; flex-direction: column; }
-        .header-name { font-size: 0.9rem; font-weight: 600; line-height: 1.1; color: var(--dark); }
+        .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,0,0,0.1); }
+        .header-name { font-size: 0.9rem; font-weight: 600; }
         .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
-        .header-status .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
-
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
         .header-right { display: flex; align-items: center; gap: 8px; }
         .notif-btn { 
-            width: 38px; height: 38px; 
-            background: transparent;
-            border: none; 
-            border-radius: 10px; 
-            color: var(--dark); font-size: 1.1rem; cursor: pointer; 
-            position: relative; 
-            display: flex; align-items: center; justify-content: center; 
-            text-decoration: none; 
-            transition: opacity 0.2s;
+            width: 38px; height: 38px; background: transparent; border: none; 
+            border-radius: 10px; color: var(--dark); font-size: 1.1rem; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; text-decoration: none; 
         }
-        .notif-btn:active { opacity: 0.6; }
-        .notif-badge { position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; background: var(--danger); border-radius: 50%; font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; color: white; }
+        .notif-badge { 
+            position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; 
+            background: var(--danger); border-radius: 50%; font-size: 0.6rem; 
+            font-weight: 700; display: flex; align-items: center; justify-content: center; color: white; 
+        }
         .notif-badge.hidden { display: none; }
 
         /* Section */
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin-bottom: 12px; margin-top: 10px; }
-        .section-title { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--dark); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin: 12px 0; }
+        .section-title { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .section-title i { color: var(--primary); }
-        .section-link { font-size: 0.8rem; color: var(--primary); text-decoration: none; font-weight: 500; cursor: pointer; }
+        .section-link { font-size: 0.8rem; color: var(--primary); text-decoration: none; font-weight: 500; }
 
-        /* Feature Menu */
+        /* Feature Grid */
         .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 16px 20px; }
-        .feature-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; color: inherit; }
-        .feature-icon { 
-            width: 55px; height: 55px; 
-            background: transparent;
-            border: none;
-            border-radius: 14px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 1.8rem; 
-            transition: all 0.3s; 
-        }
-        .feature-item:active .feature-icon { transform: scale(0.9); opacity: 0.8; }
-        .feature-icon.kopdar { color: #ec4899; }
-        .feature-icon.promo { color: #f59e0b; }
-        .feature-icon.location { color: #10b981; }
-        .feature-icon.chat { color: #3b82f6; }
-        .feature-icon.history { color: #f97316; }
-        .feature-icon.kas { color: #eab308; }
-        .feature-icon.anggota { color: #0ea5e9; }
+        .feature-item { display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+        .feature-icon { width: 55px; height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+        .feature-item:active .feature-icon { transform: scale(0.9); }
         .feature-label { font-size: 0.7rem; color: var(--gray); text-align: center; font-weight: 500; }
 
         /* Promo Slider */
-        .promo-slider-wrapper { margin: 16px 0 20px; overflow: hidden; }
+        .promo-slider-wrapper { margin: 16px 0; overflow: hidden; }
         .promo-slider { display: flex; gap: 12px; padding: 0 16px; animation: autoScroll 20s linear infinite; }
         .promo-slider:hover { animation-play-state: paused; }
         @keyframes autoScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        
         .promo-card { 
             min-width: 280px; height: 160px; border-radius: 18px; padding: 16px; 
-            position: relative; overflow: hidden; flex-shrink: 0; cursor: pointer;
-            background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
-            border: 1px solid rgba(255,255,255,0.5);
+            position: relative; overflow: hidden; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            color: var(--dark);
         }
         .promo-card.promo-1 { background: linear-gradient(135deg, #cffafe 0%, #e0f2fe 100%); }
         .promo-card.promo-2 { background: linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%); }
         .promo-card.promo-3 { background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%); }
         .promo-card.promo-4 { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); }
-        .promo-card:active { transform: scale(0.98); }
-        .promo-card::before { content: ''; position: absolute; top: -25%; right: -8%; width: 120px; height: 120px; background: rgba(255,255,255,0.6); border-radius: 50%; }
-        .promo-image { position: absolute; right: 12px; bottom: 12px; width: 85px; height: 85px; border-radius: 12px; object-fit: cover; opacity: 0.9; border: 2px solid #fff; }
+        .promo-image { position: absolute; right: 12px; bottom: 12px; width: 85px; height: 85px; border-radius: 12px; object-fit: cover; border: 2px solid #fff; }
         .promo-badge { display: inline-block; background: var(--primary); color: white; padding: 3px 10px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; margin-bottom: 8px; }
-        .promo-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; max-width: 160px; color: var(--dark); }
-        .promo-desc { font-size: 0.8rem; color: var(--gray); max-width: 150px; line-height: 1.3; }
+        .promo-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; max-width: 160px; }
+        .promo-desc { font-size: 0.8rem; color: var(--gray); max-width: 150px; }
 
-        /* Kopdar */
+        /* Kopdar List */
         .kopdar-list { margin: 0 16px 20px; }
         .kopdar-card { 
-            background: rgba(255, 255, 255, 0.8); 
-            backdrop-filter: blur(5px);
-            border-radius: 16px; padding: 12px; margin-bottom: 10px; 
-            display: flex; gap: 12px; 
-            border: 1px solid rgba(0,0,0,0.05); 
-            cursor: pointer; transition: all 0.3s; 
-            text-decoration: none; color: inherit; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            background: rgba(255, 255, 255, 0.9); border-radius: 16px; padding: 12px; 
+            margin-bottom: 10px; display: flex; gap: 12px; border: 1px solid rgba(0,0,0,0.05); 
+            text-decoration: none; color: inherit; box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
         }
-        .kopdar-card:active { border-color: var(--primary); transform: scale(0.99); }
-        .kopdar-image { width: 75px; height: 75px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+        .kopdar-card:active { transform: scale(0.99); }
+        .kopdar-image { width: 75px; height: 75px; border-radius: 10px; object-fit: cover; }
         .kopdar-info { flex: 1; }
-        .kopdar-title { font-weight: 600; margin-bottom: 4px; font-size: 0.95rem; color: var(--dark); }
+        .kopdar-title { font-weight: 600; margin-bottom: 4px; font-size: 0.95rem; }
         .kopdar-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
         .kopdar-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--gray); }
         .kopdar-meta i { font-size: 0.7rem; color: var(--primary); }
         .kopdar-badge { display: inline-block; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 3px 8px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
-        .kopdar-badge.soon { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+        .kopdar-badge.soon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
         .kopdar-badge.open { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 
         /* Bottom Nav */
         .bottom-nav { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            background: #ffffff;
-            display: flex; 
-            align-items: center; 
-            justify-content: space-around;
-            border-top: 1px solid rgba(0,0,0,0.05); 
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 100; 
-            height: 70px; 
-            padding: 0 5px;
+            position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+            display: flex; align-items: center; justify-content: space-around;
+            border-top: 1px solid rgba(0,0,0,0.05); box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100; height: 70px; padding: 0 5px;
         }
-
         .nav-item { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            gap: 3px; 
-            width: 20%;
-            height: 100%;
-            padding: 8px 0;
-            color: var(--gray);
-            text-decoration: none; 
-            transition: all 0.3s;
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; gap: 3px; width: 20%; height: 100%; 
+            color: var(--gray); text-decoration: none; 
         }
         .nav-item.active { color: var(--primary); }
-        .nav-item:active { transform: scale(0.9); }
         .nav-item i { font-size: 1.2rem; }
         .nav-item span { font-size: 0.6rem; font-weight: 500; }
-
-        .nav-job {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            width: 20%;
-            height: 100%;
-            padding-bottom: 5px;
-            text-decoration: none;
-            position: relative;
-        }
-
-        .nav-job-logo {
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 0;
-            position: relative;
-        }
-
-        .nav-job-logo img {
-            width: 45px;
-            height: 45px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        }
-
-        .nav-job-text {
-            font-size: 0.6rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            margin-top: -2px;
-            letter-spacing: 0.5px;
-        }
-
-        .job-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            min-width: 20px;
-            height: 20px;
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            border-radius: 50%;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-            border: 2px solid #fff;
-            z-index: 10;
+        
+        .nav-job { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 20%; height: 100%; padding-bottom: 5px; text-decoration: none; }
+        .nav-job-logo { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .nav-job-logo img { width: 45px; height: 45px; object-fit: contain; }
+        .nav-job-text { font-size: 0.6rem; font-weight: 700; color: var(--primary); text-transform: uppercase; }
+        .job-badge { 
+            position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; 
+            background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; 
+            font-size: 0.65rem; font-weight: 700; color: white; 
+            display: flex; align-items: center; justify-content: center; 
+            border: 2px solid #fff; 
         }
         .job-badge.hidden { display: none; }
 
         /* Side Menu */
-        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: rgba(0,0,0,0.2); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s; }
         .side-menu-overlay.active { opacity: 1; visibility: visible; }
-        .side-menu { position: fixed; top: 0; left: -280px; width: 280px; height: 100dvh; background: #ffffff; z-index: 201; transition: left 0.3s ease; overflow-y: auto; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
+        .side-menu { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #fff; z-index: 201; transition: left 0.3s; overflow-y: auto; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
         .side-menu.active { left: 0; }
-        .menu-header { padding: 25px 18px; background: var(--gradient-primary); position: relative; overflow: hidden; }
-        .menu-header::before { content: ''; position: absolute; top: -40%; right: -25%; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; }
-        .menu-profile { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
-        .menu-avatar { width: 55px; height: 55px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); object-fit: cover; background: rgba(255,255,255,0.2); }
+        .menu-header { padding: 25px 18px; background: var(--gradient-primary); position: relative; }
+        .menu-profile { display: flex; align-items: center; gap: 12px; }
+        .menu-avatar { width: 55px; height: 55px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); object-fit: cover; }
         .menu-name { font-weight: 700; font-size: 1rem; color: white; }
-        .menu-title { font-size: 0.8rem; opacity: 0.9; color: white; }
+        .menu-title { font-size: 0.8rem; color: rgba(255,255,255,0.9); }
         .menu-close { position: absolute; top: 15px; right: 12px; width: 32px; height: 32px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: white; font-size: 0.9rem; cursor: pointer; }
         .menu-items { padding: 15px 0; }
-        .menu-section { padding: 10px 18px; font-size: 0.7rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-        .menu-link { display: flex; align-items: center; gap: 12px; padding: 12px 18px; color: var(--dark); text-decoration: none; cursor: pointer; transition: all 0.3s; }
-        .menu-link:active { background: rgba(0,0,0,0.05); }
-        .menu-link i { width: 18px; text-align: center; color: var(--primary); font-size: 0.95rem; }
+        .menu-section { padding: 10px 18px; font-size: 0.7rem; color: var(--gray); text-transform: uppercase; font-weight: 600; }
+        .menu-link { display: flex; align-items: center; gap: 12px; padding: 12px 18px; color: var(--dark); text-decoration: none; }
+        .menu-link i { width: 18px; color: var(--primary); }
         .menu-link span { flex: 1; font-size: 0.9rem; }
-        .menu-link .arrow { color: var(--gray); font-size: 0.7rem; }
 
         /* Toast */
         .toast-container { position: fixed; top: 70px; right: 12px; left: 12px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-        .toast { background: #ffffff; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; animation: slideIn 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); pointer-events: auto; color: var(--dark); }
+        .toast { background: #fff; border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; animation: slideIn 0.3s; box-shadow: 0 10px 15px rgba(0,0,0,0.1); pointer-events: auto; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .toast.hiding { animation: slideOut 0.3s ease forwards; }
+        .toast.hiding { animation: slideOut 0.3s forwards; }
         @keyframes slideOut { to { transform: translateY(-20px); opacity: 0; } }
-        .toast-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .toast-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
         .toast-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
         .toast-icon.info { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
-        .toast-icon.warning { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
         .toast-icon.error { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
         .toast-content { flex: 1; }
-        .toast-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; }
+        .toast-title { font-weight: 600; font-size: 0.85rem; }
         .toast-message { font-size: 0.75rem; color: var(--gray); }
-        .toast-close { background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px; font-size: 0.8rem; }
+        .toast-close { background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px; }
 
-        /* Session Kick Overlay */
-        .session-kick-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.98);
-            z-index: 99999;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 20px;
-        }
+        /* Session Kick */
+        .session-kick-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98); z-index: 99999; display: none; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
         .session-kick-overlay.active { display: flex; }
-        .kick-icon {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, #f59e0b, #e67e22);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            animation: shakeIcon 0.5s ease-in-out;
-            box-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
-        }
+        .kick-icon { width: 100px; height: 100px; background: linear-gradient(135deg, #f59e0b, #e67e22); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 0 40px rgba(245, 158, 11, 0.4); }
         .kick-icon i { font-size: 3rem; color: #fff; }
         .kick-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 1rem; text-align: center; }
-        .kick-message { font-size: 0.95rem; color: rgba(255, 255, 255, 0.8); text-align: center; max-width: 300px; line-height: 1.6; margin-bottom: 1.5rem; }
-        .kick-device-info { background: rgba(255, 255, 255, 0.1); padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .kick-message { font-size: 0.95rem; color: rgba(255, 255, 255, 0.8); text-align: center; max-width: 300px; margin-bottom: 1.5rem; }
+        .kick-device-info { background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; }
         .kick-device-info p { color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin: 0.3rem 0; }
         .kick-device-info strong { color: #f59e0b; }
-        .btn-kick-ok {
-            padding: 0.9rem 2.5rem;
-            background: linear-gradient(135deg, #f59e0b, #e67e22);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4);
-        }
-        @keyframes shakeIcon {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
-        }
+        .btn-kick-ok { padding: 0.9rem 2.5rem; background: linear-gradient(135deg, #f59e0b, #e67e22); color: white; border: none; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4); }
 
-        /* Loading State */
-        .loading-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(99, 102, 241, 0.2);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        .loading-text { color: var(--gray); font-size: 0.9rem; }
+        /* Loading */
+        .loading-container { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; gap: 16px; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
+        
         /* Skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-card { min-width: 280px; height: 160px; border-radius: 18px; }
         .skeleton-kopdar { height: 99px; border-radius: 16px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="toast-container" id="toastContainer"></div>
+<div class="toast-container" id="toastContainer"></div>
 
-    <!-- Session Kick Overlay -->
-    <div id="sessionKickOverlay" class="session-kick-overlay">
-        <div class="kick-icon">
-            <i class="fas fa-sign-out-alt"></i>
-        </div>
-        <h2 class="kick-title">SESI ANDA BERAKHIR</h2>
-        <p class="kick-message">Akun Anda telah login di perangkat lain.</p>
-        <div class="kick-device-info">
-            <p><i class="fas fa-mobile-alt"></i> <strong>Login Baru Terdeteksi</strong></p>
-            <p id="kickDeviceInfo">Perangkat lain</p>
-        </div>
-        <button class="btn-kick-ok" onclick="handleSessionKick()">
-            <i class="fas fa-check"></i> Mengerti
-        </button>
+<!-- Session Kick Overlay -->
+<div id="sessionKickOverlay" class="session-kick-overlay">
+    <div class="kick-icon"><i class="fas fa-sign-out-alt"></i></div>
+    <h2 class="kick-title">SESI ANDA BERAKHIR</h2>
+    <p class="kick-message">Akun Anda telah login di perangkat lain.</p>
+    <div class="kick-device-info">
+        <p><i class="fas fa-mobile-alt"></i> <strong>Login Baru Terdeteksi</strong></p>
+        <p id="kickDeviceInfo">Perangkat lain</p>
     </div>
+    <button class="btn-kick-ok" onclick="handleSessionKick()"><i class="fas fa-check"></i> Mengerti</button>
+</div>
 
-    <!-- Loading State -->
-    <div class="loading-container" id="loadingContainer">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Memuat data...</div>
+<!-- Loading -->
+<div class="loading-container" id="loadingContainer">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Memuat data...</div>
+</div>
+
+<!-- Side Menu -->
+<div class="side-menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<div class="side-menu" id="sideMenu">
+    <div class="menu-header">
+        <button class="menu-close" onclick="closeMenu()"><i class="fas fa-times"></i></button>
+        <div class="menu-profile">
+            <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff" alt="Avatar" class="menu-avatar" id="menuAvatar">
+            <div>
+                <div class="menu-name" id="menuName">Loading...</div>
+                <div class="menu-title" id="menuTitle">-</div>
+            </div>
+        </div>
     </div>
+    <div class="menu-items">
+        <div class="menu-section">Menu Utama</div>
+        <a class="menu-link" href="branda.html"><i class="fas fa-home"></i><span>Beranda</span></a>
+        <a class="menu-link" href="profil.html"><i class="fas fa-user"></i><span>Profil Saya</span></a>
+        <a class="menu-link" href="map.html"><i class="fas fa-map-marked-alt"></i><span>Peta Anggota</span></a>
+        <a class="menu-link" href="kopdar.html"><i class="fas fa-calendar-alt"></i><span>Jadwal Kopdar</span></a>
+        <a class="menu-link" href="promo.html"><i class="fas fa-tags"></i><span>Promo & Diskon</span></a>
+        <a class="menu-link" href="anggota.html"><i class="fas fa-users"></i><span>Daftar Anggota</span></a>
+        <div class="menu-section">Layanan</div>
+        <a class="menu-link" href="pesan.html"><i class="fas fa-envelope"></i><span>Pesan</span></a>
+        <a class="menu-link" href="kas.html"><i class="fas fa-wallet"></i><span>Kas & Keuangan</span></a>
+        <a class="menu-link" href="jopbgtpro.html"><i class="fas fa-briefcase"></i><span>Lowongan Kerja</span></a>
+        <a class="menu-link" href="riwayat.html"><i class="fas fa-history"></i><span>Riwayat</span></a>
+        <div class="menu-section">Lainnya</div>
+        <a class="menu-link" href="pengaturan.html"><i class="fas fa-cog"></i><span>Pengaturan</span></a>
+        <a class="menu-link" href="bantuan.html"><i class="fas fa-question-circle"></i><span>Bantuan</span></a>
+        <a class="menu-link" onclick="handleLogout()" style="color: var(--danger);"><i class="fas fa-sign-out-alt" style="color: var(--danger);"></i><span>Keluar</span></a>
+    </div>
+</div>
 
-    <!-- Side Menu -->
-    <div class="side-menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
-    <div class="side-menu" id="sideMenu">
-        <div class="menu-header">
-            <button class="menu-close" onclick="closeMenu()"><i class="fas fa-times"></i></button>
-            <div class="menu-profile">
-                <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff&size=200" alt="Avatar" class="menu-avatar" id="menuAvatar">
-                <div>
-                    <div class="menu-name" id="menuName">Loading...</div>
-                    <div class="menu-title" id="menuTitle">-</div>
+<!-- Main App -->
+<div class="app-container" id="mainApp" style="display: none;">
+
+    <header class="header">
+        <div class="header-left">
+            <div class="header-profile" onclick="window.location.href='profil.html'">
+                <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff" alt="Avatar" class="header-avatar" id="headerAvatar">
+                <div class="header-user-info">
+                    <div class="header-name" id="headerName">Loading...</div>
+                    <div class="header-status"><span class="status-dot"></span><span id="headerStatusText">Online</span></div>
                 </div>
             </div>
         </div>
-        <div class="menu-items">
-            <div class="menu-section">Menu Utama</div>
-            <a class="menu-link" href="branda.html"><i class="fas fa-home"></i><span>Beranda</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="profil.html"><i class="fas fa-user"></i><span>Profil Saya</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="map.html"><i class="fas fa-map-marked-alt"></i><span>Peta Anggota</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="kopdar.html"><i class="fas fa-calendar-alt"></i><span>Jadwal Kopdar</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="promo.html"><i class="fas fa-tags"></i><span>Promo & Diskon</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="anggota.html"><i class="fas fa-users"></i><span>Daftar Anggota</span><i class="fas fa-chevron-right arrow"></i></a>
-            <div class="menu-section">Layanan</div>
-            <a class="menu-link" href="pesan.html"><i class="fas fa-envelope"></i><span>Pesan</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="kas.html"><i class="fas fa-wallet"></i><span>Kas & Keuangan</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="jopbgtpro.html"><i class="fas fa-briefcase"></i><span>Lowongan Kerja</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="riwayat.html"><i class="fas fa-history"></i><span>Riwayat</span><i class="fas fa-chevron-right arrow"></i></a>
-            <div class="menu-section">Lainnya</div>
-            <a class="menu-link" href="pengaturan.html"><i class="fas fa-cog"></i><span>Pengaturan</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" href="bantuan.html"><i class="fas fa-question-circle"></i><span>Bantuan</span><i class="fas fa-chevron-right arrow"></i></a>
-            <a class="menu-link" onclick="handleLogout()" style="color: var(--danger);"><i class="fas fa-sign-out-alt" style="color: var(--danger);"></i><span>Keluar</span><i class="fas fa-chevron-right arrow"></i></a>
+        <div class="header-right">
+            <a href="bantuan.html" class="notif-btn"><i class="fas fa-headset"></i></a>
+            <button class="notif-btn" onclick="window.location.href='pesan.html'">
+                <i class="fas fa-bell"></i>
+                <span class="notif-badge hidden" id="notifBadge">0</span>
+            </button>
+            <button class="notif-btn" onclick="window.location.href='jopbgtpro.html'">
+                <i class="fas fa-briefcase"></i>
+                <span class="notif-badge hidden" id="jobNotifBadge">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Promo Slider -->
+    <div class="promo-slider-wrapper">
+        <div class="promo-slider" id="promoSliderHome">
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-card"></div>
         </div>
     </div>
 
-    <div class="app-container" id="mainApp" style="display: none;">
-
-        <header class="header">
-            <div class="header-left">
-                <div class="header-profile" onclick="window.location.href='profil.html'">
-                    <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff&size=200" alt="Avatar" class="header-avatar" id="headerAvatar">
-                    <div class="header-user-info">
-                        <div class="header-name" id="headerName">Loading...</div>
-                        <div class="header-status">
-                            <span class="status-dot"></span>
-                            <span id="headerStatusText">Online</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="header-right">
-                <a href="bantuan.html" class="notif-btn" title="Bantuan">
-                    <i class="fas fa-headset"></i>
-                </a>
-                <button class="notif-btn" onclick="window.location.href='pesan.html'">
-                    <i class="fas fa-bell"></i>
-                    <span class="notif-badge hidden" id="notifBadge">0</span>
-                </button>
-                <button class="notif-btn" onclick="window.location.href='jopbgtpro.html'">
-                    <i class="fas fa-briefcase"></i>
-                    <span class="notif-badge hidden" id="jobNotifBadge">0</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- PROMO SLIDER -->
-        <div class="promo-slider-wrapper">
-            <div class="promo-slider" id="promoSliderHome">
-                <div class="skeleton skeleton-card"></div>
-                <div class="skeleton skeleton-card"></div>
-            </div>
-        </div>
-
-        <!-- Feature Menu -->
-        <div class="feature-grid">
-            <a class="feature-item" href="kopdar.html">
-                <div class="feature-icon kopdar"><i class="fas fa-mug-hot"></i></div>
-                <span class="feature-label">Kopdar</span>
-            </a>
-            <a class="feature-item" href="promo.html">
-                <div class="feature-icon promo"><i class="fas fa-percent"></i></div>
-                <span class="feature-label">Promo</span>
-            </a>
-            <a class="feature-item" href="map.html">
-                <div class="feature-icon location"><i class="fas fa-map-marked-alt"></i></div>
-                <span class="feature-label">Peta</span>
-            </a>
-            <a class="feature-item" href="pesan.html">
-                <div class="feature-icon chat"><i class="fas fa-comments"></i></div>
-                <span class="feature-label">Pesan</span>
-            </a>
-            <a class="feature-item" href="riwayat.html">
-                <div class="feature-icon history"><i class="fas fa-history"></i></div>
-                <span class="feature-label">Riwayat</span>
-            </a>
-            <a class="feature-item" href="kas.html">
-                <div class="feature-icon kas"><i class="fas fa-wallet"></i></div>
-                <span class="feature-label">Kas</span>
-            </a>
-            <a class="feature-item" href="anggota.html">
-                <div class="feature-icon anggota"><i class="fas fa-users"></i></div>
-                <span class="feature-label">Anggota</span>
-            </a>
-        </div>
-
-        <!-- Kopdar Section -->
-        <div class="section-header">
-            <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Kopdar Mendatang</h3>
-            <a class="section-link" href="kopdar.html">Lihat Semua</a>
-        </div>
-        <div class="kopdar-list" id="kopdarListHome">
-            <div class="skeleton skeleton-kopdar"></div>
-            <div class="skeleton skeleton-kopdar"></div>
-        </div>
-
+    <!-- Feature Grid -->
+    <div class="feature-grid">
+        <a class="feature-item" href="kopdar.html"><div class="feature-icon" style="color: #ec4899;"><i class="fas fa-mug-hot"></i></div><span class="feature-label">Kopdar</span></a>
+        <a class="feature-item" href="promo.html"><div class="feature-icon" style="color: #f59e0b;"><i class="fas fa-percent"></i></div><span class="feature-label">Promo</span></a>
+        <a class="feature-item" href="map.html"><div class="feature-icon" style="color: #10b981;"><i class="fas fa-map-marked-alt"></i></div><span class="feature-label">Peta</span></a>
+        <a class="feature-item" href="pesan.html"><div class="feature-icon" style="color: #3b82f6;"><i class="fas fa-comments"></i></div><span class="feature-label">Pesan</span></a>
+        <a class="feature-item" href="riwayat.html"><div class="feature-icon" style="color: #f97316;"><i class="fas fa-history"></i></div><span class="feature-label">Riwayat</span></a>
+        <a class="feature-item" href="kas.html"><div class="feature-icon" style="color: #eab308;"><i class="fas fa-wallet"></i></div><span class="feature-label">Kas</span></a>
+        <a class="feature-item" href="anggota.html"><div class="feature-icon" style="color: #0ea5e9;"><i class="fas fa-users"></i></div><span class="feature-label">Anggota</span></a>
     </div>
 
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav">
-        <a class="nav-item active" href="branda.html">
-            <i class="fas fa-home"></i>
-            <span>Beranda</span>
-        </a>
-        <a class="nav-item" href="kopdar.html">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Kopdar</span>
-        </a>
-        <a class="nav-job" href="jopbgtpro.html">
-            <div class="nav-job-logo">
-                <img src="512B.png" alt="Job BGT" onerror="this.src='https://ui-avatars.com/api/?name=BGT&background=6366f1&color=fff&size=100'">
-                <span class="job-badge hidden" id="jobBadge">0</span>
-            </div>
-            <span class="nav-job-text">Job BGT</span>
-        </a>
-        <a class="nav-item" href="promo.html">
-            <i class="fas fa-tags"></i>
-            <span>Promo</span>
-        </a>
-        <a class="nav-item" href="profil.html">
-            <i class="fas fa-user"></i>
-            <span>Profil</span>
-        </a>
-    </nav>
+    <!-- Kopdar Section -->
+    <div class="section-header">
+        <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Kopdar Mendatang</h3>
+        <a class="section-link" href="kopdar.html">Lihat Semua</a>
+    </div>
+    <div class="kopdar-list" id="kopdarListHome">
+        <div class="skeleton skeleton-kopdar"></div>
+        <div class="skeleton skeleton-kopdar"></div>
+    </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
+</div>
 
-    <script>
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
-            authDomain: "cedar-setup-425414-d7.firebaseapp.com",
-            databaseURL: "https://cedar-setup-425414-d7-default-rtdb.firebaseio.com",
-            projectId: "cedar-setup-425414-d7",
-            storageBucket: "cedar-setup-425414-d7.firebasestorage.app",
-            messagingSenderId: "723545991983",
-            appId: "1:723545991983:web:379548d2b425a502a60fda"
-        };
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+    <a class="nav-item active" href="branda.html"><i class="fas fa-home"></i><span>Beranda</span></a>
+    <a class="nav-item" href="kopdar.html"><i class="fas fa-calendar-alt"></i><span>Kopdar</span></a>
+    <a class="nav-job" href="jopbgtpro.html">
+        <div class="nav-job-logo">
+            <img src="/leong.github.io/512B.png" alt="Job BGT" onerror="this.src='https://ui-avatars.com/api/?name=BGT&background=6366f1&color=fff&size=100'">
+            <span class="job-badge hidden" id="jobBadge">0</span>
+        </div>
+        <span class="nav-job-text">Job BGT</span>
+    </a>
+    <a class="nav-item" href="promo.html"><i class="fas fa-tags"></i><span>Promo</span></a>
+    <a class="nav-item" href="profil.html"><i class="fas fa-user"></i><span>Profil</span></a>
+</nav>
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const rtdb = firebase.database();
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
 
-        // ============================================
-        // STATE MANAGEMENT
-        // ============================================
-        let sessionUnsubscribe = null;
-        let currentUserId = null;
-        let localSessionId = null;
-        let messaging = null;
+<script>
+    // ============================================
+    // FIREBASE CONFIG
+    // ============================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
+        authDomain: "cedar-setup-425414-d7.firebaseapp.com",
+        databaseURL: "https://cedar-setup-425414-d7-default-rtdb.firebaseio.com",
+        projectId: "cedar-setup-425414-d7",
+        storageBucket: "cedar-setup-425414-d7.firebasestorage.app",
+        messagingSenderId: "723545991983",
+        appId: "1:723545991983:web:379548d2b425a502a60fda"
+    };
 
-        // ============================================
-        // FALLBACK DATA
-        // ============================================
-        const fallbackPromoData = [
-            { id: 1, title: 'Kopdar Bulanan', desc: 'Diskon 20% untuk anggota BGT!', badge: 'HOT', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', gradient: 'promo-1' },
-            { id: 2, title: 'Member Premium', desc: 'Fitur eksklusif untuk member!', badge: 'NEW', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', gradient: 'promo-2' },
-            { id: 3, title: 'Tour Bareng', desc: 'Jalan-jalan bersama komunitas!', badge: 'EVENT', image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400', gradient: 'promo-3' },
-            { id: 4, title: 'Cashback 10%', desc: 'Setiap transaksi dengan mitra BGT!', badge: 'PROMO', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400', gradient: 'promo-4' }
-        ];
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const rtdb = firebase.database();
 
-        const fallbackKopdarData = [
-            { id: 1, title: 'Kopdar Bulanan Januari', date: '25 Jan 2025', time: '18:00 - 21:00', location: 'Warung Mak Beng, Sanur', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', status: 'soon', attendees: 45 },
-            { id: 2, title: 'Makan Malam Bersama', date: '01 Feb 2025', time: '19:00 - 22:00', location: 'Jimbaran Beach Cafe', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', status: 'open', attendees: 32 }
-        ];
+    // ============================================
+    // STATE
+    // ============================================
+    let sessionUnsubscribe = null;
+    let currentUserId = null;
+    let localSessionId = null;
+    let messaging = null;
 
-        // ============================================
-        // PUSH NOTIFICATION - FCM
-        // ============================================
-        async function initFCM() {
-            try {
-                async function registerServiceWorker() {
-                if ('serviceWorker' in navigator) {
-                try {
-                const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js', {
-                                scope: './'  // <- PENTING: gunakan scope relatif
-                            });
-                            console.log('Service Worker registered:', registration.scope);
-                            await navigator.serviceWorker.ready;
-                            console.log('Service Worker is ready');
-                            return registration;
-                        } catch (error) {
-                            console.log('Service Worker error:', error.message);
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-                
-                messaging = firebase.messaging();
-                
-                let permission = Notification.permission;
-                
-                if (permission === 'default') {
-                    showToast('info', 'Notifikasi', 'Aktifkan notifikasi untuk info job terbaru');
-                    permission = await Notification.requestPermission();
-                }
-                
-                if (permission !== 'granted') {
-                    console.log('Notifikasi ditolak:', permission);
-                    return;
-                }
-                
-                console.log('Notifikasi diizinkan');
-                
-                let token = null;
-                try {
-                    token = await messaging.getToken({
-                        vapidKey: 'BHntRJxLhVPyN-qVY-xnNxrTqYMt6r4xCcEKKsF5mYKgLNBfFMhRpFWtIJu-KvFMgHq8A7hNljJUJvR9QVPVFSQ'
-                    });
-                } catch (tokenError) {
-                    console.log('Gagal mendapat token:', tokenError.message);
-                    return;
-                }
-                
-                if (token) {
-                    console.log('FCM Token:', token.substring(0, 20) + '...');
-                    const user = auth.currentUser;
-                    if (user) {
-                        await db.collection('users').doc(user.uid).set({
-                            fcmToken: token,
-                            fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        }, { merge: true });
-                    }
-                }
-                
-                // Foreground message handler
-                messaging.onMessage((payload) => {
-                    console.log('Foreground message:', payload);
-                    handleForegroundMessage(payload);
-                });
-                
-            } catch (error) {
-                console.log('FCM init error:', error.message);
-            }
-        }
+    // Fallback Data
+    const fallbackPromoData = [
+        { id: 1, title: 'Kopdar Bulanan', desc: 'Diskon 20% untuk anggota!', badge: 'HOT', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', gradient: 'promo-1' },
+        { id: 2, title: 'Member Premium', desc: 'Fitur eksklusif!', badge: 'NEW', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', gradient: 'promo-2' },
+        { id: 3, title: 'Tour Bareng', desc: 'Jalan-jalan bersama!', badge: 'EVENT', image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400', gradient: 'promo-3' }
+    ];
 
-        function handleForegroundMessage(payload) {
-            const data = payload.data || {};
-            const notification = payload.notification || {};
-            
-            const title = data.title || notification.title || 'BGT-PRO';
-            const body = data.body || notification.body || 'Ada notifikasi baru!';
-            const clickUrl = data.click_url || '/branda.html';
-            
-            showToast('info', title, body);
-            
-            if ('vibrate' in navigator) {
-                navigator.vibrate([200, 100, 200]);
-            }
-            
-            if (body.toLowerCase().includes('job')) {
-                speakNewJob();
-            }
-            
-            if (Notification.permission === 'granted') {
-                const notif = new Notification(title, {
-                    body: body,
-                    icon: '/512B.png',
-                    badge: '/512B.png',
-                    data: { click_url: clickUrl }
-                });
-                
-                notif.onclick = function() {
-                    window.focus();
-                    window.location.href = clickUrl;
-                    this.close();
-                };
-            }
-        }
+    const fallbackKopdarData = [
+        { id: 1, title: 'Kopdar Bulanan', date: '25 Jan 2025', time: '18:00', location: 'Sanur', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', status: 'soon' },
+        { id: 2, title: 'Makan Malam', date: '01 Feb 2025', time: '19:00', location: 'Jimbaran', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', status: 'open' }
+    ];
 
-        async function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                try {
-                    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-                        scope: '/'
-                    });
-                    console.log('Service Worker registered:', registration.scope);
-                    await navigator.serviceWorker.ready;
-                    console.log('Service Worker is ready');
-                    return registration;
-                } catch (error) {
-                    console.log('Service Worker error:', error.message);
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // ============================================
-        // LOCAL STORAGE
-        // ============================================
-        function safeSetItem(key, value) {
-            try { localStorage.setItem(key, value); return true; } 
-            catch (e) { return false; }
-        }
-
-        function safeGetItem(key) {
-            try { return localStorage.getItem(key); } 
-            catch (e) { return null; }
-        }
-
-        // ============================================
-        // SESSION FUNCTIONS
-        // ============================================
-        function showSessionKick(deviceInfo) {
-            const overlay = document.getElementById('sessionKickOverlay');
-            const deviceInfoEl = document.getElementById('kickDeviceInfo');
-            if (deviceInfo) deviceInfoEl.textContent = deviceInfo;
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function handleSessionKick() {
-            localStorage.clear();
-            sessionStorage.clear();
-            if (sessionUnsubscribe) {
-                sessionUnsubscribe();
-                sessionUnsubscribe = null;
-            }
-            auth.signOut().then(() => {
-                window.location.href = 'index.html';
-            }).catch(() => {
-                window.location.href = 'index.html';
-            });
-        }
-
-        function startSessionMonitor(userId) {
-            currentUserId = userId;
-            localSessionId = safeGetItem('userSessionId');
-            
-            if (!localSessionId) {
-                handleSessionKick();
+    // ============================================
+    // FCM - PUSH NOTIFICATION
+    // ============================================
+    async function initFCM() {
+        try {
+            if (!('Notification' in window)) {
+                console.log('Browser tidak mendukung notifikasi');
                 return;
             }
             
-            if (sessionUnsubscribe) sessionUnsubscribe();
+            messaging = firebase.messaging();
             
-            sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
-                (doc) => {
-                    if (!doc.exists) {
-                        handleSessionKick();
-                        return;
-                    }
-                    
-                    const data = doc.data();
-                    const serverSessionId = data.currentSessionId;
-                    const serverDevice = data.currentDevice;
-                    
-                    if (serverSessionId && serverSessionId !== localSessionId) {
-                        if (sessionUnsubscribe) {
-                            sessionUnsubscribe();
-                            sessionUnsubscribe = null;
-                        }
-                        showSessionKick(serverDevice || 'Perangkat lain');
-                    }
-                },
-                (error) => {
-                    console.error('Session monitor error:', error.message);
-                }
-            );
-        }
-
-        function stopSessionMonitor() {
-            if (sessionUnsubscribe) {
-                sessionUnsubscribe();
-                sessionUnsubscribe = null;
-            }
-            currentUserId = null;
-        }
-
-        // ============================================
-        // HELPER FUNCTIONS
-        // ============================================
-        function closeMenu() {
-            document.getElementById('sideMenu').classList.remove('active');
-            document.getElementById('menuOverlay').classList.remove('active');
-        }
-
-        function showToast(type, title, message) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            let iconClass = type === 'success' ? 'success' : type === 'warning' ? 'warning' : type === 'error' ? 'error' : 'info';
-            let iconName = type === 'success' ? 'fa-check' : type === 'warning' ? 'fa-exclamation' : type === 'error' ? 'fa-times' : 'fa-info';
-            toast.innerHTML = `
-                <div class="toast-icon ${iconClass}"><i class="fas ${iconName}"></i></div>
-                <div class="toast-content">
-                    <div class="toast-title">${title}</div>
-                    <div class="toast-message">${message}</div>
-                </div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 4000);
-        }
-
-        // ============================================
-        // DYNAMIC DATA LOADING
-        // ============================================
-        async function loadPromoData() {
-            const slider = document.getElementById('promoSliderHome');
-            
-            try {
-                const snapshot = await db.collection('promos').where('active', '==', true).orderBy('createdAt', 'desc').limit(5).get();
-                
-                let promos = [];
-                snapshot.forEach(doc => {
-                    promos.push({ id: doc.id, ...doc.data() });
-                });
-                
-                if (promos.length === 0) throw new Error('Tidak ada promo');
-                
-                console.log('Promo loaded:', promos.length);
-                renderPromoSlider(promos);
-                
-            } catch (error) {
-                console.log('Menggunakan fallback promo:', error.message);
-                renderPromoSlider(fallbackPromoData);
-            }
-        }
-
-        function renderPromoSlider(promos) {
-            const slider = document.getElementById('promoSliderHome');
-            const gradients = ['promo-1', 'promo-2', 'promo-3', 'promo-4'];
-            const allPromos = [...promos, ...promos];
-            
-            slider.innerHTML = allPromos.map((promo, index) => {
-                const gradient = promo.gradient || gradients[index % gradients.length];
-                return `
-                    <div class="promo-card ${gradient}" onclick="window.location.href='promo.html'">
-                        <span class="promo-badge">${promo.badge || 'PROMO'}</span>
-                        <h4 class="promo-title">${promo.title}</h4>
-                        <p class="promo-desc">${promo.desc || ''}</p>
-                        <img src="${promo.image}" alt="${promo.title}" class="promo-image" loading="lazy" onerror="this.style.display='none'">
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function loadKopdarData() {
-            const container = document.getElementById('kopdarListHome');
-            
-            try {
-                const snapshot = await db.collection('kopdar').where('status', 'in', ['soon', 'open']).orderBy('date', 'asc').limit(3).get();
-                
-                let kopdars = [];
-                snapshot.forEach(doc => {
-                    kopdars.push({ id: doc.id, ...doc.data() });
-                });
-                
-                if (kopdars.length === 0) throw new Error('Tidak ada kopdar');
-                
-                console.log('Kopdar loaded:', kopdars.length);
-                renderKopdarList(kopdars);
-                
-            } catch (error) {
-                console.log('Menggunakan fallback kopdar:', error.message);
-                renderKopdarList(fallbackKopdarData);
-            }
-        }
-
-        function renderKopdarList(kopdars) {
-            const container = document.getElementById('kopdarListHome');
-            
-            container.innerHTML = kopdars.map(k => `
-                <a class="kopdar-card" href="kopdar.html">
-                    <img src="${k.image}" alt="${k.title}" class="kopdar-image" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=KOPDAR&background=6366f1&color=fff&size=200'">
-                    <div class="kopdar-info">
-                        <h4 class="kopdar-title">${k.title}</h4>
-                        <div class="kopdar-meta">
-                            <span><i class="fas fa-calendar"></i> ${k.date}</span>
-                            <span><i class="fas fa-clock"></i> ${k.time || ''}</span>
-                        </div>
-                        <span class="kopdar-badge ${k.status}">${k.status === 'soon' ? 'Coming Soon' : 'Open Registration'}</span>
-                    </div>
-                </a>
-            `).join('');
-        }
-
-        // ============================================
-        // SHOW USER DATA
-        // ============================================
-        function showUserData(data) {
-            let profilePic = data.profilePicUrl || data.profilePic || data.foto || data.avatar;
-            const namaUser = data.nama || 'User';
-            
-            if (!profilePic || profilePic === '' || profilePic === 'undefined') {
-                profilePic = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaUser)}&background=6366f1&color=fff&size=200`;
+            let permission = Notification.permission;
+            if (permission === 'default') {
+                showToast('info', 'Notifikasi', 'Aktifkan notifikasi untuk info job terbaru');
+                permission = await Notification.requestPermission();
             }
             
-            const headerAvatar = document.getElementById('headerAvatar');
-            if (headerAvatar) {
-                headerAvatar.src = profilePic;
-                headerAvatar.onerror = function() {
-                    this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaUser)}&background=6366f1&color=fff&size=200`;
-                };
-            }
-            
-            document.getElementById('headerName').textContent = namaUser;
-            document.getElementById('headerStatusText').textContent = 'Online';
-            
-            const menuAvatar = document.getElementById('menuAvatar');
-            if (menuAvatar) {
-                menuAvatar.src = profilePic;
-                menuAvatar.onerror = function() {
-                    this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaUser)}&background=6366f1&color=fff&size=200`;
-                };
-            }
-            
-            document.getElementById('menuName').textContent = namaUser;
-            document.getElementById('menuTitle').textContent = data.titel || 'ANGGOTA';
-            
-            loadPromoData();
-            loadKopdarData();
-            
-            document.getElementById('loadingContainer').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-        }
-
-        async function handleLogout() {
-            if (!confirm('Apakah Anda yakin ingin keluar?')) return;
-            try {
-                localStorage.removeItem('userSessionId');
-                stopSessionMonitor();
-                await auth.signOut();
-                window.location.href = 'index.html';
-            } catch (e) { 
-                window.location.href = 'index.html';
-            }
-        }
-
-        // ============================================
-        // TEXT-TO-SPEECH
-        // ============================================
-        function speakWelcome(nama) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const message = `Halo ${nama}, selamat bergabung di komunitas Bali Global Trans.`;
-                const utterance = new SpeechSynthesisUtterance(message);
-                utterance.lang = 'id-ID';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function speakNewJob() {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance('Ada job baru!');
-                utterance.lang = 'id-ID';
-                utterance.rate = 1;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        // ============================================
-        // UPDATE JOB BADGE
-        // ============================================
-        function updateJobBadge(count) {
-            const jobBadge = document.getElementById('jobBadge');
-            const jobNotifBadge = document.getElementById('jobNotifBadge');
-            
-            if (jobBadge) {
-                if (count > 0) {
-                    jobBadge.textContent = count > 99 ? '99+' : count;
-                    jobBadge.classList.remove('hidden');
-                } else {
-                    jobBadge.classList.add('hidden');
-                }
-            }
-            
-            if (jobNotifBadge) {
-                if (count > 0) {
-                    jobNotifBadge.textContent = count > 99 ? '99+' : count;
-                    jobNotifBadge.classList.remove('hidden');
-                } else {
-                    jobNotifBadge.classList.add('hidden');
-                }
-            }
-        }
-
-        // ============================================
-        // ORDER LISTENER
-        // ============================================
-        let previousOrderCount = 0;
-        let hasInitialized = false;
-
-        function startOrderListener() {
-            const ordersRef = rtdb.ref('orders');
-            
-            ordersRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                let newOrderCount = 0;
-                
-                if (data) {
-                    Object.keys(data).forEach(key => {
-                        const item = data[key];
-                        if (item && item.status === 'order' && key !== 'undefined') {
-                            newOrderCount++;
-                        }
-                    });
-                }
-                
-                updateJobBadge(newOrderCount);
-                
-                if (hasInitialized && newOrderCount > previousOrderCount) {
-                    speakNewJob();
-                    showToast('info', 'Job Baru!', 'Ada lowongan kerja baru tersedia.');
-                }
-                
-                previousOrderCount = newOrderCount;
-                hasInitialized = true;
-                
-            }, (error) => {
-                console.error('Order listener error:', error.message);
-            });
-        }
-
-        // ============================================
-        // AUTH STATE LISTENER
-        // ============================================
-        auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
+            if (permission !== 'granted') {
+                console.log('Notifikasi ditolak');
                 return;
             }
             
-            try {
-                const doc = await db.collection('users').doc(user.uid).get();
-                
-                if (!doc.exists) {
-                    await auth.signOut();
-                    window.location.href = 'index.html';
-                    return;
+            console.log('✅ Notifikasi diizinkan');
+            
+            // ============================================
+            // PENTING: GANTI VAPID KEY DENGAN KEY ANDA!
+            // ============================================
+            // 1. Buka Firebase Console > Settings > Cloud Messaging
+            // 2. Generate key pair (jika belum ada)
+            // 3. Copy key yang dimulai dengan "B..."
+            // 4. Paste di bawah ini:
+            
+            const VAPID_KEY = 'MASUKKAN_VAPID_KEY_ANDA_DISINI';
+            
+            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+            
+            if (token) {
+                console.log('✅ FCM Token:', token.substring(0, 30) + '...');
+                const user = auth.currentUser;
+                if (user) {
+                    await db.collection('users').doc(user.uid).set({
+                        fcmToken: token,
+                        fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
                 }
-                
+            }
+            
+            // Foreground message
+            messaging.onMessage((payload) => {
+                console.log('📬 Foreground:', payload);
+                const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
+                const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
+                showToast('info', title, body);
+                if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+            });
+            
+        } catch (error) {
+            console.error('❌ FCM Error:', error.message);
+        }
+    }
+
+    // ============================================
+    // SERVICE WORKER REGISTRATION
+    // ============================================
+    async function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const swUrl = '/leong.github.io/firebase-messaging-sw.js';
+                const registration = await navigator.serviceWorker.register(swUrl, {
+                    scope: '/leong.github.io/'
+                });
+                console.log('✅ SW Registered:', registration.scope);
+                await navigator.serviceWorker.ready;
+                return registration;
+            } catch (error) {
+                console.error('❌ SW Error:', error.message);
+                return null;
+            }
+        }
+    }
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function safeGetItem(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+    function safeSetItem(key, val) { try { localStorage.setItem(key, val); return true; } catch (e) { return false; } }
+
+    function closeMenu() {
+        document.getElementById('sideMenu').classList.remove('active');
+        document.getElementById('menuOverlay').classList.remove('active');
+    }
+
+    function showToast(type, title, message) {
+        const container = document.getElementById('toastContainer');
+        const icons = { success: 'fa-check', info: 'fa-info', error: 'fa-times', warning: 'fa-exclamation' };
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <div class="toast-icon ${type}"><i class="fas ${icons[type]}"></i></div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+
+    // ============================================
+    // SESSION MONITOR
+    // ============================================
+    function showSessionKick(deviceInfo) {
+        document.getElementById('kickDeviceInfo').textContent = deviceInfo || 'Perangkat lain';
+        document.getElementById('sessionKickOverlay').classList.add('active');
+    }
+
+    function handleSessionKick() {
+        localStorage.clear();
+        if (sessionUnsubscribe) sessionUnsubscribe();
+        auth.signOut().then(() => window.location.href = 'index.html').catch(() => window.location.href = 'index.html');
+    }
+
+    function startSessionMonitor(userId) {
+        currentUserId = userId;
+        localSessionId = safeGetItem('userSessionId');
+        if (!localSessionId) { handleSessionKick(); return; }
+        if (sessionUnsubscribe) sessionUnsubscribe();
+        sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
+            (doc) => {
+                if (!doc.exists) { handleSessionKick(); return; }
                 const data = doc.data();
-                const sessionId = safeGetItem('userSessionId');
-                
-                if (data.currentSessionId && sessionId && data.currentSessionId !== sessionId) {
-                    localStorage.removeItem('userSessionId');
-                    await auth.signOut();
+                if (data.currentSessionId && data.currentSessionId !== localSessionId) {
+                    if (sessionUnsubscribe) sessionUnsubscribe();
                     showSessionKick(data.currentDevice || 'Perangkat lain');
-                    return;
                 }
-                
-                startSessionMonitor(user.uid);
-                showUserData(data);
-                
-                initFCM();
-                registerServiceWorker();
-                startOrderListener();
-                
-                const hasSpoken = sessionStorage.getItem('welcomeSpoken');
-                if (!hasSpoken && data.nama) {
-                    speakWelcome(data.nama);
-                    sessionStorage.setItem('welcomeSpoken', 'true');
-                }
-                
-            } catch (e) {
-                console.error('Auth state error:', e);
-                showToast('error', 'Error', 'Gagal memuat data');
+            },
+            (err) => console.error('Session error:', err)
+        );
+    }
+
+    // ============================================
+    // DATA LOADING
+    // ============================================
+    async function loadPromoData() {
+        const slider = document.getElementById('promoSliderHome');
+        try {
+            const snap = await db.collection('promos').where('active', '==', true).limit(5).get();
+            let promos = []; snap.forEach(d => promos.push({ id: d.id, ...d.data() }));
+            if (!promos.length) throw new Error('No promos');
+            renderPromos(promos);
+        } catch (e) {
+            console.log('Using fallback promos');
+            renderPromos(fallbackPromoData);
+        }
+    }
+
+    function renderPromos(promos) {
+        const slider = document.getElementById('promoSliderHome');
+        const all = [...promos, ...promos];
+        const grads = ['promo-1', 'promo-2', 'promo-3', 'promo-4'];
+        slider.innerHTML = all.map((p, i) => `
+            <div class="promo-card ${p.gradient || grads[i % 4]}" onclick="location.href='promo.html'">
+                <span class="promo-badge">${p.badge || 'PROMO'}</span>
+                <h4 class="promo-title">${p.title}</h4>
+                <p class="promo-desc">${p.desc || ''}</p>
+                <img src="${p.image}" alt="${p.title}" class="promo-image" loading="lazy" onerror="this.style.display='none'">
+            </div>
+        `).join('');
+    }
+
+    async function loadKopdarData() {
+        const container = document.getElementById('kopdarListHome');
+        try {
+            const snap = await db.collection('kopdar').where('status', 'in', ['soon', 'open']).limit(3).get();
+            let data = []; snap.forEach(d => data.push({ id: d.id, ...d.data() }));
+            if (!data.length) throw new Error('No kopdar');
+            renderKopdar(data);
+        } catch (e) {
+            console.log('Using fallback kopdar');
+            renderKopdar(fallbackKopdarData);
+        }
+    }
+
+    function renderKopdar(data) {
+        const container = document.getElementById('kopdarListHome');
+        container.innerHTML = data.map(k => `
+            <a class="kopdar-card" href="kopdar.html">
+                <img src="${k.image}" alt="${k.title}" class="kopdar-image" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=K&background=6366f1&color=fff'">
+                <div class="kopdar-info">
+                    <h4 class="kopdar-title">${k.title}</h4>
+                    <div class="kopdar-meta">
+                        <span><i class="fas fa-calendar"></i> ${k.date}</span>
+                        <span><i class="fas fa-clock"></i> ${k.time || ''}</span>
+                    </div>
+                    <span class="kopdar-badge ${k.status}">${k.status === 'soon' ? 'Coming Soon' : 'Open'}</span>
+                </div>
+            </a>
+        `).join('');
+    }
+
+    // ============================================
+    // SHOW USER DATA
+    // ============================================
+    function showUserData(data) {
+        let pic = data.profilePicUrl || data.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nama || 'U')}&background=6366f1&color=fff`;
+        const name = data.nama || 'User';
+        
+        document.getElementById('headerAvatar').src = pic;
+        document.getElementById('headerName').textContent = name;
+        document.getElementById('menuAvatar').src = pic;
+        document.getElementById('menuName').textContent = name;
+        document.getElementById('menuTitle').textContent = data.titel || 'ANGGOTA';
+        
+        loadPromoData();
+        loadKopdarData();
+        
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+    }
+
+    async function handleLogout() {
+        if (!confirm('Yakin ingin keluar?')) return;
+        localStorage.removeItem('userSessionId');
+        if (sessionUnsubscribe) sessionUnsubscribe();
+        await auth.signOut();
+        window.location.href = 'index.html';
+    }
+
+    // ============================================
+    // JOB BADGE
+    // ============================================
+    function updateJobBadge(count) {
+        const badge = document.getElementById('jobBadge');
+        const notif = document.getElementById('jobNotifBadge');
+        if (badge) {
+            count > 0 ? (badge.textContent = count, badge.classList.remove('hidden')) : badge.classList.add('hidden');
+        }
+        if (notif) {
+            count > 0 ? (notif.textContent = count, notif.classList.remove('hidden')) : notif.classList.add('hidden');
+        }
+    }
+
+    let prevOrderCount = 0, orderInit = false;
+    function startOrderListener() {
+        rtdb.ref('orders').on('value', (snap) => {
+            const data = snap.val();
+            let count = 0;
+            if (data) Object.keys(data).forEach(k => { if (data[k]?.status === 'order') count++; });
+            updateJobBadge(count);
+            if (orderInit && count > prevOrderCount) {
+                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
             }
+            prevOrderCount = count;
+            orderInit = true;
         });
-    </script>
+    }
+
+    // ============================================
+    // AUTH LISTENER
+    // ============================================
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) { window.location.href = 'index.html'; return; }
+        try {
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (!doc.exists) { await auth.signOut(); window.location.href = 'index.html'; return; }
+            const data = doc.data();
+            const sessId = safeGetItem('userSessionId');
+            if (data.currentSessionId && sessId && data.currentSessionId !== sessId) {
+                localStorage.removeItem('userSessionId');
+                await auth.signOut();
+                showSessionKick(data.currentDevice || 'Perangkat lain');
+                return;
+            }
+            startSessionMonitor(user.uid);
+            showUserData(data);
+            initFCM();
+            registerServiceWorker();
+            startOrderListener();
+        } catch (e) {
+            console.error('Auth error:', e);
+            showToast('error', 'Error', 'Gagal memuat data');
+        }
+    });
+</script>
 
 </body>
 </html>
