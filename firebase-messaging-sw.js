@@ -22,27 +22,24 @@ const messaging = firebase.messaging();
 
 // ============================================
 // BACKGROUND MESSAGE HANDLER
-// Dijalankan saat aplikasi DITUTUP atau di BACKGROUND
 // ============================================
 messaging.onBackgroundMessage((payload) => {
     console.log('[SW] 📬 Background message received:', payload);
 
-    // Ekstrak data
     const data = payload.data || {};
     const notification = payload.notification || {};
 
     const title = data.title || notification.title || 'BGT-PRO';
     const body = data.body || notification.body || 'Ada notifikasi baru!';
-    const icon = data.icon || '/512B.png';
+    const icon = data.icon || './512B.png';
     const image = data.image || notification.image || null;
-    const clickUrl = data.click_url || data.url || '/branda.html';
+    const clickUrl = data.click_url || data.url || './branda.html';
     const tag = data.tag || 'bgt-notification';
 
-    // Opsi notifikasi
     const options = {
         body: body,
         icon: icon,
-        badge: '/512B.png',
+        badge: './512B.png',
         image: image,
         vibrate: [200, 100, 200, 100, 200],
         tag: tag + '-' + Date.now(),
@@ -65,7 +62,6 @@ messaging.onBackgroundMessage((payload) => {
         ]
     };
 
-    // Tampilkan notifikasi
     return self.registration.showNotification(title, options);
 });
 
@@ -77,13 +73,11 @@ self.addEventListener('notificationclick', (event) => {
     
     event.notification.close();
 
-    // Jika klik tombol "Tutup"
     if (event.action === 'close') {
         return;
     }
 
-    // Ambil URL tujuan
-    const clickUrl = event.notification.data?.click_url || '/branda.html';
+    const clickUrl = event.notification.data?.click_url || './branda.html';
 
     event.waitUntil(
         clients.matchAll({ 
@@ -91,7 +85,6 @@ self.addEventListener('notificationclick', (event) => {
             includeUncontrolled: true 
         })
         .then((clientList) => {
-            // Cari window yang sudah terbuka
             for (const client of clientList) {
                 if ('focus' in client) {
                     client.postMessage({
@@ -102,7 +95,6 @@ self.addEventListener('notificationclick', (event) => {
                 }
             }
             
-            // Jika tidak ada window terbuka, buka baru
             if (clients.openWindow) {
                 return clients.openWindow(clickUrl);
             }
@@ -125,17 +117,15 @@ self.addEventListener('push', (event) => {
         const payload = event.data.json();
         console.log('[SW] Push payload:', payload);
         
-        // Jika sudah ditangani oleh onBackgroundMessage, skip
         if (payload.data || payload.notification) {
             return;
         }
         
-        // Fallback manual
         const title = 'BGT-PRO';
         const options = {
             body: 'Anda memiliki notifikasi baru',
-            icon: '/512B.png',
-            badge: '/512B.png',
+            icon: './512B.png',
+            badge: './512B.png',
             vibrate: [200, 100, 200]
         };
         
@@ -162,7 +152,7 @@ self.addEventListener('activate', (event) => {
 });
 
 // ============================================
-// MESSAGE FROM CLIENT (untuk testing)
+// MESSAGE FROM CLIENT
 // ============================================
 self.addEventListener('message', (event) => {
     console.log('[SW] 📩 Message from client:', event.data);
@@ -171,8 +161,8 @@ self.addEventListener('message', (event) => {
         const { title, body } = event.data;
         self.registration.showNotification(title || 'Test', {
             body: body || 'Test notification',
-            icon: '/512B.png',
-            badge: '/512B.png',
+            icon: './512B.png',
+            badge: './512B.png',
             vibrate: [200, 100, 200]
         });
     }
