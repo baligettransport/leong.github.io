@@ -1,4 +1,6 @@
-
+<!DOCTYPE html>
+<html lang="id">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Anggota - BGT-PRO</title>
@@ -40,7 +42,7 @@
             left: 0; 
             width: 100%; 
             height: 100dvh; 
-            background: linear-gradient(180deg, #e8f4fc 0%, #d6eaf8 100%);
+            background: linear-gradient(180deg, #e8f4fc 0%, #d6e8f8 100%);
             display: flex; 
             flex-direction: column; 
             align-items: center; 
@@ -265,13 +267,18 @@
         </div>
 
         <!-- Member List -->
-        <div class="member-list" id="memberList"></div>
+        <div class="member-list" id="memberList">
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <p>Memuat data...</p>
+            </div>
+        </div>
 
     </div>
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a class="nav-item" href="branda.html">
+        <a class="nav-item active" href="branda.html">
             <i class="fas fa-home"></i>
             <span>Beranda</span>
         </a>
@@ -294,21 +301,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-    <script>
-        // Firebase Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
-            authDomain: "cedar-setup-425414-d7.firebaseapp.com",
-            databaseURL: "https://cedar-setup-425414-d7-default-rtdb.firebaseio.com",
-            projectId: "cedar-setup-425414-d7",
-            storageBucket: "cedar-setup-425414-d7.firebasestorage.app",
-            messagingSenderId: "723545991983",
-            appId: "1:723545991983:web:379548d2b425a502a60fda"
-        };
+    <!-- FIREBASE CORE (Keamanan & Tracking) -->
+    <script src="firebase-core.js"></script>
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+    <script>
+        // ============================================
+        // LOGIKA KHUSUS HALAMAN ANGGOTA
+        // ============================================
+
+        // Ambil instance database dari firebase-core.js
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         let allMembers = [];
 
@@ -323,36 +326,51 @@
         }
 
         function loadMembers() {
+            console.log("Memuat data anggota...");
+            
+            // Realtime Listener: Data berubah otomatis
             db.collection('users').onSnapshot((snapshot) => {
                 allMembers = [];
-                snapshot.forEach(doc => allMembers.push({ id: doc.id, ...doc.data() }));
+                snapshot.forEach(doc => {
+                    allMembers.push({ id: doc.id, ...doc.data() });
+                });
+                
+                console.log("Data anggota diterima:", allMembers.length);
+                
                 renderMembers();
                 updateStats();
+            }, (error) => {
+                console.error("Gagal memuat anggota:", error);
+                showToast('error', 'Gagal Memuat', 'Tidak dapat mengambil data anggota.');
             });
         }
 
         function updateStats() {
             const total = allMembers.length;
             const online = allMembers.filter(m => checkOnlineStatus(m)).length;
+            const offline = total - online;
+            
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statOnline').textContent = online;
-            document.getElementById('statOffline').textContent = total - online;
+            document.getElementById('statOffline').textContent = offline;
         }
 
+        // Fungsi Pencarian (Search)
         function filterMembers() {
             renderMembers();
         }
 
         function renderMembers() {
             const list = document.getElementById('memberList');
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const search = document.getElementById('searchInput'). value.toLowerCase();
             let filtered = allMembers;
 
+            // Jika ada input search, filter array
             if (search) {
                 filtered = allMembers.filter(m => (m.nama || '').toLowerCase().includes(search));
             }
 
-            // Sort: online first
+            // Sorting: Online dulu (Hijau), lalu Offline (Abu-abu), lalu Abjad (A-Z)
             filtered.sort((a, b) => {
                 const aOnline = checkOnlineStatus(a);
                 const bOnline = checkOnlineStatus(b);
@@ -373,7 +391,11 @@
 
             list.innerHTML = filtered.map(m => {
                 const isOnline = checkOnlineStatus(m);
+                // Fallback avatar jika tidak ada foto
                 const avatar = m.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.nama || 'User')}&background=6366f1&color=fff`;
+                const statusClass = isOnline ? 'online' : 'offline';
+                const statusText = isOnline ? 'Online' : 'Offline';
+
                 return `
                     <div class="member-card" onclick="showMember('${m.id}')">
                         <img src="${avatar}" alt="${m.nama}" class="member-avatar" loading="lazy">
@@ -381,17 +403,22 @@
                             <div class="member-name">${m.nama || 'Unknown'}</div>
                             <div class="member-title"><i class="fas fa-crown"></i> ${m.titel || 'ANGGOTA'}</div>
                         </div>
-                        <div class="member-status ${isOnline ? 'online' : 'offline'}">
+                        <div class="member-status ${statusClass}">
                             <span class="dot"></span>
-                            ${isOnline ? 'Online' : 'Offline'}
+                            ${statusText}
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
+        // Klik anggota
         function showMember(id) {
-            alert('Detail anggota akan segera hadir');
+            const member = allMembers.find(m => m.id === id);
+            if(member) {
+                alert(`Detail Anggota:\n\nNama: ${member.nama}\nTitel: ${member.titel}\nEmail: ${member.email}`);
+            // Bisa diarahkan ke profil spesifik anggota jika ada
+            // window.location.href = `profil.html?id=${id}`;
         }
 
         function showApp() {
@@ -400,11 +427,34 @@
             loadMembers();
         }
 
-        // Auth State
+        // Auth State Listener
         auth.onAuthStateChanged((user) => {
-            if (!user) { window.location.href = 'index.html'; return; }
+            if (!user) { 
+                window.location.href = 'index.html'; 
+                return; 
+            }
+            
+            console.log("User Login Anggota:", user.email);
             showApp();
         });
+
+        // Helper Toast
+        function showToast(type, title, message) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} style="position:fixed; top: 20px; right: 20px; z-index: 99999; min-width: 300px; background: white; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; z-index: 9999; animation-fill-mode: forwards;">
+                <div style="font-size: 1.2rem;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : (type === 'error' ? 'exclamation-circle' : 'info-circle')}"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 0.9rem; color: #1e293b;">${title}</div>
+                    <div style="font-size: 0.8rem; color: #64748b;">${message}</div>
+                </div>
+                <button onclick="this.parentElement.remove()" style="background:transparent; border: none; color: #64748b; font-size: 1.2rem; cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3000);
+        }
+
     </script>
 
 </body>
