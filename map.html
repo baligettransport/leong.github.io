@@ -11,21 +11,22 @@
     
     <style>
         :root {
-            --primary: #4f46e5;
+            --primary: #6366f1;
             --primary-light: #818cf8;
             --success: #10b981;
             --danger: #ef4444;
-            --dark: #1e293b;
+            --warning: #f59e0b;
+            --dark: #0f172a;
             --gray: #64748b;
             --white: #ffffff;
-            --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: #e0f2fe;
+            background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%);
             color: var(--dark);
         }
 
@@ -51,13 +52,13 @@
         }
         .header-btn {
             width: 40px; height: 40px;
-            background: rgba(79, 70, 229, 0.08);
+            background: rgba(99, 102, 241, 0.08);
             border: none; border-radius: 10px;
             color: var(--primary); font-size: 1rem;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: 0.2s;
         }
-        .header-btn:active { background: rgba(79, 70, 229, 0.2); }
+        .header-btn:active { background: rgba(99, 102, 241, 0.2); }
 
         /* Map */
         #map { width: 100%; height: 100%; z-index: 1; }
@@ -114,27 +115,108 @@
         .panel-content { padding: 0 16px 20px; overflow-y: auto; max-height: calc(55vh - 30px); }
         
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .stat-box { background: #f8fafc; padding: 12px 10px; border-radius: 12px; text-align: center; border: 1px solid #f1f5f9; }
+        .stat-box { 
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+            padding: 12px 10px; 
+            border-radius: 12px; 
+            text-align: center; 
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+        .stat-box.online-box::before { background: var(--success); }
+        .stat-box.offline-box::before { background: var(--gray); }
+        
         .stat-num { font-size: 1.4rem; font-weight: 800; display: block; }
         .stat-num.total { color: var(--primary); }
         .stat-num.online { color: var(--success); }
         .stat-num.offline { color: var(--gray); }
         .stat-label { font-size: 0.7rem; color: var(--gray); font-weight: 500; }
 
-        .section-title { font-size: 0.8rem; font-weight: 700; color: var(--gray); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
+        .section-title { 
+            font-size: 0.85rem; 
+            font-weight: 700; 
+            color: var(--dark); 
+            margin-bottom: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
         
         .member-card {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px; background: #fff;
-            border: 1px solid #f1f5f9; border-radius: 10px;
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px; background: #fff;
+            border: 1px solid #f1f5f9; border-radius: 12px;
             margin-bottom: 8px; cursor: pointer;
+            transition: all 0.2s;
         }
-        .member-card:active { background: #f1f5f9; }
-        .member-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #e2e8f0; }
-        .member-name { flex: 1; font-weight: 600; font-size: 0.9rem; color: var(--dark); }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
-        .status-dot.on { background: var(--success); box-shadow: 0 0 6px var(--success); }
+        .member-card:active { 
+            background: #f1f5f9; 
+            transform: scale(0.98);
+        }
+        .member-avatar { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            background: #e2e8f0;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .member-info { flex: 1; }
+        .member-name { 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .member-location {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+        .status-indicator.online {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        .status-indicator.offline {
+            background: #f1f5f9;
+            color: var(--gray);
+        }
+        .status-dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+        }
+        .status-dot.on { 
+            background: var(--success); 
+            box-shadow: 0 0 6px var(--success);
+            animation: pulse 2s infinite;
+        }
         .status-dot.off { background: #cbd5e1; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
 
         /* Toast */
         .toast {
@@ -151,9 +233,66 @@
         /* Empty State */
         .empty-state { text-align: center; padding: 30px 20px; color: var(--gray); }
         .empty-state i { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+        }
+        .loading-overlay.hidden { display: none; }
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(99, 102, 241, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Legend */
+        .map-legend {
+            position: fixed;
+            top: 70px;
+            right: 16px;
+            background: rgba(255,255,255,0.95);
+            padding: 10px 14px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            font-size: 0.75rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .legend-item:last-child { margin-bottom: 0; }
+        .legend-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+        }
+        .legend-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 6px var(--success);
+        }
+        .legend-dot.offline { background: #94a3b8; }
     </style>
 </head>
 <body>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div style="font-weight: 500; color: var(--gray);">Memuat peta anggota...</div>
+    </div>
 
     <!-- Header -->
     <header class="header">
@@ -164,6 +303,18 @@
 
     <!-- Map -->
     <div id="map"></div>
+
+    <!-- Legend -->
+    <div class="map-legend">
+        <div class="legend-item">
+            <div class="legend-dot online"></div>
+            <span>Online</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot offline"></div>
+            <span>Offline</span>
+        </div>
+    </div>
 
     <!-- Floating Buttons -->
     <div class="fab-container" id="fabContainer">
@@ -183,13 +334,13 @@
             <div class="stats-grid">
                 <div class="stat-box">
                     <span class="stat-num total" id="statTotal">0</span>
-                    <span class="stat-label">Total</span>
+                    <span class="stat-label">Total Anggota</span>
                 </div>
-                <div class="stat-box">
+                <div class="stat-box online-box">
                     <span class="stat-num online" id="statOnline">0</span>
                     <span class="stat-label">Online</span>
                 </div>
-                <div class="stat-box">
+                <div class="stat-box offline-box">
                     <span class="stat-num offline" id="statOffline">0</span>
                     <span class="stat-label">Offline</span>
                 </div>
@@ -197,7 +348,7 @@
 
             <!-- List -->
             <div class="section-title">
-                <span>Anggota Terdaftar</span>
+                <span><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 6px;"></i>Anggota dengan Lokasi</span>
                 <span id="locationCount" style="font-weight: 400; font-size: 0.7rem; color: var(--primary);">0 Lokasi</span>
             </div>
             <div id="memberList">
@@ -218,9 +369,11 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <script>
-        // ================= KONFIGURASI FIREBASE ANDA =================
+        // ================= KONFIGURASI FIREBASE =================
         const firebaseConfig = {
             apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
             authDomain: "cedar-setup-425414-d7.firebaseapp.com",
@@ -234,16 +387,23 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const rtdb = firebase.database();
+        const auth = firebase.auth();
         // =============================================================
 
         let map = null;
         let markers = {};
         let allMembers = [];
         let unsubscribe = null;
+        let presenceListener = null;
         const DEFAULT_LOC = [-2.5, 118.0]; // Pusat Indonesia
+
+        // Track online status from RTDB
+        let onlineUsers = new Set();
 
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
+            initPresenceListener();
             loadFirebaseData();
             handlePanelScroll();
         });
@@ -264,9 +424,40 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
+
+            // Hide loading after map ready
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }, 1000);
         }
 
-        // 2. Load Firebase Data
+        // 2. Init Presence Listener dari RTDB (sama seperti branda.html)
+        function initPresenceListener() {
+            // Listen ke presence di RTDB untuk real-time online status
+            presenceListener = rtdb.ref('presence').on('value', (snapshot) => {
+                onlineUsers.clear();
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(uid => {
+                        if (data[uid]?.online === true) {
+                            onlineUsers.add(uid);
+                        }
+                    });
+                }
+                console.log('Online users updated:', onlineUsers.size);
+                
+                // Re-render markers dengan status terbaru
+                if (allMembers.length > 0) {
+                    renderMarkers();
+                    renderList();
+                    updateStats();
+                }
+            }, (error) => {
+                console.error('Presence listener error:', error);
+            });
+        }
+
+        // 3. Load Firebase Data dari Firestore
         function loadFirebaseData() {
             console.log("Menghubungkan ke Firestore...");
             
@@ -274,11 +465,11 @@
                 allMembers = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    // Pastikan data memiliki ID
                     allMembers.push({ id: doc.id, ...data });
                 });
                 
                 console.log("Data diterima:", allMembers.length, "anggota");
+                console.log("Dengan lokasi:", allMembers.filter(m => m.latitude && m.longitude).length);
                 
                 renderMarkers();
                 updateStats();
@@ -290,37 +481,80 @@
             });
         }
 
-        // 3. Render Markers to Map
+        // 4. Cek Online Status (sinkron dengan branda.html)
+        function checkOnline(m) {
+            // Method 1: Cek di RTDB presence (paling akurat)
+            if (onlineUsers.has(m.id)) return true;
+            
+            // Method 2: Cek currentSessionId di Firestore
+            if (!m.currentSessionId) return false;
+            
+            // Method 3: Cek lastActive
+            if (m.lastActive) {
+                const last = m.lastActive.toDate ? m.lastActive.toDate() : new Date(m.lastActive);
+                const now = new Date();
+                const diffMinutes = (now - last) / 60000;
+                
+                // Anggap online jika aktif dalam 5 menit terakhir
+                if (diffMinutes > 5) return false;
+            }
+            
+            // Method 4: Cek lastSeen (field alternatif)
+            if (m.lastSeen) {
+                const last = m.lastSeen.toDate ? m.lastSeen.toDate() : new Date(m.lastSeen);
+                const now = new Date();
+                const diffMinutes = (now - last) / 60000;
+                if (diffMinutes > 5) return false;
+            }
+            
+            return true;
+        }
+
+        // 5. Render Markers to Map
         function renderMarkers() {
             // Clear old markers
             Object.values(markers).forEach(m => map.removeLayer(m));
             markers = {};
 
-            let bounds = L.latLngBounds(); // Untuk auto zoom
+            let bounds = L.latLngBounds();
             let hasLocation = false;
 
             allMembers.forEach(m => {
-                // Cek apakah punya koordinat
                 if (m.latitude && m.longitude) {
                     hasLocation = true;
                     const isOnline = checkOnline(m);
                     const lat = parseFloat(m.latitude);
                     const lng = parseFloat(m.longitude);
                     
-                    // Validasi angka
                     if (isNaN(lat) || isNaN(lng)) return;
 
                     bounds.extend([lat, lng]);
 
-                    // Custom Icon
+                    // Custom Icon dengan animasi untuk online
                     const iconHtml = `
-                        <div style="
-                            width: 36px; height: 36px; background: ${isOnline ? '#10b981' : '#94a3b8'};
-                            border-radius: 50%; border: 3px solid white;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                            display: flex; justify-content: center; align-items: center;
-                        ">
-                            <i class="fas fa-user" style="color: white; font-size: 14px;"></i>
+                        <div class="marker-container" style="position: relative;">
+                            ${isOnline ? `
+                                <div style="
+                                    position: absolute;
+                                    width: 44px; height: 44px;
+                                    background: rgba(16, 185, 129, 0.3);
+                                    border-radius: 50%;
+                                    top: -4px; left: -4px;
+                                    animation: markerPulse 2s infinite;
+                                "></div>
+                            ` : ''}
+                            <div style="
+                                width: 36px; height: 36px; 
+                                background: ${isOnline ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #94a3b8, #64748b)'};
+                                border-radius: 50%; 
+                                border: 3px solid white;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+                                display: flex; justify-content: center; align-items: center;
+                                position: relative;
+                                z-index: 1;
+                            ">
+                                <i class="fas fa-user" style="color: white; font-size: 14px;"></i>
+                            </div>
                         </div>
                     `;
 
@@ -335,13 +569,22 @@
                     const marker = L.marker([lat, lng], { icon: icon })
                         .addTo(map)
                         .bindPopup(`
-                            <div style="min-width:150px; font-family: Poppins;">
-                                <b style="font-size:1rem; display:block; margin-bottom:5px;">${escapeHtml(m.nama || 'Anonim')}</b>
-                                <span style="font-size:0.75rem; padding:2px 6px; border-radius:4px; background:${isOnline ? 'rgba(16,185,129,0.1)' : '#f1f5f9'}; color:${isOnline ? '#10b981' : '#64748b'}">
-                                    ${isOnline ? '● Online' : '○ Offline'}
-                                </span>
-                                <div style="margin-top:8px; font-size:0.8rem; color:#64748b;">
-                                    ${m.email ? '<i class="fas fa-envelope"></i> ' + escapeHtml(m.email) + '<br>' : ''}
+                            <div style="min-width:180px; font-family: Poppins;">
+                                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                                    <img src="${m.profilePicUrl || m.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.nama || 'U')}&background=6366f1&color=fff`}" 
+                                         style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid ${isOnline ? '#10b981' : '#e2e8f0'};">
+                                    <div>
+                                        <b style="font-size:1rem; display:block;">${escapeHtml(m.nama || 'Anonim')}</b>
+                                        <span style="font-size:0.7rem; padding:2px 8px; border-radius:4px; 
+                                            background:${isOnline ? 'rgba(16,185,129,0.1)' : '#f1f5f9'}; 
+                                            color:${isOnline ? '#10b981' : '#64748b'}; font-weight:600;">
+                                            ${isOnline ? '● Online' : '○ Offline'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="margin-top:10px; font-size:0.75rem; color:#64748b; border-top:1px solid #f1f5f9; padding-top:8px;">
+                                    ${m.email ? '<div style="margin-bottom:4px;"><i class="fas fa-envelope" style="width:16px;"></i> ' + escapeHtml(m.email) + '</div>' : ''}
+                                    ${m.titel ? '<div><i class="fas fa-award" style="width:16px;"></i> ' + escapeHtml(m.titel) + '</div>' : ''}
                                 </div>
                             </div>
                         `);
@@ -350,13 +593,13 @@
                 }
             });
 
-            // AUTO ZOOM: Jika ada lokasi, otomatis fokus ke anggota
+            // AUTO ZOOM
             if (hasLocation) {
                 map.fitBounds(bounds, { padding: [50, 50] });
             }
         }
 
-        // 4. Render List UI
+        // 6. Render List UI
         function renderList() {
             const container = document.getElementById('memberList');
             const withLoc = allMembers.filter(m => m.latitude && m.longitude);
@@ -369,44 +612,58 @@
             }
 
             if (withLoc.length === 0) {
-                 container.innerHTML = `<div class="empty-state"><i class="fas fa-map-marker-alt"></i><p>Belum ada anggota yang mengaktifkan lokasi.</p><p style="font-size:0.7rem; margin-top:5px; color:#94a3b8;">Data latitude/longitude kosong.</p></div>`;
-                 return;
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Belum ada anggota yang mengaktifkan lokasi.</p>
+                        <p style="font-size:0.7rem; margin-top:5px; color:#94a3b8;">Data latitude/longitude kosong.</p>
+                    </div>`;
+                return;
             }
 
             // Sort: Online First
             withLoc.sort((a, b) => checkOnline(b) - checkOnline(a));
 
-            container.innerHTML = withLoc.map(m => `
+            container.innerHTML = withLoc.map(m => {
+                const isOnline = checkOnline(m);
+                return `
                 <div class="member-card" onclick="focusMember('${m.id}')">
-                    <img src="${m.profilePicUrl || `https://ui-avatars.com/api/?name=${m.nama||'U'}&background=random`}" class="member-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Error'">
-                    <span class="member-name">${escapeHtml(m.nama || 'Anonim')}</span>
-                    <div class="status-dot ${checkOnline(m) ? 'on' : 'off'}"></div>
+                    <img src="${m.profilePicUrl || m.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.nama || 'U')}&background=6366f1&color=fff`}" 
+                         class="member-avatar" 
+                         onerror="this.src='https://ui-avatars.com/api/?name=U&background=6366f1&color=fff'"
+                         style="border-color: ${isOnline ? '#10b981' : '#e2e8f0'};">
+                    <div class="member-info">
+                        <div class="member-name">
+                            ${escapeHtml(m.nama || 'Anonim')}
+                        </div>
+                        <div class="member-location">
+                            <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i>
+                            ${m.alamat || m.kota || 'Lokasi tidak diketahui'}
+                        </div>
+                    </div>
+                    <div class="status-indicator ${isOnline ? 'online' : 'offline'}">
+                        <div class="status-dot ${isOnline ? 'on' : 'off'}"></div>
+                        ${isOnline ? 'Online' : 'Offline'}
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
-        // 5. Helpers
-        function checkOnline(m) {
-            if (!m.currentSessionId) return false;
-            if (m.lastActive) {
-                const last = m.lastActive.toDate ? m.lastActive.toDate() : new Date(m.lastActive);
-                // Anggap offline jika > 2 menit tidak aktif
-                if ((new Date() - last) / 60000 > 2) return false;
-            }
-            return true;
+        // 7. Update Stats
+        function updateStats() {
+            const total = allMembers.length;
+            const withLoc = allMembers.filter(m => m.latitude && m.longitude);
+            const online = withLoc.filter(m => checkOnline(m)).length;
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statOnline').textContent = online;
+            document.getElementById('statOffline').textContent = withLoc.length - online;
         }
 
+        // 8. Helpers
         function escapeHtml(text) {
             if (!text) return '';
             return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        function updateStats() {
-            const total = allMembers.length;
-            const on = allMembers.filter(m => checkOnline(m)).length;
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statOnline').textContent = on;
-            document.getElementById('statOffline').textContent = total - on;
         }
 
         function focusMember(id) {
@@ -434,17 +691,44 @@
             if (!navigator.geolocation) return showToast("GPS tidak didukung browser");
             showToast("Mencari lokasi Anda...");
             navigator.geolocation.getCurrentPosition(pos => {
-                map.setView([pos.coords.latitude, pos.coords.longitude], 16);
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                map.setView([lat, lng], 16);
+                
                 // Tambah marker biru untuk lokasi sendiri
-                L.circleMarker([pos.coords.latitude, pos.coords.longitude], {
-                    radius: 8, fillColor: "#4f46e5", color: "#fff", weight: 3, fillOpacity: 1
+                L.circleMarker([lat, lng], {
+                    radius: 10, 
+                    fillColor: "#6366f1", 
+                    color: "#fff", 
+                    weight: 3, 
+                    fillOpacity: 1
                 }).addTo(map).bindPopup("<b>Lokasi Anda</b>").openPopup();
-            }, () => showToast("Gagal mendapatkan izin lokasi"));
+
+                // Tambah circle untuk akurasi
+                L.circle([lat, lng], {
+                    radius: pos.coords.accuracy,
+                    color: '#6366f1',
+                    fillColor: '#6366f1',
+                    fillOpacity: 0.1,
+                    weight: 1
+                }).addTo(map);
+                
+            }, (err) => {
+                console.error('Geolocation error:', err);
+                showToast("Gagal mendapatkan izin lokasi");
+            }, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
         }
 
         function refreshData() {
             showToast("Memperbarui data...");
+            // Force re-render
             renderMarkers();
+            renderList();
+            updateStats();
         }
 
         function togglePanel() {
@@ -484,8 +768,23 @@
             const t = document.getElementById('toast');
             t.textContent = msg;
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2000);
+            setTimeout(() => t.classList.remove('show'), 2500);
         }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (unsubscribe) unsubscribe();
+            if (presenceListener) rtdb.ref('presence').off('value', presenceListener);
+        });
     </script>
+
+    <!-- CSS Animation untuk marker pulse -->
+    <style>
+        @keyframes markerPulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.4); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0.6; }
+        }
+    </style>
 </body>
 </html>
