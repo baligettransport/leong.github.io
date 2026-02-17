@@ -54,7 +54,9 @@
         .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,0,0,0.1); }
         .header-name { font-size: 0.9rem; font-weight: 600; }
         .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
-        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
         .header-right { display: flex; align-items: center; gap: 8px; }
         .notif-btn { 
             width: 38px; height: 38px; background: transparent; border: none; 
@@ -371,6 +373,7 @@
     let messaging = null;
     let locationWatchId = null;
     let lastLocationData = null;
+    let presenceInterval = null; // Interval untuk update status online
 
     // Fallback Data
     const fallbackPromoData = [
@@ -413,10 +416,57 @@
     }
 
     // ============================================
-    // ANDROID 14 LOCATION - BACKGROUND (NO UI)
+    // PRESENCE SYSTEM (STATUS ONLINE)
     // ============================================
     
-    // Cek permission lokasi
+    // Fungsi untuk update status online ke Firestore
+    async function updateOnlineStatus() {
+        if (!currentUserId || !localSessionId) return;
+
+        try {
+            await db.collection('users').doc(currentUserId).set({
+                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                currentSessionId: localSessionId,
+                isOnline: true
+            }, { merge: true });
+        } catch (error) {
+            console.error('Error updating online status:', error);
+        }
+    }
+
+    // Set status offline saat logout/close
+    async function setOfflineStatus() {
+        if (!currentUserId) return;
+        try {
+            await db.collection('users').doc(currentUserId).update({
+                isOnline: false,
+                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (error) {
+            console.error('Error setting offline:', error);
+        }
+    }
+
+    // Start presence system
+    function startPresenceSystem() {
+        // Update pertama kali
+        updateOnlineStatus();
+
+        // Update setiap 2 menit
+        presenceInterval = setInterval(updateOnlineStatus, 120000);
+
+        // Update saat tab jadi visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                updateOnlineStatus();
+            }
+        });
+    }
+
+    // ============================================
+    // LOCATION BACKGROUND
+    // ============================================
+    
     async function checkLocationPermission() {
         return new Promise((resolve) => {
             if (navigator.permissions && navigator.permissions.query) {
@@ -429,7 +479,6 @@
         });
     }
 
-    // Reverse geocoding
     async function reverseGeocode(lat, lng) {
         try {
             const response = await fetch(
@@ -442,7 +491,6 @@
         } catch (error) { return null; }
     }
 
-    // Simpan lokasi ke Firebase
     async function saveLocationToFirebase(lat, lng, accuracy, address) {
         if (!currentUserId) return;
         try {
@@ -454,16 +502,20 @@
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
                 deviceInfo: navigator.userAgent
             };
-            await db.collection('users').doc(currentUserId).set({ currentLocation: locationData }, { merge: true });
+            
+            // Update location AND lastActive
+            await db.collection('users').doc(currentUserId).set({
+                currentLocation: locationData,
+                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
             await db.collection('locations').doc(currentUserId).set(locationData);
         } catch (error) { console.error('Error saving location:', error); }
     }
 
-    // Handle posisi berhasil
     async function handleLocationSuccess(position) {
         const { latitude, longitude, accuracy } = position.coords;
         
-        // Cek perubahan signifikan (>10 meter)
         if (lastLocationData) {
             const R = 6371e3;
             const phi1 = lastLocationData.lat * Math.PI / 180;
@@ -481,12 +533,10 @@
         await saveLocationToFirebase(latitude, longitude, accuracy, address);
     }
 
-    // Handle error lokasi
     function handleLocationError(error) {
         console.log('Location error:', error.message);
     }
 
-    // Mulai tracking lokasi
     function startLocationTracking() {
         if (!navigator.geolocation) return;
         const options = { enableHighAccuracy: true, timeout: 30000, maximumAge: 60000 };
@@ -498,7 +548,6 @@
         );
     }
 
-    // Stop tracking
     function stopLocationTracking() {
         if (locationWatchId !== null && navigator.geolocation) {
             navigator.geolocation.clearWatch(locationWatchId);
@@ -506,7 +555,6 @@
         }
     }
 
-    // Inisialisasi lokasi
     async function initLocation() {
         const permissionState = await checkLocationPermission();
         if (permissionState === 'denied') return;
@@ -563,6 +611,8 @@
     function handleSessionKick() {
         localStorage.clear();
         stopLocationTracking();
+        if (presenceInterval) clearInterval(presenceInterval);
+        setOfflineStatus(); // Set offline sebelum logout
         if (sessionUnsubscribe) sessionUnsubscribe();
         auth.signOut().then(() => window.location.href = 'index.html').catch(() => window.location.href = 'index.html');
     }
@@ -572,6 +622,12 @@
         localSessionId = safeGetItem('userSessionId');
         if (!localSessionId) { handleSessionKick(); return; }
         if (sessionUnsubscribe) sessionUnsubscribe();
+        
+        // Update session ID ke Firestore agar terdeteksi online
+        db.collection('users').doc(userId).set({
+            currentSessionId: localSessionId
+        }, { merge: true });
+        
         sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
             (doc) => {
                 if (!doc.exists) { handleSessionKick(); return; }
@@ -658,15 +714,23 @@
         document.getElementById('loadingContainer').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
 
-        initLocation(); // Jalankan lokasi di background
+        // Start systems
+        startPresenceSystem(); // <-- PENTING: Start status online
+        initLocation();
     }
 
     async function handleLogout() {
         if (!confirm('Yakin ingin keluar?')) return;
         stopLocationTracking();
+        if (presenceInterval) clearInterval(presenceInterval);
+        
         if (currentUserId) {
             try {
-                await db.collection('users').doc(currentUserId).update({ currentLocation: firebase.firestore.FieldValue.delete() });
+                await db.collection('users').doc(currentUserId).update({
+                    currentLocation: firebase.firestore.FieldValue.delete(),
+                    isOnline: false,
+                    currentSessionId: firebase.firestore.FieldValue.delete()
+                });
                 await db.collection('locations').doc(currentUserId).delete();
             } catch (e) {}
         }
@@ -705,15 +769,21 @@
     // VISIBILITY & CLEANUP
     // ============================================
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && currentUserId && navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(handleLocationSuccess, handleLocationError, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+        if (document.visibilityState === 'visible') {
+            updateOnlineStatus(); // Update status saat kembali
+            if (currentUserId && navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(handleLocationSuccess, handleLocationError, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+            }
         }
     });
 
-    window.addEventListener('beforeunload', stopLocationTracking);
+    window.addEventListener('beforeunload', () => {
+        setOfflineStatus(); // Set offline saat tutup browser
+        stopLocationTracking();
+    });
 
     // ============================================
-    // AUTH LISTENER - FIXED LOADING ISSUE
+    // AUTH LISTENER
     // ============================================
     auth.onAuthStateChanged(async (user) => {
         if (!user) { 
@@ -724,7 +794,6 @@
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             
-            // FIX: Jika dokumen tidak ada, tetap tampilkan app dengan data default
             if (!doc.exists) {
                 console.warn('User document not found, using defaults');
                 showUserData({ nama: user.email || 'User' });
@@ -734,7 +803,6 @@
             const data = doc.data();
             const sessId = safeGetItem('userSessionId');
             
-            // Cek sesi kick
             if (data.currentSessionId && sessId && data.currentSessionId !== sessId) {
                 localStorage.removeItem('userSessionId');
                 await auth.signOut();
@@ -750,16 +818,12 @@
             
         } catch (e) {
             console.error('Auth error:', e);
-            // FIX: Jika error, tetap tampilkan app agar tidak loading selamanya
             document.getElementById('loadingContainer').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             showToast('error', 'Error', 'Gagal memuat data, coba refresh halaman');
         }
     });
 
-    // ============================================
-    // SERVICE WORKER
-    // ============================================
     async function registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
