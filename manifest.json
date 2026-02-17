@@ -1,5 +1,5 @@
 {
-    "name": "BGT-PRO - Portal Anggota",
+    "name": "BGT-PRO&reg;",
     "short_name": "BGT-PRO",
     "description": "Aplikasi Portal Anggota PT. Bali Global Trans",
     "start_url": "branda.html",
@@ -24,3 +24,4 @@
     ],
     "gcm_sender_id": "723545991983"
 }
+
