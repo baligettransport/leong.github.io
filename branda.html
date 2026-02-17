@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- PWA Setup -->
+    <!-- PWA Setup untuk GitHub Pages -->
     <link rel="manifest" href="/leong.github.io/manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -54,9 +54,7 @@
         .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,0,0,0.1); }
         .header-name { font-size: 0.9rem; font-weight: 600; }
         .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
-        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
         .header-right { display: flex; align-items: center; gap: 8px; }
         .notif-btn { 
             width: 38px; height: 38px; background: transparent; border: none; 
@@ -360,20 +358,21 @@
     const rtdb = firebase.database();
 
     // ============================================
-    // CONSTANTS
-    // ============================================
-    const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
-
-    // ============================================
     // STATE
     // ============================================
     let sessionUnsubscribe = null;
     let currentUserId = null;
     let localSessionId = null;
     let messaging = null;
-    let locationWatchId = null;
-    let lastLocationData = null;
-    let presenceInterval = null; // Interval untuk update status online
+
+    // ============================================
+    // PERBAIKAN: Tracking untuk notifikasi
+    // ============================================
+    let orderListenerRef = null;           // Reference untuk cleanup
+    let shownOrderIds = new Set();         // Track order yang sudah dinotifikasi
+    let orderListenerInitialized = false;  // Flag untuk initial load
+    let lastNotifTime = 0;                 // Timestamp notifikasi terakhir
+    const NOTIF_COOLDOWN = 3000;           // 3 detik cooldown antar notifikasi
 
     // Fallback Data
     const fallbackPromoData = [
@@ -398,13 +397,23 @@
         document.getElementById('menuOverlay').classList.remove('active');
     }
 
+    // ============================================
+    // PERBAIKAN: Toast dengan debounce
+    // ============================================
     function showToast(type, title, message) {
+        const now = Date.now();
+        if (now - lastNotifTime < NOTIF_COOLDOWN) {
+            console.log('⚠️ Toast di-skip (cooldown)');
+            return;
+        }
+        lastNotifTime = now;
+
         const container = document.getElementById('toastContainer');
         const icons = { success: 'fa-check', info: 'fa-info', error: 'fa-times', warning: 'fa-exclamation' };
         const toast = document.createElement('div');
         toast.className = 'toast';
         toast.innerHTML = `
-            <div class="toast-icon ${type}"><i class="fas ${icons[type] || 'fa-info'}"></i></div>
+            <div class="toast-icon ${type}"><i class="fas ${icons[type]}"></i></div>
             <div class="toast-content">
                 <div class="toast-title">${title}</div>
                 <div class="toast-message">${message}</div>
@@ -413,220 +422,6 @@
         `;
         container.appendChild(toast);
         setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 4000);
-    }
-
-    // ============================================
-    // PRESENCE SYSTEM (STATUS ONLINE)
-    // ============================================
-    
-    // Fungsi untuk update status online ke Firestore
-    async function updateOnlineStatus() {
-        if (!currentUserId || !localSessionId) return;
-
-        try {
-            await db.collection('users').doc(currentUserId).set({
-                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-                currentSessionId: localSessionId,
-                isOnline: true
-            }, { merge: true });
-        } catch (error) {
-            console.error('Error updating online status:', error);
-        }
-    }
-
-    // Set status offline saat logout/close
-    async function setOfflineStatus() {
-        if (!currentUserId) return;
-        try {
-            await db.collection('users').doc(currentUserId).update({
-                isOnline: false,
-                lastActive: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } catch (error) {
-            console.error('Error setting offline:', error);
-        }
-    }
-
-    // Start presence system
-    function startPresenceSystem() {
-        // Update pertama kali
-        updateOnlineStatus();
-
-        // Update setiap 2 menit
-        presenceInterval = setInterval(updateOnlineStatus, 120000);
-
-        // Update saat tab jadi visible
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                updateOnlineStatus();
-            }
-        });
-    }
-
-        // ============================================
-    // LOCATION BACKGROUND (PERBAIKAN)
-    // ============================================
-    
-    async function checkLocationPermission() {
-        return new Promise((resolve) => {
-            if (navigator.permissions && navigator.permissions.query) {
-                navigator.permissions.query({ name: 'geolocation' })
-                    .then(result => resolve(result.state))
-                    .catch(() => resolve('prompt'));
-            } else {
-                resolve('prompt');
-            }
-        });
-    }
-
-    async function reverseGeocode(lat, lng) {
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
-                { headers: { 'Accept': 'application/json', 'User-Agent': 'BGT-PRO-App/1.0' } }
-            );
-            if (!response.ok) return null;
-            const data = await response.json();
-            return data.display_name || null;
-        } catch (error) { return null; }
-    }
-
-    async function saveLocationToFirebase(lat, lng, accuracy, address) {
-        if (!currentUserId) return;
-        try {
-            const locationData = {
-                latitude: lat,
-                longitude: lng,
-                accuracy: accuracy,
-                address: address || `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-                deviceInfo: navigator.userAgent
-            };
-            
-            // Update location AND lastActive
-            await db.collection('users').doc(currentUserId).set({
-                currentLocation: locationData,
-                lastActive: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-            
-            await db.collection('locations').doc(currentUserId).set(locationData);
-            console.log("Lokasi berhasil disimpan:", locationData); // Tambahkan log untuk debug
-        } catch (error) { 
-            console.error('Error saving location:', error); 
-            showToast('error', 'Lokasi Gagal', 'Gagal menyimpan lokasi ke server.');
-        }
-    }
-
-    async function handleLocationSuccess(position) {
-        const { latitude, longitude, accuracy } = position.coords;
-        
-        // Cek pergerakan untuk hemat baterai (hanya update jika pindah > 10 meter)
-        if (lastLocationData) {
-            const R = 6371e3;
-            const phi1 = lastLocationData.lat * Math.PI / 180;
-            const phi2 = latitude * Math.PI / 180;
-            const deltaPhi = (latitude - lastLocationData.lat) * Math.PI / 180;
-            const deltaLambda = (longitude - lastLocationData.lng) * Math.PI / 180;
-            const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            const distance = R * c;
-            
-            // Jika jarak kurang dari 10m DAN akurasi sebelumnya lebih baik, abaikan
-            if (distance < 10 && lastLocationData.accuracy <= accuracy) {
-                console.log("Pergerakan kecil, lokasi tidak diupdate.");
-                return;
-            }
-        }
-        
-        lastLocationData = { lat: latitude, lng: longitude, accuracy };
-        const address = await reverseGeocode(latitude, longitude);
-        await saveLocationToFirebase(latitude, longitude, accuracy, address);
-    }
-
-    function handleLocationError(error) {
-        console.error('Location error:', error);
-        let msg = 'Gagal mengambil lokasi.';
-        if (error.code === 1) msg = 'Izin lokasi ditolak.';
-        if (error.code === 2) msg = 'Sinyal GPS lemah.';
-        if (error.code === 3) msg = 'Waktu habis (Timeout).';
-        
-        // Jangan terlalu sering notifikasi user, hanya log
-        console.warn(msg); 
-    }
-
-    function startLocationTracking() {
-        if (!navigator.geolocation) {
-            console.warn("Browser tidak mendukung Geolocation");
-            return;
-        }
-        
-        if (locationWatchId !== null) navigator.geolocation.clearWatch(locationWatchId);
-        
-        const options = { 
-            enableHighAccuracy: true, 
-            timeout: 20000, // Dipercepat menjadi 20 detik
-            maximumAge: 0 // Jangan gunakan cache, ambil data baru
-        };
-        
-        locationWatchId = navigator.geolocation.watchPosition(
-            handleLocationSuccess, 
-            handleLocationError, 
-            options
-        );
-    }
-
-    async function initLocation() {
-        console.log("Memulai inisialisasi lokasi...");
-        const permissionState = await checkLocationPermission();
-        
-        // Jika izin 'denied', beri tahu user
-        if (permissionState === 'denied') {
-            showToast('error', 'Akses Ditolak', 'Mohon izinkan akses lokasi di pengaturan browser untuk fitur ini.');
-            return;
-        }
-
-        if (navigator.geolocation) {
-            // Paksa minta izin / ambil posisi pertama kali segera
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    console.log("Lokasi awal didapat:", position.coords);
-                    await handleLocationSuccess(position);
-                    startLocationTracking(); // Mulai monitoring berkelanjutan setelah sukses pertama
-                },
-                (error) => {
-                    console.error("Gagal ambil lokasi awal:", error);
-                    // Tetap coba mulai tracking, mungkin user butuh waktu untuk allow
-                    startLocationTracking(); 
-                },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-            );
-        }
-    }
-
-    // ============================================
-    // FCM
-    // ============================================
-    async function initFCM() {
-        try {
-            if (!('Notification' in window)) return;
-            messaging = firebase.messaging();
-            let permission = Notification.permission;
-            if (permission === 'default') permission = await Notification.requestPermission();
-            if (permission !== 'granted') return;
-            
-            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
-            if (token && currentUserId) {
-                await db.collection('users').doc(currentUserId).set({
-                    fcmToken: token,
-                    fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-            }
-            messaging.onMessage((payload) => {
-                const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
-                const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
-                showToast('info', title, body);
-            });
-        } catch (error) { console.error('FCM Error:', error.message); }
     }
 
     // ============================================
@@ -639,9 +434,6 @@
 
     function handleSessionKick() {
         localStorage.clear();
-        stopLocationTracking();
-        if (presenceInterval) clearInterval(presenceInterval);
-        setOfflineStatus(); // Set offline sebelum logout
         if (sessionUnsubscribe) sessionUnsubscribe();
         auth.signOut().then(() => window.location.href = 'index.html').catch(() => window.location.href = 'index.html');
     }
@@ -651,12 +443,6 @@
         localSessionId = safeGetItem('userSessionId');
         if (!localSessionId) { handleSessionKick(); return; }
         if (sessionUnsubscribe) sessionUnsubscribe();
-        
-        // Update session ID ke Firestore agar terdeteksi online
-        db.collection('users').doc(userId).set({
-            currentSessionId: localSessionId
-        }, { merge: true });
-        
         sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
             (doc) => {
                 if (!doc.exists) { handleSessionKick(); return; }
@@ -680,7 +466,10 @@
             let promos = []; snap.forEach(d => promos.push({ id: d.id, ...d.data() }));
             if (!promos.length) throw new Error('No promos');
             renderPromos(promos);
-        } catch (e) { renderPromos(fallbackPromoData); }
+        } catch (e) {
+            console.log('Using fallback promos');
+            renderPromos(fallbackPromoData);
+        }
     }
 
     function renderPromos(promos) {
@@ -704,7 +493,10 @@
             let data = []; snap.forEach(d => data.push({ id: d.id, ...d.data() }));
             if (!data.length) throw new Error('No kopdar');
             renderKopdar(data);
-        } catch (e) { renderKopdar(fallbackKopdarData); }
+        } catch (e) {
+            console.log('Using fallback kopdar');
+            renderKopdar(fallbackKopdarData);
+        }
     }
 
     function renderKopdar(data) {
@@ -742,74 +534,238 @@
         
         document.getElementById('loadingContainer').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-
-        // Start systems
-        startPresenceSystem(); // <-- PENTING: Start status online
-        initLocation();
     }
 
     async function handleLogout() {
         if (!confirm('Yakin ingin keluar?')) return;
-        stopLocationTracking();
-        if (presenceInterval) clearInterval(presenceInterval);
-        
-        if (currentUserId) {
-            try {
-                await db.collection('users').doc(currentUserId).update({
-                    currentLocation: firebase.firestore.FieldValue.delete(),
-                    isOnline: false,
-                    currentSessionId: firebase.firestore.FieldValue.delete()
-                });
-                await db.collection('locations').doc(currentUserId).delete();
-            } catch (e) {}
-        }
         localStorage.removeItem('userSessionId');
         if (sessionUnsubscribe) sessionUnsubscribe();
+        
+        // Cleanup order listener
+        if (orderListenerRef) {
+            orderListenerRef.off();
+        }
+        
         await auth.signOut();
         window.location.href = 'index.html';
     }
 
     // ============================================
-    // JOB BADGE
+    // PERBAIKAN: JOB BADGE dengan tracking yang benar
     // ============================================
-    let orderInit = false;
-    let prevOrderCount = 0;
-
     function updateJobBadge(count) {
         const badge = document.getElementById('jobBadge');
         const notif = document.getElementById('jobNotifBadge');
-        if (badge) count > 0 ? (badge.textContent = count, badge.classList.remove('hidden')) : badge.classList.add('hidden');
-        if (notif) count > 0 ? (notif.textContent = count, notif.classList.remove('hidden')) : notif.classList.add('hidden');
+        
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+        if (notif) {
+            if (count > 0) {
+                notif.textContent = count;
+                notif.classList.remove('hidden');
+            } else {
+                notif.classList.add('hidden');
+            }
+        }
     }
 
+    // ============================================
+    // PERBAIKAN: Order Listener dengan child_added
+    // ============================================
     function startOrderListener() {
-        rtdb.ref('orders').on('value', (snap) => {
+        // Cleanup listener lama jika ada
+        if (orderListenerRef) {
+            orderListenerRef.off();
+        }
+        
+        orderListenerRef = rtdb.ref('orders');
+        
+        // Step 1: Load initial data dulu TANPA notifikasi
+        orderListenerRef.once('value', (snap) => {
             const data = snap.val();
-            let count = 0;
-            if (data) Object.keys(data).forEach(k => { if (data[k]?.status === 'order') count++; });
-            updateJobBadge(count);
-            if (orderInit && count > prevOrderCount) showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
-            prevOrderCount = count;
-            orderInit = true;
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    if (data[key]?.status === 'order') {
+                        shownOrderIds.add(key);
+                    }
+                });
+            }
+            
+            // Update badge dengan count initial
+            updateJobBadge(shownOrderIds.size);
+            
+            // Tandai sudah initialize
+            orderListenerInitialized = true;
+            console.log('✅ Order listener initialized, existing orders:', shownOrderIds.size);
+        }).catch(err => {
+            console.error('Error loading initial orders:', err);
+            orderListenerInitialized = true;
+        });
+        
+        // Step 2: Listen untuk item BARU saja (child_added)
+        orderListenerRef.on('child_added', (snap) => {
+            if (!orderListenerInitialized) return; // Skip saat initial load
+            
+            const data = snap.val();
+            const key = snap.key;
+            
+            // Hanya notifikasi jika:
+            // 1. Status = 'order'
+            // 2. Belum pernah di-notifikasi (tidak ada di Set)
+            if (data?.status === 'order' && !shownOrderIds.has(key)) {
+                shownOrderIds.add(key);
+                updateJobBadge(shownOrderIds.size);
+                
+                console.log('🔔 New order detected:', key);
+                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
+                
+                // Vibrate hanya untuk notifikasi baru
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
+        });
+        
+        // Step 3: Handle order yang dihapus
+        orderListenerRef.on('child_removed', (snap) => {
+            const key = snap.key;
+            if (shownOrderIds.has(key)) {
+                shownOrderIds.delete(key);
+                updateJobBadge(shownOrderIds.size);
+                console.log('🗑️ Order removed:', key);
+            }
+        });
+        
+        // Step 4: Handle perubahan status order
+        orderListenerRef.on('child_changed', (snap) => {
+            const data = snap.val();
+            const key = snap.key;
+            
+            // Jika status berubah dari 'order' ke status lain
+            if (data?.status !== 'order' && shownOrderIds.has(key)) {
+                shownOrderIds.delete(key);
+                updateJobBadge(shownOrderIds.size);
+                console.log('📝 Order status changed:', key, '->', data?.status);
+            }
+            // Jika status berubah MENJADI 'order' (jarang terjadi, tapi just in case)
+            else if (data?.status === 'order' && !shownOrderIds.has(key) && orderListenerInitialized) {
+                shownOrderIds.add(key);
+                updateJobBadge(shownOrderIds.size);
+                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
         });
     }
 
     // ============================================
-    // VISIBILITY & CLEANUP
+    // PERBAIKAN: FCM dengan debounce & deduplication
     // ============================================
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            updateOnlineStatus(); // Update status saat kembali
-            if (currentUserId && navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(handleLocationSuccess, handleLocationError, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+    async function initFCM() {
+        try {
+            if (!('Notification' in window)) {
+                console.log('Browser tidak mendukung notifikasi');
+                return;
+            }
+            
+            messaging = firebase.messaging();
+            
+            let permission = Notification.permission;
+            if (permission === 'default') {
+                // Jangan tampilkan toast permintaan notifikasi
+                permission = await Notification.requestPermission();
+            }
+            
+            if (permission !== 'granted') {
+                console.log('Notifikasi ditolak');
+                return;
+            }
+            
+            console.log('✅ Notifikasi diizinkan');
+            
+            // VAPID Key (hanya satu deklarasi)
+            const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
+            
+            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+            
+            if (token) {
+                console.log('✅ FCM Token:', token.substring(0, 30) + '...');
+                const user = auth.currentUser;
+                if (user) {
+                    await db.collection('users').doc(user.uid).set({
+                        fcmToken: token,
+                        fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                }
+            }
+            
+            // Track notifikasi yang sudah ditampilkan untuk deduplication
+            let lastFCMNotifTime = 0;
+            let lastFCMNotifBody = '';
+            
+            // Foreground message handler
+            messaging.onMessage((payload) => {
+                console.log('📬 FCM Foreground:', payload);
+                
+                const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
+                const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
+                
+                // Deduplication: skip jika body sama dalam 5 detik terakhir
+                const now = Date.now();
+                if (body === lastFCMNotifBody && (now - lastFCMNotifTime) < 5000) {
+                    console.log('⚠️ FCM duplicate, skipped');
+                    return;
+                }
+                lastFCMNotifTime = now;
+                lastFCMNotifBody = body;
+                
+                // Cek apakah ini notifikasi job
+                // Jika ya, skip karena sudah dihandle oleh orderListener
+                const bodyLower = body.toLowerCase();
+                if (bodyLower.includes('job') || bodyLower.includes('lowongan') || bodyLower.includes('kerja')) {
+                    console.log('⚠️ Job notification handled by orderListener, skipping FCM toast');
+                    return;
+                }
+                
+                // Tampilkan toast untuk notifikasi non-job
+                showToast('info', title, body);
+                
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ FCM Error:', error.message);
+        }
+    }
+
+    // ============================================
+    // SERVICE WORKER REGISTRATION
+    // ============================================
+    async function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const swUrl = '/leong.github.io/firebase-messaging-sw.js';
+                const registration = await navigator.serviceWorker.register(swUrl, {
+                    scope: '/leong.github.io/'
+                });
+                console.log('✅ SW Registered:', registration.scope);
+                await navigator.serviceWorker.ready;
+                return registration;
+            } catch (error) {
+                console.error('❌ SW Error:', error.message);
+                return null;
             }
         }
-    });
-
-    window.addEventListener('beforeunload', () => {
-        setOfflineStatus(); // Set offline saat tutup browser
-        stopLocationTracking();
-    });
+    }
 
     // ============================================
     // AUTH LISTENER
@@ -822,11 +778,10 @@
         
         try {
             const doc = await db.collection('users').doc(user.uid).get();
-            
-            if (!doc.exists) {
-                console.warn('User document not found, using defaults');
-                showUserData({ nama: user.email || 'User' });
-                return;
+            if (!doc.exists) { 
+                await auth.signOut(); 
+                window.location.href = 'index.html'; 
+                return; 
             }
             
             const data = doc.data();
@@ -847,21 +802,22 @@
             
         } catch (e) {
             console.error('Auth error:', e);
-            document.getElementById('loadingContainer').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            showToast('error', 'Error', 'Gagal memuat data, coba refresh halaman');
+            showToast('error', 'Error', 'Gagal memuat data');
         }
     });
 
-    async function registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            try {
-                await navigator.serviceWorker.register('/leong.github.io/firebase-messaging-sw.js', { scope: '/leong.github.io/' });
-            } catch (error) { console.log('SW registration failed'); }
+    // ============================================
+    // CLEANUP on page unload
+    // ============================================
+    window.addEventListener('beforeunload', () => {
+        if (orderListenerRef) {
+            orderListenerRef.off();
         }
-    }
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+        }
+    });
 </script>
 
 </body>
 </html>
-
