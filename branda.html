@@ -1,184 +1,869 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BGT-PRO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Setup untuk GitHub Pages -->
+    <link rel="manifest" href="/leong.github.io/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BGT-PRO">
+    <link rel="apple-touch-icon" href="/leong.github.io/512B.png">
+    
+    <title>BGT-PRO - Portal Anggota</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        }
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#6366f1">
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow-x: hidden; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%); 
+            color: var(--dark); 
+            min-height: 100dvh; 
+        }
 
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
 
-<style>
-body {
-    margin:0;
-    font-family: Arial, sans-serif;
-    background:#f5f5f5;
-}
+        .app-container { width: 100%; min-height: 100dvh; padding-bottom: 90px; overflow-y: auto; padding-top: 60px; }
 
-#map {
-    height: 100vh;
-}
+        /* Header */
+        .header { 
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 100; 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); 
+            padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .header-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,0,0,0.1); }
+        .header-name { font-size: 0.9rem; font-weight: 600; }
+        .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .notif-btn { 
+            width: 38px; height: 38px; background: transparent; border: none; 
+            border-radius: 10px; color: var(--dark); font-size: 1.1rem; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; text-decoration: none; 
+            position: relative;
+        }
+        .notif-badge { 
+            position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; 
+            background: var(--danger); border-radius: 50%; font-size: 0.6rem; 
+            font-weight: 700; display: flex; align-items: center; justify-content: center; color: white; 
+        }
+        .notif-badge.hidden { display: none; }
 
-.status-box {
-    position: fixed;
-    bottom:20px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#6366f1;
-    color:white;
-    padding:10px 20px;
-    border-radius:20px;
-    font-size:14px;
-}
-</style>
+        /* Section */
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin: 12px 0; }
+        .section-title { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .section-title i { color: var(--primary); }
+        .section-link { font-size: 0.8rem; color: var(--primary); text-decoration: none; font-weight: 500; }
+
+        /* Feature Grid */
+        .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 16px 20px; }
+        .feature-item { display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+        .feature-icon { width: 55px; height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+        .feature-item:active .feature-icon { transform: scale(0.9); }
+        .feature-label { font-size: 0.7rem; color: var(--gray); text-align: center; font-weight: 500; }
+
+        /* Promo Slider */
+        .promo-slider-wrapper { margin: 16px 0; overflow: hidden; }
+        .promo-slider { display: flex; gap: 12px; padding: 0 16px; animation: autoScroll 20s linear infinite; }
+        .promo-slider:hover { animation-play-state: paused; }
+        @keyframes autoScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .promo-card { 
+            min-width: 280px; height: 160px; border-radius: 18px; padding: 16px; 
+            position: relative; overflow: hidden; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .promo-card.promo-1 { background: linear-gradient(135deg, #cffafe 0%, #e0f2fe 100%); }
+        .promo-card.promo-2 { background: linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%); }
+        .promo-card.promo-3 { background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%); }
+        .promo-card.promo-4 { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); }
+        .promo-image { position: absolute; right: 12px; bottom: 12px; width: 85px; height: 85px; border-radius: 12px; object-fit: cover; border: 2px solid #fff; }
+        .promo-badge { display: inline-block; background: var(--primary); color: white; padding: 3px 10px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; margin-bottom: 8px; }
+        .promo-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; max-width: 160px; }
+        .promo-desc { font-size: 0.8rem; color: var(--gray); max-width: 150px; }
+
+        /* Kopdar List */
+        .kopdar-list { margin: 0 16px 20px; }
+        .kopdar-card { 
+            background: rgba(255, 255, 255, 0.9); border-radius: 16px; padding: 12px; 
+            margin-bottom: 10px; display: flex; gap: 12px; border: 1px solid rgba(0,0,0,0.05); 
+            text-decoration: none; color: inherit; box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        }
+        .kopdar-card:active { transform: scale(0.99); }
+        .kopdar-image { width: 75px; height: 75px; border-radius: 10px; object-fit: cover; }
+        .kopdar-info { flex: 1; }
+        .kopdar-title { font-weight: 600; margin-bottom: 4px; font-size: 0.95rem; }
+        .kopdar-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+        .kopdar-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--gray); }
+        .kopdar-meta i { font-size: 0.7rem; color: var(--primary); }
+        .kopdar-badge { display: inline-block; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 3px 8px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
+        .kopdar-badge.soon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .kopdar-badge.open { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+
+        /* Bottom Nav */
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+            display: flex; align-items: center; justify-content: space-around;
+            border-top: 1px solid rgba(0,0,0,0.05); box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100; height: 70px; padding: 0 5px;
+        }
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; gap: 3px; width: 20%; height: 100%; 
+            color: var(--gray); text-decoration: none; 
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item span { font-size: 0.6rem; font-weight: 500; }
+        
+        .nav-job { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 20%; height: 100%; padding-bottom: 5px; text-decoration: none; }
+        .nav-job-logo { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .nav-job-logo img { width: 45px; height: 45px; object-fit: contain; }
+        .nav-job-text { font-size: 0.6rem; font-weight: 700; color: var(--primary); text-transform: uppercase; }
+        .job-badge { 
+            position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; 
+            background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; 
+            font-size: 0.65rem; font-weight: 700; color: white; 
+            display: flex; align-items: center; justify-content: center; 
+            border: 2px solid #fff; 
+        }
+        .job-badge.hidden { display: none; }
+
+        /* Side Menu */
+        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .side-menu-overlay.active { opacity: 1; visibility: visible; }
+        .side-menu { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #fff; z-index: 201; transition: left 0.3s; overflow-y: auto; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
+        .side-menu.active { left: 0; }
+        .menu-header { padding: 25px 18px; background: var(--gradient-primary); position: relative; }
+        .menu-profile { display: flex; align-items: center; gap: 12px; }
+        .menu-avatar { width: 55px; height: 55px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); object-fit: cover; }
+        .menu-name { font-weight: 700; font-size: 1rem; color: white; }
+        .menu-title { font-size: 0.8rem; color: rgba(255,255,255,0.9); }
+        .menu-close { position: absolute; top: 15px; right: 12px; width: 32px; height: 32px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: white; font-size: 0.9rem; cursor: pointer; }
+        .menu-items { padding: 15px 0; }
+        .menu-section { padding: 10px 18px; font-size: 0.7rem; color: var(--gray); text-transform: uppercase; font-weight: 600; }
+        .menu-link { display: flex; align-items: center; gap: 12px; padding: 12px 18px; color: var(--dark); text-decoration: none; }
+        .menu-link i { width: 18px; color: var(--primary); }
+        .menu-link span { flex: 1; font-size: 0.9rem; }
+
+        /* Toast */
+        .toast-container { position: fixed; top: 70px; right: 12px; left: 12px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { background: #fff; border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; animation: slideIn 0.3s; box-shadow: 0 10px 15px rgba(0,0,0,0.1); pointer-events: auto; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast.hiding { animation: slideOut 0.3s forwards; }
+        @keyframes slideOut { to { transform: translateY(-20px); opacity: 0; } }
+        .toast-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .toast-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .toast-icon.info { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+        .toast-icon.error { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 600; font-size: 0.85rem; }
+        .toast-message { font-size: 0.75rem; color: var(--gray); }
+        .toast-close { background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px; }
+
+        /* Session Kick */
+        .session-kick-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98); z-index: 99999; display: none; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
+        .session-kick-overlay.active { display: flex; }
+        .kick-icon { width: 100px; height: 100px; background: linear-gradient(135deg, #f59e0b, #e67e22); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 0 40px rgba(245, 158, 11, 0.4); }
+        .kick-icon i { font-size: 3rem; color: #fff; }
+        .kick-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 1rem; text-align: center; }
+        .kick-message { font-size: 0.95rem; color: rgba(255, 255, 255, 0.8); text-align: center; max-width: 300px; margin-bottom: 1.5rem; }
+        .kick-device-info { background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; }
+        .kick-device-info p { color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin: 0.3rem 0; }
+        .kick-device-info strong { color: #f59e0b; }
+        .btn-kick-ok { padding: 0.9rem 2.5rem; background: linear-gradient(135deg, #f59e0b, #e67e22); color: white; border: none; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4); }
+
+        /* Loading */
+        .loading-container { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; gap: 16px; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Skeleton */
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton-card { min-width: 280px; height: 160px; border-radius: 18px; }
+        .skeleton-kopdar { height: 99px; border-radius: 16px; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
 
-<div id="map"></div>
-<div class="status-box" id="status">Memulai sistem...</div>
+<div class="toast-container" id="toastContainer"></div>
 
-<!-- Firebase -->
+<!-- Session Kick Overlay -->
+<div id="sessionKickOverlay" class="session-kick-overlay">
+    <div class="kick-icon"><i class="fas fa-sign-out-alt"></i></div>
+    <h2 class="kick-title">SESI ANDA BERAKHIR</h2>
+    <p class="kick-message">Akun Anda telah login di perangkat lain.</p>
+    <div class="kick-device-info">
+        <p><i class="fas fa-mobile-alt"></i> <strong>Login Baru Terdeteksi</strong></p>
+        <p id="kickDeviceInfo">Perangkat lain</p>
+    </div>
+    <button class="btn-kick-ok" onclick="handleSessionKick()"><i class="fas fa-check"></i> Mengerti</button>
+</div>
+
+<!-- Loading -->
+<div class="loading-container" id="loadingContainer">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Memuat data...</div>
+</div>
+
+<!-- Side Menu -->
+<div class="side-menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<div class="side-menu" id="sideMenu">
+    <div class="menu-header">
+        <button class="menu-close" onclick="closeMenu()"><i class="fas fa-times"></i></button>
+        <div class="menu-profile">
+            <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff" alt="Avatar" class="menu-avatar" id="menuAvatar">
+            <div>
+                <div class="menu-name" id="menuName">Loading...</div>
+                <div class="menu-title" id="menuTitle">-</div>
+            </div>
+        </div>
+    </div>
+    <div class="menu-items">
+        <div class="menu-section">Menu Utama</div>
+        <a class="menu-link" href="branda.html"><i class="fas fa-home"></i><span>Beranda</span></a>
+        <a class="menu-link" href="profil.html"><i class="fas fa-user"></i><span>Profil Saya</span></a>
+        <a class="menu-link" href="map.html"><i class="fas fa-map-marked-alt"></i><span>Peta Anggota</span></a>
+        <a class="menu-link" href="kopdar.html"><i class="fas fa-calendar-alt"></i><span>Jadwal Kopdar</span></a>
+        <a class="menu-link" href="promo.html"><i class="fas fa-tags"></i><span>Promo & Diskon</span></a>
+        <a class="menu-link" href="anggota.html"><i class="fas fa-users"></i><span>Daftar Anggota</span></a>
+        <div class="menu-section">Layanan</div>
+        <a class="menu-link" href="pesan.html"><i class="fas fa-envelope"></i><span>Pesan</span></a>
+        <a class="menu-link" href="kas.html"><i class="fas fa-wallet"></i><span>Kas & Keuangan</span></a>
+        <a class="menu-link" href="jopbgtpro.html"><i class="fas fa-briefcase"></i><span>Lowongan Kerja</span></a>
+        <a class="menu-link" href="riwayat.html"><i class="fas fa-history"></i><span>Riwayat</span></a>
+        <div class="menu-section">Lainnya</div>
+        <a class="menu-link" href="pengaturan.html"><i class="fas fa-cog"></i><span>Pengaturan</span></a>
+        <a class="menu-link" href="bantuan.html"><i class="fas fa-question-circle"></i><span>Bantuan</span></a>
+        <a class="menu-link" onclick="handleLogout()" style="color: var(--danger);"><i class="fas fa-sign-out-alt" style="color: var(--danger);"></i><span>Keluar</span></a>
+    </div>
+</div>
+
+<!-- Main App -->
+<div class="app-container" id="mainApp" style="display: none;">
+
+    <header class="header">
+        <div class="header-left">
+            <div class="header-profile" onclick="window.location.href='profil.html'">
+                <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff" alt="Avatar" class="header-avatar" id="headerAvatar">
+                <div class="header-user-info">
+                    <div class="header-name" id="headerName">Loading...</div>
+                    <div class="header-status"><span class="status-dot"></span><span id="headerStatusText">Online</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <a href="bantuan.html" class="notif-btn"><i class="fas fa-headset"></i></a>
+            <button class="notif-btn" onclick="window.location.href='pesan.html'">
+                <i class="fas fa-bell"></i>
+                <span class="notif-badge hidden" id="notifBadge">0</span>
+            </button>
+            <button class="notif-btn" onclick="window.location.href='jopbgtpro.html'">
+                <i class="fas fa-briefcase"></i>
+                <span class="notif-badge hidden" id="jobNotifBadge">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Promo Slider -->
+    <div class="promo-slider-wrapper">
+        <div class="promo-slider" id="promoSliderHome">
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-card"></div>
+        </div>
+    </div>
+
+    <!-- Feature Grid -->
+    <div class="feature-grid">
+        <a class="feature-item" href="kopdar.html"><div class="feature-icon" style="color: #ec4899;"><i class="fas fa-mug-hot"></i></div><span class="feature-label">Kopdar</span></a>
+        <a class="feature-item" href="promo.html"><div class="feature-icon" style="color: #f59e0b;"><i class="fas fa-percent"></i></div><span class="feature-label">Promo</span></a>
+        <a class="feature-item" href="map.html"><div class="feature-icon" style="color: #10b981;"><i class="fas fa-map-marked-alt"></i></div><span class="feature-label">Peta</span></a>
+        <a class="feature-item" href="pesan.html"><div class="feature-icon" style="color: #3b82f6;"><i class="fas fa-comments"></i></div><span class="feature-label">Pesan</span></a>
+        <a class="feature-item" href="riwayat.html"><div class="feature-icon" style="color: #f97316;"><i class="fas fa-history"></i></div><span class="feature-label">Riwayat</span></a>
+        <a class="feature-item" href="kas.html"><div class="feature-icon" style="color: #eab308;"><i class="fas fa-wallet"></i></div><span class="feature-label">Kas</span></a>
+        <a class="feature-item" href="anggota.html"><div class="feature-icon" style="color: #0ea5e9;"><i class="fas fa-users"></i></div><span class="feature-label">Anggota</span></a>
+    </div>
+
+    <!-- Kopdar Section -->
+    <div class="section-header">
+        <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Kopdar Mendatang</h3>
+        <a class="section-link" href="kopdar.html">Lihat Semua</a>
+    </div>
+    <div class="kopdar-list" id="kopdarListHome">
+        <div class="skeleton skeleton-kopdar"></div>
+        <div class="skeleton skeleton-kopdar"></div>
+    </div>
+
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+    <a class="nav-item active" href="branda.html"><i class="fas fa-home"></i><span>Beranda</span></a>
+    <a class="nav-item" href="kopdar.html"><i class="fas fa-calendar-alt"></i><span>Kopdar</span></a>
+    <a class="nav-job" href="jopbgtpro.html">
+        <div class="nav-job-logo">
+            <img src="/leong.github.io/512B.png" alt="Job BGT" onerror="this.src='https://ui-avatars.com/api/?name=BGT&background=6366f1&color=fff&size=100'">
+            <span class="job-badge hidden" id="jobBadge">0</span>
+        </div>
+        <span class="nav-job-text">Job BGT</span>
+    </a>
+    <a class="nav-item" href="promo.html"><i class="fas fa-tags"></i><span>Promo</span></a>
+    <a class="nav-item" href="profil.html"><i class="fas fa-user"></i><span>Profil</span></a>
+</nav>
+
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-// ================================
-// 🔥 FIREBASE CONFIG
-// ================================
-const firebaseConfig = {
-    apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
-    authDomain: "cedar-setup-425414-d7.firebaseapp.com",
-    databaseURL: "https://cedar-setup-425414-d7-default-rtdb.firebaseio.com",
-    projectId: "cedar-setup-425414-d7",
-    storageBucket: "cedar-setup-425414-d7.appspot.com",
-    messagingSenderId: "723545991983",
-    appId: "1:723545991983:web:379548d2b425a502a60fda"
-};
+    // ============================================
+    // FIREBASE CONFIG
+    // ============================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
+        authDomain: "cedar-setup-425414-d7.firebaseapp.com",
+        databaseURL: "https://cedar-setup-425414-d7-default-rtdb.firebaseio.com",
+        projectId: "cedar-setup-425414-d7",
+        storageBucket: "cedar-setup-425414-d7.firebasestorage.app",
+        messagingSenderId: "723545991983",
+        appId: "1:723545991983:web:379548d2b425a502a60fda"
+    };
 
-firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const rtdb = firebase.database();
 
-const database = firebase.database();
-const messaging = firebase.messaging();
+    // ============================================
+    // STATE
+    // ============================================
+    let sessionUnsubscribe = null;
+    let currentUserId = null;
+    let localSessionId = null;
+    let messaging = null;
+    
+    // Tambahan State untuk Tracking Lokasi
+    let locationWatchId = null;
 
-// ================================
-// 🗺 MAP INIT
-// ================================
-const map = L.map('map').setView([-8.65,115.216], 13);
+    // ============================================
+    // PERBAIKAN: Tracking untuk notifikasi
+    // ============================================
+    let orderListenerRef = null;           // Reference untuk cleanup
+    let shownOrderIds = new Set();         // Track order yang sudah dinotifikasi
+    let orderListenerInitialized = false;  // Flag untuk initial load
+    let lastNotifTime = 0;                 // Timestamp notifikasi terakhir
+    const NOTIF_COOLDOWN = 3000;           // 3 detik cooldown antar notifikasi
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap'
-}).addTo(map);
+    // Fallback Data
+    const fallbackPromoData = [
+        { id: 1, title: 'Kopdar Bulanan', desc: 'Diskon 20% untuk anggota!', badge: 'HOT', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', gradient: 'promo-1' },
+        { id: 2, title: 'Member Premium', desc: 'Fitur eksklusif!', badge: 'NEW', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', gradient: 'promo-2' },
+        { id: 3, title: 'Tour Bareng', desc: 'Jalan-jalan bersama!', badge: 'EVENT', image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400', gradient: 'promo-3' }
+    ];
 
-let myMarker;
-let anggotaMarkers = {};
+    const fallbackKopdarData = [
+        { id: 1, title: 'Kopdar Bulanan', date: '25 Jan 2025', time: '18:00', location: 'Sanur', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', status: 'soon' },
+        { id: 2, title: 'Makan Malam', date: '01 Feb 2025', time: '19:00', location: 'Jimbaran', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', status: 'open' }
+    ];
 
-// ================================
-// 📍 REALTIME LOCATION TRACKING
-// ================================
-function startTracking() {
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function safeGetItem(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+    function safeSetItem(key, val) { try { localStorage.setItem(key, val); return true; } catch (e) { return false; } }
 
-    if (!navigator.geolocation) {
-        alert("Geolocation tidak didukung");
-        return;
+    function closeMenu() {
+        document.getElementById('sideMenu').classList.remove('active');
+        document.getElementById('menuOverlay').classList.remove('active');
     }
 
-    document.getElementById("status").innerText = "Tracking aktif...";
-
-    navigator.geolocation.watchPosition(position => {
-
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        const userId = "driver_" + Math.floor(Math.random()*9999);
-
-        database.ref("drivers/" + userId).set({
-            lat: lat,
-            lng: lng,
-            timestamp: Date.now()
-        });
-
-        if (!myMarker) {
-            myMarker = L.marker([lat,lng]).addTo(map)
-                .bindPopup("Saya");
-        } else {
-            myMarker.setLatLng([lat,lng]);
+    // ============================================
+    // PERBAIKAN: Toast dengan debounce
+    // ============================================
+    function showToast(type, title, message) {
+        const now = Date.now();
+        if (now - lastNotifTime < NOTIF_COOLDOWN) {
+            console.log('⚠️ Toast di-skip (cooldown)');
+            return;
         }
+        lastNotifTime = now;
 
-    }, error => {
-        console.error(error);
-        alert("Izin lokasi ditolak!");
-    },{
-        enableHighAccuracy:true,
-        maximumAge:0,
-        timeout:5000
+        const container = document.getElementById('toastContainer');
+        const icons = { success: 'fa-check', info: 'fa-info', error: 'fa-times', warning: 'fa-exclamation' };
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <div class="toast-icon ${type}"><i class="fas ${icons[type]}"></i></div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+
+    // ============================================
+    // SESSION MONITOR
+    // ============================================
+    function showSessionKick(deviceInfo) {
+        document.getElementById('kickDeviceInfo').textContent = deviceInfo || 'Perangkat lain';
+        document.getElementById('sessionKickOverlay').classList.add('active');
+    }
+
+    function handleSessionKick() {
+        localStorage.clear();
+        if (sessionUnsubscribe) sessionUnsubscribe();
+        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId); // Stop tracking jika di-kick
+        auth.signOut().then(() => window.location.href = 'index.html').catch(() => window.location.href = 'index.html');
+    }
+
+    function startSessionMonitor(userId) {
+        currentUserId = userId;
+        localSessionId = safeGetItem('userSessionId');
+        if (!localSessionId) { handleSessionKick(); return; }
+        if (sessionUnsubscribe) sessionUnsubscribe();
+        sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
+            (doc) => {
+                if (!doc.exists) { handleSessionKick(); return; }
+                const data = doc.data();
+                if (data.currentSessionId && data.currentSessionId !== localSessionId) {
+                    if (sessionUnsubscribe) sessionUnsubscribe();
+                    showSessionKick(data.currentDevice || 'Perangkat lain');
+                }
+            },
+            (err) => console.error('Session error:', err)
+        );
+    }
+
+    // ============================================
+    // DATA LOADING
+    // ============================================
+    async function loadPromoData() {
+        const slider = document.getElementById('promoSliderHome');
+        try {
+            const snap = await db.collection('promos').where('active', '==', true).limit(5).get();
+            let promos = []; snap.forEach(d => promos.push({ id: d.id, ...d.data() }));
+            if (!promos.length) throw new Error('No promos');
+            renderPromos(promos);
+        } catch (e) {
+            console.log('Using fallback promos');
+            renderPromos(fallbackPromoData);
+        }
+    }
+
+    function renderPromos(promos) {
+        const slider = document.getElementById('promoSliderHome');
+        const all = [...promos, ...promos];
+        const grads = ['promo-1', 'promo-2', 'promo-3', 'promo-4'];
+        slider.innerHTML = all.map((p, i) => `
+            <div class="promo-card ${p.gradient || grads[i % 4]}" onclick="location.href='promo.html'">
+                <span class="promo-badge">${p.badge || 'PROMO'}</span>
+                <h4 class="promo-title">${p.title}</h4>
+                <p class="promo-desc">${p.desc || ''}</p>
+                <img src="${p.image}" alt="${p.title}" class="promo-image" loading="lazy" onerror="this.style.display='none'">
+            </div>
+        `).join('');
+    }
+
+    async function loadKopdarData() {
+        const container = document.getElementById('kopdarListHome');
+        try {
+            const snap = await db.collection('kopdar').where('status', 'in', ['soon', 'open']).limit(3).get();
+            let data = []; snap.forEach(d => data.push({ id: d.id, ...d.data() }));
+            if (!data.length) throw new Error('No kopdar');
+            renderKopdar(data);
+        } catch (e) {
+            console.log('Using fallback kopdar');
+            renderKopdar(fallbackKopdarData);
+        }
+    }
+
+    function renderKopdar(data) {
+        const container = document.getElementById('kopdarListHome');
+        container.innerHTML = data.map(k => `
+            <a class="kopdar-card" href="kopdar.html">
+                <img src="${k.image}" alt="${k.title}" class="kopdar-image" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=K&background=6366f1&color=fff'">
+                <div class="kopdar-info">
+                    <h4 class="kopdar-title">${k.title}</h4>
+                    <div class="kopdar-meta">
+                        <span><i class="fas fa-calendar"></i> ${k.date}</span>
+                        <span><i class="fas fa-clock"></i> ${k.time || ''}</span>
+                    </div>
+                    <span class="kopdar-badge ${k.status}">${k.status === 'soon' ? 'Coming Soon' : 'Open'}</span>
+                </div>
+            </a>
+        `).join('');
+    }
+
+    // ============================================
+    // SHOW USER DATA
+    // ============================================
+    function showUserData(data) {
+        let pic = data.profilePicUrl || data.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nama || 'U')}&background=6366f1&color=fff`;
+        const name = data.nama || 'User';
+        
+        document.getElementById('headerAvatar').src = pic;
+        document.getElementById('headerName').textContent = name;
+        document.getElementById('menuAvatar').src = pic;
+        document.getElementById('menuName').textContent = name;
+        document.getElementById('menuTitle').textContent = data.titel || 'ANGGOTA';
+        
+        loadPromoData();
+        loadKopdarData();
+        
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+    }
+
+    async function handleLogout() {
+        if (!confirm('Yakin ingin keluar?')) return;
+        localStorage.removeItem('userSessionId');
+        if (sessionUnsubscribe) sessionUnsubscribe();
+        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId); // Stop tracking
+        
+        // Cleanup order listener
+        if (orderListenerRef) {
+            orderListenerRef.off();
+        }
+        
+        await auth.signOut();
+        window.location.href = 'index.html';
+    }
+
+    // ============================================
+    // PERBAIKAN: JOB BADGE dengan tracking yang benar
+    // ============================================
+    function updateJobBadge(count) {
+        const badge = document.getElementById('jobBadge');
+        const notif = document.getElementById('jobNotifBadge');
+        
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+        if (notif) {
+            if (count > 0) {
+                notif.textContent = count;
+                notif.classList.remove('hidden');
+            } else {
+                notif.classList.add('hidden');
+            }
+        }
+    }
+
+    // ============================================
+    // PERBAIKAN: Order Listener dengan child_added
+    // ============================================
+    function startOrderListener() {
+        // Cleanup listener lama jika ada
+        if (orderListenerRef) {
+            orderListenerRef.off();
+        }
+        
+        orderListenerRef = rtdb.ref('orders');
+        
+        // Step 1: Load initial data dulu TANPA notifikasi
+        orderListenerRef.once('value', (snap) => {
+            const data = snap.val();
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    if (data[key]?.status === 'order') {
+                        shownOrderIds.add(key);
+                    }
+                });
+            }
+            
+            // Update badge dengan count initial
+            updateJobBadge(shownOrderIds.size);
+            
+            // Tandai sudah initialize
+            orderListenerInitialized = true;
+            console.log('✅ Order listener initialized, existing orders:', shownOrderIds.size);
+        }).catch(err => {
+            console.error('Error loading initial orders:', err);
+            orderListenerInitialized = true;
+        });
+        
+        // Step 2: Listen untuk item BARU saja (child_added)
+        orderListenerRef.on('child_added', (snap) => {
+            if (!orderListenerInitialized) return; // Skip saat initial load
+            
+            const data = snap.val();
+            const key = snap.key;
+            
+            // Hanya notifikasi jika:
+            // 1. Status = 'order'
+            // 2. Belum pernah di-notifikasi (tidak ada di Set)
+            if (data?.status === 'order' && !shownOrderIds.has(key)) {
+                shownOrderIds.add(key);
+                updateJobBadge(shownOrderIds.size);
+                
+                console.log('🔔 New order detected:', key);
+                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
+                
+                // Vibrate hanya untuk notifikasi baru
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
+        });
+        
+        // Step 3: Handle order yang dihapus
+        orderListenerRef.on('child_removed', (snap) => {
+            const key = snap.key;
+            if (shownOrderIds.has(key)) {
+                shownOrderIds.delete(key);
+                updateJobBadge(shownOrderIds.size);
+                console.log('🗑️ Order removed:', key);
+            }
+        });
+        
+        // Step 4: Handle perubahan status order
+        orderListenerRef.on('child_changed', (snap) => {
+            const data = snap.val();
+            const key = snap.key;
+            
+            // Jika status berubah dari 'order' ke status lain
+            if (data?.status !== 'order' && shownOrderIds.has(key)) {
+                shownOrderIds.delete(key);
+                updateJobBadge(shownOrderIds.size);
+                console.log('📝 Order status changed:', key, '->', data?.status);
+            }
+            // Jika status berubah MENJADI 'order' (jarang terjadi, tapi just in case)
+            else if (data?.status === 'order' && !shownOrderIds.has(key) && orderListenerInitialized) {
+                shownOrderIds.add(key);
+                updateJobBadge(shownOrderIds.size);
+                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
+        });
+    }
+
+    // ============================================
+    // PERBAIKAN: FCM dengan debounce & deduplication
+    // ============================================
+    async function initFCM() {
+        try {
+            if (!('Notification' in window)) {
+                console.log('Browser tidak mendukung notifikasi');
+                return;
+            }
+            
+            messaging = firebase.messaging();
+            
+            let permission = Notification.permission;
+            if (permission === 'default') {
+                // Jangan tampilkan toast permintaan notifikasi
+                permission = await Notification.requestPermission();
+            }
+            
+            if (permission !== 'granted') {
+                console.log('Notifikasi ditolak');
+                return;
+            }
+            
+            console.log('✅ Notifikasi diizinkan');
+            
+            // VAPID Key (hanya satu deklarasi)
+            const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
+            
+            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+            
+            if (token) {
+                console.log('✅ FCM Token:', token.substring(0, 30) + '...');
+                const user = auth.currentUser;
+                if (user) {
+                    await db.collection('users').doc(user.uid).set({
+                        fcmToken: token,
+                        fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                }
+            }
+            
+            // Track notifikasi yang sudah ditampilkan untuk deduplication
+            let lastFCMNotifTime = 0;
+            let lastFCMNotifBody = '';
+            
+            // Foreground message handler
+            messaging.onMessage((payload) => {
+                console.log('📬 FCM Foreground:', payload);
+                
+                const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
+                const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
+                
+                // Deduplication: skip jika body sama dalam 5 detik terakhir
+                const now = Date.now();
+                if (body === lastFCMNotifBody && (now - lastFCMNotifTime) < 5000) {
+                    console.log('⚠️ FCM duplicate, skipped');
+                    return;
+                }
+                lastFCMNotifTime = now;
+                lastFCMNotifBody = body;
+                
+                // Cek apakah ini notifikasi job
+                // Jika ya, skip karena sudah dihandle oleh orderListener
+                const bodyLower = body.toLowerCase();
+                if (bodyLower.includes('job') || bodyLower.includes('lowongan') || bodyLower.includes('kerja')) {
+                    console.log('⚠️ Job notification handled by orderListener, skipping FCM toast');
+                    return;
+                }
+                
+                // Tampilkan toast untuk notifikasi non-job
+                showToast('info', title, body);
+                
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ FCM Error:', error.message);
+        }
+    }
+
+    // ============================================
+    // SERVICE WORKER REGISTRATION
+    // ============================================
+    async function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const swUrl = '/leong.github.io/firebase-messaging-sw.js';
+                const registration = await navigator.serviceWorker.register(swUrl, {
+                    scope: '/leong.github.io/'
+                });
+                console.log('✅ SW Registered:', registration.scope);
+                await navigator.serviceWorker.ready;
+                return registration;
+            } catch (error) {
+                console.error('❌ SW Error:', error.message);
+                return null;
+            }
+        }
+    }
+
+    // ============================================
+    // PENAMBAHAN: AUTO TRACKING LOKASI
+    // ============================================
+    function startBackgroundLocationTracking(uid) {
+        if (!navigator.geolocation) return;
+        if (locationWatchId !== null) return; // Sudah jalan
+
+        console.log("📍 Memulai Auto Tracking di Branda...");
+
+        // Opsi hemat baterai
+        const options = {
+            enableHighAccuracy: false, // False di branda agar hemat baterai
+            timeout: 60000,
+            maximumAge: 0
+        };
+
+        locationWatchId = navigator.geolocation.watchPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const acc = position.coords.accuracy;
+
+                // Kirim ke Firebase
+                db.collection('users').doc(uid).update({
+                    latitude: lat,
+                    longitude: lng,
+                    accuracy: acc,
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                    currentSessionId: localSessionId // Kirim session ID bersama lokasi
+                }).catch(e => console.log("Loc update error", e));
+            },
+            (error) => {
+                console.log("Branda Loc Error:", error.message);
+            },
+            options
+        );
+    }
+
+    // ============================================
+    // AUTH LISTENER
+    // ============================================
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) { 
+            window.location.href = 'index.html'; 
+            return; 
+        }
+        
+        try {
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (!doc.exists) { 
+                await auth.signOut(); 
+                window.location.href = 'index.html'; 
+                return; 
+            }
+            
+            const data = doc.data();
+            const sessId = safeGetItem('userSessionId');
+            
+            if (data.currentSessionId && sessId && data.currentSessionId !== sessId) {
+                localStorage.removeItem('userSessionId');
+                await auth.signOut();
+                showSessionKick(data.currentDevice || 'Perangkat lain');
+                return;
+            }
+            
+            startSessionMonitor(user.uid);
+            showUserData(data);
+            initFCM();
+            registerServiceWorker();
+            startOrderListener();
+            
+            // PANGGIL FUNGSI TRACKING BARU
+            startBackgroundLocationTracking(user.uid);
+            
+        } catch (e) {
+            console.error('Auth error:', e);
+            showToast('error', 'Error', 'Gagal memuat data');
+        }
     });
-}
 
-// ================================
-// 🟢 TAMPILKAN SEMUA ANGGOTA
-// ================================
-database.ref("drivers").on("value", snapshot => {
-
-    const data = snapshot.val();
-    if (!data) return;
-
-    for (let id in data) {
-
-        const driver = data[id];
-
-        if (!anggotaMarkers[id]) {
-            anggotaMarkers[id] = L.marker([driver.lat, driver.lng])
-                .addTo(map)
-                .bindPopup("Anggota: " + id);
-        } else {
-            anggotaMarkers[id].setLatLng([driver.lat, driver.lng]);
+    // ============================================
+    // CLEANUP on page unload
+    // ============================================
+    window.addEventListener('beforeunload', () => {
+        if (orderListenerRef) {
+            orderListenerRef.off();
         }
-    }
-});
-
-// ================================
-// 🔔 PUSH NOTIFICATION
-// ================================
-async function initNotification() {
-
-    const permission = await Notification.requestPermission();
-
-    if (permission === "granted") {
-
-        const token = await messaging.getToken({
-            vapidKey: "BEluGantiDenganVapidKeyKamu"
-        });
-
-        console.log("FCM Token:", token);
-
-        database.ref("fcmTokens").push(token);
-
-    } else {
-        console.log("Notifikasi ditolak");
-    }
-}
-
-// ================================
-// 📱 SERVICE WORKER
-// ================================
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('firebase-messaging-sw.js')
-        .then(() => console.log("SW registered"));
-}
-
-// ================================
-// 🚀 START SYSTEM
-// ================================
-startTracking();
-initNotification();
-
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+        }
+        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
+    });
 </script>
 
 </body>
