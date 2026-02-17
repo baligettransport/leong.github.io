@@ -12,9 +12,6 @@
     <meta name="apple-mobile-web-app-title" content="BGT-PRO">
     <link rel="apple-touch-icon" href="/leong.github.io/512B.png">
     
-    <!-- Android 14 Location Permission Policy -->
-    <meta name="permissions-policy" content="geolocation=(self)">
-    
     <title>BGT-PRO - Portal Anggota</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -63,6 +60,7 @@
             width: 38px; height: 38px; background: transparent; border: none; 
             border-radius: 10px; color: var(--dark); font-size: 1.1rem; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; text-decoration: none; 
+            position: relative;
         }
         .notif-badge { 
             position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; 
@@ -120,6 +118,206 @@
         .kopdar-badge { display: inline-block; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 3px 8px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; }
         .kopdar-badge.soon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
         .kopdar-badge.open { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+
+        /* ============================================
+           LOCATION CARD STYLES - ANDROID 14 COMPATIBLE
+           ============================================ */
+        .location-section { margin: 0 16px 20px; }
+        
+        .location-card {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .location-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .location-card.loading {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        }
+        
+        .location-card.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .location-card.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .location-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+        
+        .location-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .location-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+        
+        .location-status {
+            margin-left: auto;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .location-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .location-coords {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .coord-item {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+        }
+        
+        .coord-label {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        
+        .coord-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+        
+        .location-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .detail-item i {
+            font-size: 0.7rem;
+        }
+        
+        .location-address {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .address-label {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        
+        .address-text {
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        
+        .location-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .location-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .location-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .location-btn.primary {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .location-btn.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .location-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .location-btn i {
+            font-size: 0.9rem;
+        }
+        
+        /* Skeleton loading */
+        .skeleton-location {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            height: 20px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
         /* Bottom Nav */
         .bottom-nav { 
@@ -194,6 +392,178 @@
         .kick-device-info strong { color: #f59e0b; }
         .btn-kick-ok { padding: 0.9rem 2.5rem; background: linear-gradient(135deg, #f59e0b, #e67e22); color: white; border: none; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4); }
 
+        /* ============================================
+           PERMISSION DIALOG - ANDROID 14 COMPATIBLE
+           ============================================ */
+        .permission-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .permission-overlay.active {
+            display: flex;
+        }
+        
+        .permission-dialog {
+            background: white;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 360px;
+            overflow: hidden;
+            animation: dialogIn 0.3s ease;
+        }
+        
+        @keyframes dialogIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .permission-header {
+            background: var(--gradient-primary);
+            padding: 30px 24px;
+            text-align: center;
+            color: white;
+        }
+        
+        .permission-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 2.5rem;
+        }
+        
+        .permission-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .permission-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .permission-body {
+            padding: 24px;
+        }
+        
+        .permission-steps {
+            margin-bottom: 20px;
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .step-item:last-child {
+            border-bottom: none;
+        }
+        
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .step-desc {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .permission-tip {
+            background: #fef3c7;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .permission-tip-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 6px;
+        }
+        
+        .permission-tip-text {
+            font-size: 0.75rem;
+            color: #a16207;
+        }
+        
+        .permission-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .permission-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .permission-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .permission-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .permission-btn.secondary {
+            background: #f1f5f9;
+            color: var(--dark);
+        }
+
         /* Loading */
         .loading-container { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; gap: 16px; }
         .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -204,11 +574,114 @@
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-card { min-width: 280px; height: 160px; border-radius: 18px; }
         .skeleton-kopdar { height: 99px; border-radius: 16px; margin-bottom: 10px; }
+
+        /* Device Info Banner */
+        .device-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .device-info i {
+            font-size: 0.9rem;
+        }
+        
+        .https-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .https-badge.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
     </style>
 </head>
 <body>
 
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- Permission Dialog for Android 14 -->
+<div class="permission-overlay" id="permissionOverlay">
+    <div class="permission-dialog">
+        <div class="permission-header">
+            <div class="permission-icon">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <h2 class="permission-title">Izin Lokasi Diperlukan</h2>
+            <p class="permission-subtitle">Untuk menggunakan fitur lokasi</p>
+        </div>
+        <div class="permission-body">
+            <div class="permission-steps">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Buka Pengaturan</div>
+                        <div class="step-desc">Buka aplikasi Pengaturan di perangkat Android Anda</div>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Pilih Aplikasi</div>
+                        <div class="step-desc">Cari dan pilih browser yang Anda gunakan</div>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Buka Izin</div>
+                        <div class="step-desc">Ketuk "Izin" untuk melihat daftar izin</div>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">Izinkan Lokasi</div>
+                        <div class="step-desc">Pilih "Lokasi" → "Izinkan saat digunakan"</div>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">Refresh Halaman</div>
+                        <div class="step-desc">Kembali ke browser dan refresh halaman</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="permission-tip">
+                <div class="permission-tip-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Tips untuk Android 14
+                </div>
+                <div class="permission-tip-text">
+                    Android 14 memerlukan izin eksplisit. Pastikan GPS perangkat juga aktif untuk akurasi terbaik.
+                </div>
+            </div>
+            
+            <div class="permission-actions">
+                <button class="permission-btn secondary" onclick="closePermissionDialog()">Tutup</button>
+                <button class="permission-btn primary" onclick="retryPermission()">
+                    <i class="fas fa-redo"></i> Coba Lagi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Session Kick Overlay -->
 <div id="sessionKickOverlay" class="session-kick-overlay">
@@ -264,6 +737,15 @@
 <!-- Main App -->
 <div class="app-container" id="mainApp" style="display: none;">
 
+    <!-- Device Info Banner -->
+    <div class="device-banner" id="deviceBanner">
+        <div class="device-info">
+            <i class="fas fa-mobile-alt"></i>
+            <span id="deviceInfoText">Memeriksa perangkat...</span>
+        </div>
+        <div class="https-badge" id="httpsBadge">HTTP</div>
+    </div>
+
     <header class="header">
         <div class="header-left">
             <div class="header-profile" onclick="window.location.href='profil.html'">
@@ -304,6 +786,123 @@
         <a class="feature-item" href="riwayat.html"><div class="feature-icon" style="color: #f97316;"><i class="fas fa-history"></i></div><span class="feature-label">Riwayat</span></a>
         <a class="feature-item" href="kas.html"><div class="feature-icon" style="color: #eab308;"><i class="fas fa-wallet"></i></div><span class="feature-label">Kas</span></a>
         <a class="feature-item" href="anggota.html"><div class="feature-icon" style="color: #0ea5e9;"><i class="fas fa-users"></i></div><span class="feature-label">Anggota</span></a>
+    </div>
+
+    <!-- ============================================
+         LOCATION SECTION - ANDROID 14 COMPATIBLE
+         ============================================ -->
+    <div class="section-header">
+        <h3 class="section-title"><i class="fas fa-map-marker-alt"></i> Lokasi Anda</h3>
+    </div>
+    <div class="location-section">
+        <div class="location-card" id="locationCard">
+            <div class="location-header">
+                <div class="location-icon">
+                    <i class="fas fa-location-crosshairs"></i>
+                </div>
+                <div>
+                    <div class="location-title">Lokasi Saat Ini</div>
+                    <div class="location-subtitle" id="locationSubtitle">Tekan tombol untuk mendapatkan lokasi</div>
+                </div>
+                <div class="location-status" id="locationStatus">
+                    <i class="fas fa-question"></i>
+                </div>
+            </div>
+            
+            <div class="location-content" id="locationContent">
+                <!-- Initial State -->
+                <div id="locationInitial">
+                    <div class="location-coords">
+                        <div class="coord-item">
+                            <div class="coord-label">Latitude</div>
+                            <div class="coord-value">---</div>
+                        </div>
+                        <div class="coord-item">
+                            <div class="coord-label">Longitude</div>
+                            <div class="coord-value">---</div>
+                        </div>
+                    </div>
+                    <div class="location-actions">
+                        <button class="location-btn primary" id="getLocationBtn" onclick="requestLocation()">
+                            <i class="fas fa-location-crosshairs"></i>
+                            Dapatkan Lokasi
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="locationLoading" style="display: none;">
+                    <div class="location-coords">
+                        <div class="coord-item">
+                            <div class="coord-label">Latitude</div>
+                            <div class="skeleton-location"></div>
+                        </div>
+                        <div class="coord-item">
+                            <div class="coord-label">Longitude</div>
+                            <div class="skeleton-location"></div>
+                        </div>
+                    </div>
+                    <div class="location-actions">
+                        <button class="location-btn primary" disabled>
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Memuat...
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Success State -->
+                <div id="locationSuccess" style="display: none;">
+                    <div class="location-coords">
+                        <div class="coord-item">
+                            <div class="coord-label">Latitude</div>
+                            <div class="coord-value" id="latValue">-</div>
+                        </div>
+                        <div class="coord-item">
+                            <div class="coord-label">Longitude</div>
+                            <div class="coord-value" id="lngValue">-</div>
+                        </div>
+                    </div>
+                    <div class="location-details" id="locationDetails">
+                        <!-- Details will be inserted here -->
+                    </div>
+                    <div class="location-address" id="addressContainer" style="display: none;">
+                        <div class="address-label">
+                            <i class="fas fa-map-pin"></i> Alamat
+                        </div>
+                        <div class="address-text" id="addressText">-</div>
+                    </div>
+                    <div class="location-actions">
+                        <button class="location-btn secondary" onclick="requestLocation()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                        <button class="location-btn primary" onclick="openInMaps()">
+                            <i class="fas fa-external-link-alt"></i>
+                            Buka Maps
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Error State -->
+                <div id="locationError" style="display: none;">
+                    <div style="text-align: center; padding: 20px 0;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; margin-bottom: 12px;"></i>
+                        <p style="font-size: 0.9rem; margin-bottom: 8px;" id="errorMessage">Gagal mendapatkan lokasi</p>
+                        <p style="font-size: 0.75rem; opacity: 0.8;" id="errorDetail">-</p>
+                    </div>
+                    <div class="location-actions">
+                        <button class="location-btn secondary" onclick="showPermissionDialog()">
+                            <i class="fas fa-cog"></i>
+                            Pengaturan
+                        </button>
+                        <button class="location-btn primary" onclick="requestLocation()">
+                            <i class="fas fa-redo"></i>
+                            Coba Lagi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Kopdar Section -->
@@ -360,23 +959,16 @@
     const rtdb = firebase.database();
 
     // ============================================
-    // CONSTANTS
-    // ============================================
-    const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
-
-    // ============================================
     // STATE
     // ============================================
     let sessionUnsubscribe = null;
     let currentUserId = null;
     let localSessionId = null;
     let messaging = null;
-    let prevOrderCount = 0;
-    let orderInit = false;
     
-    // Location state
-    let locationWatchId = null;
-    let lastLocationData = null;
+    // Location State
+    let currentLocation = null;
+    let permissionState = 'unknown';
 
     // Fallback Data
     const fallbackPromoData = [
@@ -391,249 +983,365 @@
     ];
 
     // ============================================
-    // HELPER FUNCTIONS
+    // DEVICE DETECTION FOR ANDROID 14
     // ============================================
-    function safeGetItem(key) { 
-        try { return localStorage.getItem(key); } 
-        catch (e) { return null; } 
-    }
-
-    function safeSetItem(key, val) { 
-        try { localStorage.setItem(key, val); return true; } 
-        catch (e) { return false; } 
-    }
-
-    function closeMenu() {
-        document.getElementById('sideMenu').classList.remove('active');
-        document.getElementById('menuOverlay').classList.remove('active');
-    }
-
-    function showToast(type, title, message) {
-        const container = document.getElementById('toastContainer');
-        const icons = { success: 'fa-check', info: 'fa-info', error: 'fa-times', warning: 'fa-exclamation' };
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerHTML = `
-            <div class="toast-icon ${type}"><i class="fas ${icons[type] || 'fa-info'}"></i></div>
-            <div class="toast-content">
-                <div class="toast-title">${title}</div>
-                <div class="toast-message">${message}</div>
-            </div>
-            <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-        `;
-        container.appendChild(toast);
-        setTimeout(() => { 
-            toast.classList.add('hiding'); 
-            setTimeout(() => toast.remove(), 300); 
-        }, 4000);
-    }
-
-    // ============================================
-    // ANDROID 14 LOCATION - BACKGROUND REALTIME
-    // ============================================
-    
-    // Cek apakah Android 14+
-    function isAndroid14OrHigher() {
-        const ua = navigator.userAgent.toLowerCase();
-        if (ua.indexOf('android') !== -1) {
-            const match = ua.match(/android\s([0-9\.]+)/);
-            if (match && match[1]) {
-                const version = parseInt(match[1].split('.')[0]);
-                return version >= 14;
+    function detectDevice() {
+        const ua = navigator.userAgent;
+        const isAndroid = /Android/i.test(ua);
+        const androidMatch = ua.match(/Android (\d+\.?\d*\.?\d*)/);
+        const androidVersion = androidMatch ? parseFloat(androidMatch[1]) : 0;
+        const isAndroid14 = androidVersion >= 14;
+        const isHTTPS = window.location.protocol === 'https:';
+        
+        console.log('Device Detection:', {
+            userAgent: ua,
+            isAndroid,
+            androidVersion,
+            isAndroid14,
+            isHTTPS,
+            hasGeolocation: 'geolocation' in navigator,
+            hasPermissions: 'permissions' in navigator
+        });
+        
+        // Update device info banner
+        const deviceInfoText = document.getElementById('deviceInfoText');
+        const httpsBadge = document.getElementById('httpsBadge');
+        
+        if (deviceInfoText) {
+            if (isAndroid) {
+                deviceInfoText.textContent = `Android ${androidVersion}${isAndroid14 ? ' (v14+)' : ''}`;
+            } else {
+                deviceInfoText.textContent = navigator.platform || 'Unknown Device';
             }
         }
-        return false;
+        
+        if (httpsBadge) {
+            httpsBadge.textContent = isHTTPS ? 'HTTPS' : 'HTTP';
+            httpsBadge.className = 'https-badge' + (isHTTPS ? '' : ' warning');
+        }
+        
+        return { isAndroid, androidVersion, isAndroid14, isHTTPS };
     }
 
-    // Cek permission lokasi
+    // ============================================
+    // GEOLOCATION - ANDROID 14 COMPATIBLE
+    // ============================================
+    
+    /**
+     * Check permission status using Permissions API
+     * Android 14 requires this check before requesting location
+     */
     async function checkLocationPermission() {
-        return new Promise((resolve) => {
-            if (navigator.permissions && navigator.permissions.query) {
-                navigator.permissions.query({ name: 'geolocation' })
-                    .then(result => resolve(result.state))
-                    .catch(() => resolve('prompt'));
-            } else {
-                resolve('prompt');
-            }
-        });
+        if (!navigator.permissions) {
+            console.log('[Geolocation] Permissions API not supported');
+            return 'unknown';
+        }
+        
+        try {
+            const result = await navigator.permissions.query({ name: 'geolocation' });
+            console.log('[Geolocation] Permission state:', result.state);
+            permissionState = result.state;
+            
+            // Listen for permission changes
+            result.addEventListener('change', () => {
+                console.log('[Geolocation] Permission changed to:', result.state);
+                permissionState = result.state;
+                updateLocationUI();
+            });
+            
+            return result.state;
+        } catch (err) {
+            console.warn('[Geolocation] Error checking permission:', err);
+            return 'unknown';
+        }
     }
-
-    // Reverse geocoding - konversi koordinat ke alamat
+    
+    /**
+     * Show location states in UI
+     */
+    function showLocationState(state) {
+        document.getElementById('locationInitial').style.display = state === 'initial' ? 'block' : 'none';
+        document.getElementById('locationLoading').style.display = state === 'loading' ? 'block' : 'none';
+        document.getElementById('locationSuccess').style.display = state === 'success' ? 'block' : 'none';
+        document.getElementById('locationError').style.display = state === 'error' ? 'block' : 'none';
+        
+        // Update card style
+        const card = document.getElementById('locationCard');
+        card.classList.remove('loading', 'success', 'error');
+        if (state === 'loading') card.classList.add('loading');
+        if (state === 'success') card.classList.add('success');
+        if (state === 'error') card.classList.add('error');
+        
+        // Update status
+        const status = document.getElementById('locationStatus');
+        const subtitle = document.getElementById('locationSubtitle');
+        
+        switch(state) {
+            case 'loading':
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                subtitle.textContent = 'Mendapatkan lokasi...';
+                break;
+            case 'success':
+                status.innerHTML = '<i class="fas fa-check"></i>';
+                subtitle.textContent = 'Lokasi ditemukan';
+                break;
+            case 'error':
+                status.innerHTML = '<i class="fas fa-times"></i>';
+                subtitle.textContent = 'Gagal mendapatkan lokasi';
+                break;
+            default:
+                status.innerHTML = '<i class="fas fa-question"></i>';
+                subtitle.textContent = 'Tekan tombol untuk mendapatkan lokasi';
+        }
+    }
+    
+    /**
+     * Request location - Android 14 compatible
+     */
+    async function requestLocation() {
+        console.log('[Geolocation] Requesting location...');
+        
+        // Check if geolocation is supported
+        if (!navigator.geolocation) {
+            showLocationError(
+                'Geolocation Tidak Didukung',
+                'Browser Anda tidak mendukung fitur lokasi.'
+            );
+            return;
+        }
+        
+        // Check permission first
+        const perm = await checkLocationPermission();
+        
+        if (perm === 'denied') {
+            showLocationError(
+                'Izin Lokasi Ditolak',
+                'Silakan izinkan akses lokasi di pengaturan browser atau perangkat.'
+            );
+            showPermissionDialog();
+            return;
+        }
+        
+        // Show loading state
+        showLocationState('loading');
+        
+        // Options for Android 14
+        const options = {
+            enableHighAccuracy: true,  // Use GPS for better accuracy
+            timeout: 15000,            // 15 seconds timeout
+            maximumAge: 0              // Don't use cached position
+        };
+        
+        navigator.geolocation.getCurrentPosition(
+            // Success callback
+            (position) => {
+                console.log('[Geolocation] Success:', position);
+                currentLocation = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    altitude: position.coords.altitude,
+                    altitudeAccuracy: position.coords.altitudeAccuracy,
+                    heading: position.coords.heading,
+                    speed: position.coords.speed,
+                    timestamp: position.timestamp
+                };
+                
+                showLocationSuccess(currentLocation);
+                
+                // Save to Firebase if user logged in
+                if (currentUserId) {
+                    saveLocationToFirebase(currentLocation);
+                }
+                
+                // Get address via reverse geocoding
+                reverseGeocode(currentLocation.latitude, currentLocation.longitude);
+                
+                showToast('success', 'Lokasi Ditemukan', 'Koordinat berhasil diperoleh');
+                
+                // Vibrate on success
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(200);
+                }
+            },
+            
+            // Error callback
+            (error) => {
+                console.error('[Geolocation] Error:', error);
+                
+                let title = 'Gagal Mendapatkan Lokasi';
+                let message = '';
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        title = 'Izin Ditolak';
+                        message = 'Akses lokasi ditolak. Silakan izinkan di pengaturan browser atau perangkat.';
+                        permissionState = 'denied';
+                        showPermissionDialog();
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        title = 'Lokasi Tidak Tersedia';
+                        message = 'Informasi lokasi tidak tersedia. Pastikan GPS aktif dan Anda berada di area dengan sinyal yang baik.';
+                        break;
+                    case error.TIMEOUT:
+                        title = 'Timeout';
+                        message = 'Permintaan lokasi memakan waktu terlalu lama. Coba lagi dengan sinyal yang lebih baik.';
+                        break;
+                    default:
+                        message = 'Terjadi kesalahan tidak diketahui.';
+                }
+                
+                showLocationError(title, message);
+                showToast('error', title, message);
+            },
+            
+            options
+        );
+    }
+    
+    /**
+     * Show success state with location data
+     */
+    function showLocationSuccess(location) {
+        showLocationState('success');
+        
+        // Update coordinates
+        document.getElementById('latValue').textContent = location.latitude.toFixed(6);
+        document.getElementById('lngValue').textContent = location.longitude.toFixed(6);
+        
+        // Update details
+        const detailsContainer = document.getElementById('locationDetails');
+        let detailsHTML = '';
+        
+        if (location.accuracy) {
+            detailsHTML += `<div class="detail-item"><i class="fas fa-crosshairs"></i> Akurasi: ±${location.accuracy.toFixed(0)}m</div>`;
+        }
+        
+        if (location.altitude) {
+            detailsHTML += `<div class="detail-item"><i class="fas fa-mountain"></i> Alt: ${location.altitude.toFixed(0)}m</div>`;
+        }
+        
+        if (location.timestamp) {
+            const date = new Date(location.timestamp);
+            const timeStr = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            detailsHTML += `<div class="detail-item"><i class="fas fa-clock"></i> ${timeStr}</div>`;
+        }
+        
+        detailsContainer.innerHTML = detailsHTML;
+    }
+    
+    /**
+     * Show error state
+     */
+    function showLocationError(title, message) {
+        showLocationState('error');
+        document.getElementById('errorMessage').textContent = title;
+        document.getElementById('errorDetail').textContent = message;
+    }
+    
+    /**
+     * Reverse geocoding using OpenStreetMap Nominatim
+     */
     async function reverseGeocode(lat, lng) {
         try {
             const response = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
                 {
                     headers: {
-                        'Accept': 'application/json',
-                        'User-Agent': 'BGT-PRO-App/1.0'
+                        'Accept-Language': 'id,en'
                     }
                 }
             );
             
-            if (!response.ok) return null;
-            
             const data = await response.json();
-            return data.display_name || null;
-        } catch (error) {
-            console.error('Reverse geocoding error:', error);
-            return null;
-        }
-    }
-
-    // Simpan lokasi ke Firebase
-    async function saveLocationToFirebase(lat, lng, accuracy, address) {
-        if (!currentUserId) return;
-
-        try {
-            const locationData = {
-                latitude: lat,
-                longitude: lng,
-                accuracy: accuracy,
-                address: address || `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-                deviceInfo: navigator.userAgent
-            };
-
-            // Simpan ke user document
-            await db.collection('users').doc(currentUserId).set({
-                currentLocation: locationData
-            }, { merge: true });
-
-            // Simpan ke locations collection untuk peta anggota
-            await db.collection('locations').doc(currentUserId).set(locationData);
-
-            console.log('Location updated:', lat.toFixed(6), lng.toFixed(6));
-        } catch (error) {
-            console.error('Error saving location:', error);
-        }
-    }
-
-    // Handle posisi berhasil
-    async function handleLocationSuccess(position) {
-        const { latitude, longitude, accuracy } = position.coords;
-        
-        // Cek apakah lokasi berubah signifikan (lebih dari 10 meter)
-        if (lastLocationData) {
-            const distance = calculateDistance(
-                lastLocationData.lat, lastLocationData.lng,
-                latitude, longitude
-            );
-            if (distance < 10 && lastLocationData.accuracy <= accuracy) {
-                return; // Skip jika perubahan terlalu kecil
+            
+            if (data.display_name) {
+                const addressContainer = document.getElementById('addressContainer');
+                const addressText = document.getElementById('addressText');
+                
+                addressContainer.style.display = 'block';
+                addressText.textContent = data.display_name;
+                
+                currentLocation.address = data.display_name;
             }
+        } catch (err) {
+            console.error('[Geocoding] Error:', err);
         }
-
-        lastLocationData = { lat: latitude, lng: longitude, accuracy };
-
-        // Reverse geocoding
-        const address = await reverseGeocode(latitude, longitude);
-
-        // Simpan ke Firebase
-        await saveLocationToFirebase(latitude, longitude, accuracy, address);
     }
-
-    // Handle error lokasi
-    function handleLocationError(error) {
-        console.error('Location error:', error);
+    
+    /**
+     * Save location to Firebase
+     */
+    async function saveLocationToFirebase(location) {
+        if (!currentUserId) return;
         
-        switch (error.code) {
-            case error.PERMISSION_DENIED:
-                console.log('Location permission denied');
-                // Tidak menampilkan toast, hanya log
-                break;
-            case error.POSITION_UNAVAILABLE:
-                console.log('Location position unavailable');
-                break;
-            case error.TIMEOUT:
-                console.log('Location request timeout');
-                break;
-            default:
-                console.log('Unknown location error');
-        }
-    }
-
-    // Hitung jarak antara dua koordinat (Haversine formula)
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371e3; // Radius bumi dalam meter
-        const phi1 = lat1 * Math.PI / 180;
-        const phi2 = lat2 * Math.PI / 180;
-        const deltaPhi = (lat2 - lat1) * Math.PI / 180;
-        const deltaLambda = (lon2 - lon1) * Math.PI / 180;
-
-        const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-                  Math.cos(phi1) * Math.cos(phi2) *
-                  Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c;
-    }
-
-    // Mulai tracking lokasi realtime - Android 14 compatible
-    function startLocationTracking() {
-        if (!navigator.geolocation) {
-            console.log('Geolocation not supported');
-            return;
-        }
-
-        // Options untuk Android 14
-        const options = {
-            enableHighAccuracy: true,  // Gunakan GPS
-            timeout: 30000,            // Timeout 30 detik
-            maximumAge: 60000          // Cache maksimal 1 menit
-        };
-
-        // Stop watch existing
-        if (locationWatchId !== null) {
-            navigator.geolocation.clearWatch(locationWatchId);
-        }
-
-        // Mulai watching position untuk realtime update
-        locationWatchId = navigator.geolocation.watchPosition(
-            handleLocationSuccess,
-            handleLocationError,
-            options
-        );
-
-        console.log('Location tracking started (Android 14 compatible)');
-    }
-
-    // Stop tracking lokasi
-    function stopLocationTracking() {
-        if (locationWatchId !== null && navigator.geolocation) {
-            navigator.geolocation.clearWatch(locationWatchId);
-            locationWatchId = null;
-            console.log('Location tracking stopped');
-        }
-    }
-
-    // Inisialisasi lokasi saat user login
-    async function initLocation() {
-        const permissionState = await checkLocationPermission();
-        
-        if (permissionState === 'denied') {
-            console.log('Location permission denied by user');
-            return;
-        }
-
-        // Request position pertama kali
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    await handleLocationSuccess(position);
-                    // Setelah dapat posisi pertama, mulai realtime tracking
-                    startLocationTracking();
-                },
-                (error) => {
-                    handleLocationError(error);
-                    // Tetap coba mulai tracking meskipun error pertama
-                    startLocationTracking();
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 20000,
-                    maximumAge: 30000
+        try {
+            await db.collection('users').doc(currentUserId).update({
+                lastLocation: {
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    accuracy: location.accuracy,
+                    address: location.address || null,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }
+            });
+            console.log('[Firebase] Location saved');
+        } catch (err) {
+            console.error('[Firebase] Error saving location:', err);
+        }
+    }
+    
+    /**
+     * Open location in Google Maps
+     */
+    function openInMaps() {
+        if (!currentLocation) return;
+        
+        const { latitude, longitude } = currentLocation;
+        const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        window.open(url, '_blank');
+    }
+    
+    /**
+     * Permission Dialog
+     */
+    function showPermissionDialog() {
+        document.getElementById('permissionOverlay').classList.add('active');
+    }
+    
+    function closePermissionDialog() {
+        document.getElementById('permissionOverlay').classList.remove('active');
+    }
+    
+    async function retryPermission() {
+        closePermissionDialog();
+        
+        // Check permission again
+        const perm = await checkLocationPermission();
+        
+        if (perm === 'denied') {
+            showToast('info', 'Izin Masih Ditolak', 'Silakan ubah izin di pengaturan perangkat');
+            return;
+        }
+        
+        // Try to get location
+        await requestLocation();
+    }
+    
+    /**
+     * Update location UI based on permission state
+     */
+    function updateLocationUI() {
+        const status = document.getElementById('locationStatus');
+        const subtitle = document.getElementById('locationSubtitle');
+        const btn = document.getElementById('getLocationBtn');
+        
+        if (permissionState === 'granted' && currentLocation) {
+            showLocationSuccess(currentLocation);
+        } else if (permissionState === 'denied') {
+            showLocationError(
+                'Izin Lokasi Ditolak',
+                'Silakan izinkan akses lokasi di pengaturan browser.'
             );
         }
     }
@@ -661,12 +1369,14 @@
                 return;
             }
             
-            console.log('Notifikasi diizinkan');
+            console.log('✅ Notifikasi diizinkan');
             
-            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+            const token = await messaging.getToken({ 
+                vapidKey: 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0'
+            });
             
             if (token) {
-                console.log('FCM Token:', token.substring(0, 30) + '...');
+                console.log('✅ FCM Token:', token.substring(0, 30) + '...');
                 const user = auth.currentUser;
                 if (user) {
                     await db.collection('users').doc(user.uid).set({
@@ -676,9 +1386,8 @@
                 }
             }
             
-            // Foreground message
             messaging.onMessage((payload) => {
-                console.log('Foreground:', payload);
+                console.log('📬 Foreground:', payload);
                 const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
                 const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
                 showToast('info', title, body);
@@ -686,7 +1395,7 @@
             });
             
         } catch (error) {
-            console.error('FCM Error:', error.message);
+            console.error('❌ FCM Error:', error.message);
         }
     }
 
@@ -700,14 +1409,42 @@
                 const registration = await navigator.serviceWorker.register(swUrl, {
                     scope: '/leong.github.io/'
                 });
-                console.log('SW Registered:', registration.scope);
+                console.log('✅ SW Registered:', registration.scope);
                 await navigator.serviceWorker.ready;
                 return registration;
             } catch (error) {
-                console.error('SW Error:', error.message);
+                console.error('❌ SW Error:', error.message);
                 return null;
             }
         }
+    }
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function safeGetItem(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+    function safeSetItem(key, val) { try { localStorage.setItem(key, val); return true; } catch (e) { return false; } }
+
+    function closeMenu() {
+        document.getElementById('sideMenu').classList.remove('active');
+        document.getElementById('menuOverlay').classList.remove('active');
+    }
+
+    function showToast(type, title, message) {
+        const container = document.getElementById('toastContainer');
+        const icons = { success: 'fa-check', info: 'fa-info', error: 'fa-times', warning: 'fa-exclamation' };
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <div class="toast-icon ${type}"><i class="fas ${icons[type]}"></i></div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 4000);
     }
 
     // ============================================
@@ -720,7 +1457,6 @@
 
     function handleSessionKick() {
         localStorage.clear();
-        stopLocationTracking();
         if (sessionUnsubscribe) sessionUnsubscribe();
         auth.signOut().then(() => window.location.href = 'index.html').catch(() => window.location.href = 'index.html');
     }
@@ -821,33 +1557,43 @@
         
         document.getElementById('loadingContainer').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-
-        // Mulai tracking lokasi secara otomatis
+        
+        // Initialize location after app is visible
         initLocation();
     }
 
     async function handleLogout() {
         if (!confirm('Yakin ingin keluar?')) return;
-
-        // Stop location tracking
-        stopLocationTracking();
-
-        // Hapus lokasi dari Firebase
-        if (currentUserId) {
-            try {
-                await db.collection('users').doc(currentUserId).update({
-                    currentLocation: firebase.firestore.FieldValue.delete()
-                });
-                await db.collection('locations').doc(currentUserId).delete();
-            } catch (e) {
-                console.error('Error clearing location:', e);
-            }
-        }
-
         localStorage.removeItem('userSessionId');
         if (sessionUnsubscribe) sessionUnsubscribe();
         await auth.signOut();
         window.location.href = 'index.html';
+    }
+
+    // ============================================
+    // INITIALIZE LOCATION
+    // ============================================
+    async function initLocation() {
+        console.log('[Location] Initializing...');
+        
+        // Detect device
+        const device = detectDevice();
+        
+        // Check initial permission state
+        await checkLocationPermission();
+        
+        console.log('[Location] Permission state:', permissionState);
+        
+        // If permission already granted, auto-get location
+        if (permissionState === 'granted') {
+            // Don't auto-request, just show the UI is ready
+            showToast('info', 'Lokasi Siap', 'Tekan tombol untuk mendapatkan lokasi');
+        } else if (permissionState === 'denied') {
+            showLocationError(
+                'Izin Lokasi Ditolak',
+                'Silakan izinkan akses lokasi di pengaturan perangkat Anda.'
+            );
+        }
     }
 
     // ============================================
@@ -864,9 +1610,7 @@
         }
     }
 
-    let orderInit = false;
-    let prevOrderCount = 0;
-
+    let prevOrderCount = 0, orderInit = false;
     function startOrderListener() {
         rtdb.ref('orders').on('value', (snap) => {
             const data = snap.val();
@@ -880,29 +1624,6 @@
             orderInit = true;
         });
     }
-
-    // ============================================
-    // PAGE VISIBILITY - Resume location saat kembali
-    // ============================================
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            // Refresh location saat app kembali visible
-            if (currentUserId && navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    handleLocationSuccess,
-                    handleLocationError,
-                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
-                );
-            }
-        }
-    });
-
-    // ============================================
-    // CLEANUP ON PAGE UNLOAD
-    // ============================================
-    window.addEventListener('beforeunload', () => {
-        stopLocationTracking();
-    });
 
     // ============================================
     // AUTH LISTENER
