@@ -67,3 +67,4 @@ self.addEventListener('notificationclick', (event) => {
 // Service Worker Lifecycle
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+
