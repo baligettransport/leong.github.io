@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- PWA Setup -->
+    <!-- PWA Setup untuk GitHub Pages -->
     <link rel="manifest" href="/leong.github.io/manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,7 +18,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* CSS Anda tetap utuh, tidak diubah */
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
@@ -29,22 +28,45 @@
             --gray: #64748b;
             --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow-x: hidden; }
-        body { font-family: 'Poppins', sans-serif; background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%); color: var(--dark); min-height: 100dvh; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(180deg, #E0F7FA 0%, #FFFFFF 100%); 
+            color: var(--dark); 
+            min-height: 100dvh; 
+        }
+
         html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+
         .app-container { width: 100%; min-height: 100dvh; padding-bottom: 90px; overflow-y: auto; padding-top: 60px; }
 
         /* Header */
-        .header { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .header { 
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 100; 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); 
+            padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
         .header-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,0,0,0.1); }
         .header-name { font-size: 0.9rem; font-weight: 600; }
         .header-status { font-size: 0.7rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
         .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
         .header-right { display: flex; align-items: center; gap: 8px; }
-        .notif-btn { width: 38px; height: 38px; background: transparent; border: none; border-radius: 10px; color: var(--dark); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative; }
-        .notif-badge { position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; background: var(--danger); border-radius: 50%; font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; color: white; }
+        .notif-btn { 
+            width: 38px; height: 38px; background: transparent; border: none; 
+            border-radius: 10px; color: var(--dark); font-size: 1.1rem; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; text-decoration: none; 
+            position: relative;
+        }
+        .notif-badge { 
+            position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; 
+            background: var(--danger); border-radius: 50%; font-size: 0.6rem; 
+            font-weight: 700; display: flex; align-items: center; justify-content: center; color: white; 
+        }
         .notif-badge.hidden { display: none; }
 
         /* Section */
@@ -65,7 +87,11 @@
         .promo-slider { display: flex; gap: 12px; padding: 0 16px; animation: autoScroll 20s linear infinite; }
         .promo-slider:hover { animation-play-state: paused; }
         @keyframes autoScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .promo-card { min-width: 280px; height: 160px; border-radius: 18px; padding: 16px; position: relative; overflow: hidden; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .promo-card { 
+            min-width: 280px; height: 160px; border-radius: 18px; padding: 16px; 
+            position: relative; overflow: hidden; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
         .promo-card.promo-1 { background: linear-gradient(135deg, #cffafe 0%, #e0f2fe 100%); }
         .promo-card.promo-2 { background: linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%); }
         .promo-card.promo-3 { background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%); }
@@ -77,7 +103,11 @@
 
         /* Kopdar List */
         .kopdar-list { margin: 0 16px 20px; }
-        .kopdar-card { background: rgba(255, 255, 255, 0.9); border-radius: 16px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; border: 1px solid rgba(0,0,0,0.05); text-decoration: none; color: inherit; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .kopdar-card { 
+            background: rgba(255, 255, 255, 0.9); border-radius: 16px; padding: 12px; 
+            margin-bottom: 10px; display: flex; gap: 12px; border: 1px solid rgba(0,0,0,0.05); 
+            text-decoration: none; color: inherit; box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        }
         .kopdar-card:active { transform: scale(0.99); }
         .kopdar-image { width: 75px; height: 75px; border-radius: 10px; object-fit: cover; }
         .kopdar-info { flex: 1; }
@@ -90,16 +120,32 @@
         .kopdar-badge.open { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; align-items: center; justify-content: space-around; border-top: 1px solid rgba(0,0,0,0.05); box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; height: 70px; padding: 0 5px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 20%; height: 100%; color: var(--gray); text-decoration: none; }
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+            display: flex; align-items: center; justify-content: space-around;
+            border-top: 1px solid rgba(0,0,0,0.05); box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100; height: 70px; padding: 0 5px;
+        }
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; gap: 3px; width: 20%; height: 100%; 
+            color: var(--gray); text-decoration: none; 
+        }
         .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 1.2rem; }
         .nav-item span { font-size: 0.6rem; font-weight: 500; }
+        
         .nav-job { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 20%; height: 100%; padding-bottom: 5px; text-decoration: none; }
         .nav-job-logo { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; position: relative; }
         .nav-job-logo img { width: 45px; height: 45px; object-fit: contain; }
         .nav-job-text { font-size: 0.6rem; font-weight: 700; color: var(--primary); text-transform: uppercase; }
-        .job-badge { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; font-size: 0.65rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+        .job-badge { 
+            position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; 
+            background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; 
+            font-size: 0.65rem; font-weight: 700; color: white; 
+            display: flex; align-items: center; justify-content: center; 
+            border: 2px solid #fff; 
+        }
         .job-badge.hidden { display: none; }
 
         /* Side Menu */
@@ -119,7 +165,7 @@
         .menu-link i { width: 18px; color: var(--primary); }
         .menu-link span { flex: 1; font-size: 0.9rem; }
 
-        /* Toast & Overlays */
+        /* Toast */
         .toast-container { position: fixed; top: 70px; right: 12px; left: 12px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
         .toast { background: #fff; border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; animation: slideIn 0.3s; box-shadow: 0 10px 15px rgba(0,0,0,0.1); pointer-events: auto; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -134,6 +180,7 @@
         .toast-message { font-size: 0.75rem; color: var(--gray); }
         .toast-close { background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px; }
 
+        /* Session Kick */
         .session-kick-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98); z-index: 99999; display: none; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
         .session-kick-overlay.active { display: flex; }
         .kick-icon { width: 100px; height: 100px; background: linear-gradient(135deg, #f59e0b, #e67e22); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 0 40px rgba(245, 158, 11, 0.4); }
@@ -214,6 +261,7 @@
 
 <!-- Main App -->
 <div class="app-container" id="mainApp" style="display: none;">
+
     <header class="header">
         <div class="header-left">
             <div class="header-profile" onclick="window.location.href='profil.html'">
@@ -237,6 +285,7 @@
         </div>
     </header>
 
+    <!-- Promo Slider -->
     <div class="promo-slider-wrapper">
         <div class="promo-slider" id="promoSliderHome">
             <div class="skeleton skeleton-card"></div>
@@ -244,6 +293,7 @@
         </div>
     </div>
 
+    <!-- Feature Grid -->
     <div class="feature-grid">
         <a class="feature-item" href="kopdar.html"><div class="feature-icon" style="color: #ec4899;"><i class="fas fa-mug-hot"></i></div><span class="feature-label">Kopdar</span></a>
         <a class="feature-item" href="promo.html"><div class="feature-icon" style="color: #f59e0b;"><i class="fas fa-percent"></i></div><span class="feature-label">Promo</span></a>
@@ -254,6 +304,7 @@
         <a class="feature-item" href="anggota.html"><div class="feature-icon" style="color: #0ea5e9;"><i class="fas fa-users"></i></div><span class="feature-label">Anggota</span></a>
     </div>
 
+    <!-- Kopdar Section -->
     <div class="section-header">
         <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Kopdar Mendatang</h3>
         <a class="section-link" href="kopdar.html">Lihat Semua</a>
@@ -262,6 +313,7 @@
         <div class="skeleton skeleton-kopdar"></div>
         <div class="skeleton skeleton-kopdar"></div>
     </div>
+
 </div>
 
 <!-- Bottom Nav -->
@@ -312,12 +364,18 @@
     let currentUserId = null;
     let localSessionId = null;
     let messaging = null;
+    
+    // Tambahan State untuk Tracking Lokasi
     let locationWatchId = null;
-    let orderListenerRef = null;
-    let shownOrderIds = new Set();
-    let orderListenerInitialized = false;
-    let lastNotifTime = 0;
-    const NOTIF_COOLDOWN = 3000;
+
+    // ============================================
+    // PERBAIKAN: Tracking untuk notifikasi
+    // ============================================
+    let orderListenerRef = null;           // Reference untuk cleanup
+    let shownOrderIds = new Set();         // Track order yang sudah dinotifikasi
+    let orderListenerInitialized = false;  // Flag untuk initial load
+    let lastNotifTime = 0;                 // Timestamp notifikasi terakhir
+    const NOTIF_COOLDOWN = 3000;           // 3 detik cooldown antar notifikasi
 
     // Fallback Data
     const fallbackPromoData = [
@@ -325,6 +383,7 @@
         { id: 2, title: 'Member Premium', desc: 'Fitur eksklusif!', badge: 'NEW', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', gradient: 'promo-2' },
         { id: 3, title: 'Tour Bareng', desc: 'Jalan-jalan bersama!', badge: 'EVENT', image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400', gradient: 'promo-3' }
     ];
+
     const fallbackKopdarData = [
         { id: 1, title: 'Kopdar Bulanan', date: '25 Jan 2025', time: '18:00', location: 'Sanur', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', status: 'soon' },
         { id: 2, title: 'Makan Malam', date: '01 Feb 2025', time: '19:00', location: 'Jimbaran', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', status: 'open' }
@@ -335,19 +394,33 @@
     // ============================================
     function safeGetItem(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
     function safeSetItem(key, val) { try { localStorage.setItem(key, val); return true; } catch (e) { return false; } }
-    function closeMenu() { document.getElementById('sideMenu').classList.remove('active'); document.getElementById('menuOverlay').classList.remove('active'); }
 
+    function closeMenu() {
+        document.getElementById('sideMenu').classList.remove('active');
+        document.getElementById('menuOverlay').classList.remove('active');
+    }
+
+    // ============================================
+    // PERBAIKAN: Toast dengan debounce
+    // ============================================
     function showToast(type, title, message) {
         const now = Date.now();
-        if (now - lastNotifTime < NOTIF_COOLDOWN) return;
+        if (now - lastNotifTime < NOTIF_COOLDOWN) {
+            console.log('⚠️ Toast di-skip (cooldown)');
+            return;
+        }
         lastNotifTime = now;
+
         const container = document.getElementById('toastContainer');
         const icons = { success: 'fa-check', info: 'fa-info', error: 'fa-times', warning: 'fa-exclamation' };
         const toast = document.createElement('div');
         toast.className = 'toast';
         toast.innerHTML = `
             <div class="toast-icon ${type}"><i class="fas ${icons[type]}"></i></div>
-            <div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
             <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
         `;
         container.appendChild(toast);
@@ -355,7 +428,7 @@
     }
 
     // ============================================
-    // SESSION MONITOR (PERBAIKAN LOG OUT)
+    // SESSION MONITOR
     // ============================================
     function showSessionKick(deviceInfo) {
         document.getElementById('kickDeviceInfo').textContent = deviceInfo || 'Perangkat lain';
@@ -365,38 +438,23 @@
     function handleSessionKick() {
         localStorage.clear();
         if (sessionUnsubscribe) sessionUnsubscribe();
-        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
+        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId); // Stop tracking jika di-kick
         auth.signOut().then(() => window.location.href = 'index.html').catch(() => window.location.href = 'index.html');
     }
 
-    // PERBAIKAN: Fungsi ini sekarang jauh lebih aman
     function startSessionMonitor(userId) {
         currentUserId = userId;
         localSessionId = safeGetItem('userSessionId');
-        
-        // Jika tidak ada session ID lokal, tendang (seharusnya tidak terjadi jika login benar)
-        if (!localSessionId) {
-            console.error("No Local Session ID found");
-            handleSessionKick();
-            return;
-        }
-
+        if (!localSessionId) { handleSessionKick(); return; }
         if (sessionUnsubscribe) sessionUnsubscribe();
-        
         sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
             (doc) => {
                 if (!doc.exists) { handleSessionKick(); return; }
                 const data = doc.data();
-                
-                // LOGIKA BARU:
-                // Jika database punya sessionId, DAN itu BUKAN ID kita -> Tendang
-                // Jika database KOSONG, itu berarti kita sedang mengupdate, jangan tendang (abaikan)
                 if (data.currentSessionId && data.currentSessionId !== localSessionId) {
-                    console.warn("Session Mismatch! Kicking out...");
                     if (sessionUnsubscribe) sessionUnsubscribe();
                     showSessionKick(data.currentDevice || 'Perangkat lain');
                 }
-                // Jika sessionId di database sama dengan localSessionId -> AMAN (Biarkan)
             },
             (err) => console.error('Session error:', err)
         );
@@ -412,7 +470,10 @@
             let promos = []; snap.forEach(d => promos.push({ id: d.id, ...d.data() }));
             if (!promos.length) throw new Error('No promos');
             renderPromos(promos);
-        } catch (e) { renderPromos(fallbackPromoData); }
+        } catch (e) {
+            console.log('Using fallback promos');
+            renderPromos(fallbackPromoData);
+        }
     }
 
     function renderPromos(promos) {
@@ -436,7 +497,10 @@
             let data = []; snap.forEach(d => data.push({ id: d.id, ...d.data() }));
             if (!data.length) throw new Error('No kopdar');
             renderKopdar(data);
-        } catch (e) { renderKopdar(fallbackKopdarData); }
+        } catch (e) {
+            console.log('Using fallback kopdar');
+            renderKopdar(fallbackKopdarData);
+        }
     }
 
     function renderKopdar(data) {
@@ -456,9 +520,13 @@
         `).join('');
     }
 
+    // ============================================
+    // SHOW USER DATA
+    // ============================================
     function showUserData(data) {
         let pic = data.profilePicUrl || data.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nama || 'U')}&background=6366f1&color=fff`;
         const name = data.nama || 'User';
+        
         document.getElementById('headerAvatar').src = pic;
         document.getElementById('headerName').textContent = name;
         document.getElementById('menuAvatar').src = pic;
@@ -476,144 +544,306 @@
         if (!confirm('Yakin ingin keluar?')) return;
         localStorage.removeItem('userSessionId');
         if (sessionUnsubscribe) sessionUnsubscribe();
-        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
-        if (orderListenerRef) orderListenerRef.off();
+        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId); // Stop tracking
+        
+        // Cleanup order listener
+        if (orderListenerRef) {
+            orderListenerRef.off();
+        }
+        
         await auth.signOut();
         window.location.href = 'index.html';
     }
 
     // ============================================
-    // JOB BADGE & ORDER LISTENER
+    // PERBAIKAN: JOB BADGE dengan tracking yang benar
     // ============================================
     function updateJobBadge(count) {
         const badge = document.getElementById('jobBadge');
         const notif = document.getElementById('jobNotifBadge');
-        if (badge) { count > 0 ? (badge.textContent = count, badge.classList.remove('hidden')) : badge.classList.add('hidden'); }
-        if (notif) { count > 0 ? (notif.textContent = count, notif.classList.remove('hidden')) : notif.classList.add('hidden'); }
-    }
-
-    function startOrderListener() {
-        if (orderListenerRef) orderListenerRef.off();
-        orderListenerRef = rtdb.ref('orders');
         
-        orderListenerRef.once('value', (snap) => {
-            const data = snap.val();
-            if (data) { Object.keys(data).forEach(key => { if (data[key]?.status === 'order') shownOrderIds.add(key); }); }
-            updateJobBadge(shownOrderIds.size);
-            orderListenerInitialized = true;
-        }).catch(err => orderListenerInitialized = true);
-        
-        orderListenerRef.on('child_added', (snap) => {
-            if (!orderListenerInitialized) return;
-            const data = snap.val(); const key = snap.key;
-            if (data?.status === 'order' && !shownOrderIds.has(key)) {
-                shownOrderIds.add(key); updateJobBadge(shownOrderIds.size);
-                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
-                if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
             }
-        });
-        
-        orderListenerRef.on('child_removed', (snap) => {
-            const key = snap.key;
-            if (shownOrderIds.has(key)) { shownOrderIds.delete(key); updateJobBadge(shownOrderIds.size); }
-        });
-    }
-
-    // ============================================
-    // FCM & SERVICE WORKER
-    // ============================================
-    async function initFCM() {
-        try {
-            if (!('Notification' in window)) return;
-            messaging = firebase.messaging();
-            let permission = Notification.permission;
-            if (permission === 'default') permission = await Notification.requestPermission();
-            if (permission !== 'granted') return;
-            
-            const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
-            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
-            if (token) {
-                const user = auth.currentUser;
-                if (user) { await db.collection('users').doc(user.uid).set({ fcmToken: token, fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); }
+        }
+        if (notif) {
+            if (count > 0) {
+                notif.textContent = count;
+                notif.classList.remove('hidden');
+            } else {
+                notif.classList.add('hidden');
             }
-            let lastFCMNotifTime = 0; let lastFCMNotifBody = '';
-            messaging.onMessage((payload) => {
-                const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
-                const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
-                const now = Date.now();
-                if (body === lastFCMNotifBody && (now - lastFCMNotifTime) < 5000) return;
-                lastFCMNotifTime = now; lastFCMNotifBody = body;
-                const bodyLower = body.toLowerCase();
-                if (bodyLower.includes('job') || bodyLower.includes('lowongan')) return;
-                showToast('info', title, body);
-                if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-            });
-        } catch (error) { console.error('FCM Error:', error.message); }
-    }
-
-    async function registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            try { await navigator.serviceWorker.register('/leong.github.io/firebase-messaging-sw.js', { scope: '/leong.github.io/' }); } 
-            catch (error) { console.error('SW Error:', error.message); }
         }
     }
 
     // ============================================
-    // AUTO TRACKING LOKASI
+    // PERBAIKAN: Order Listener dengan child_added
+    // ============================================
+    function startOrderListener() {
+        // Cleanup listener lama jika ada
+        if (orderListenerRef) {
+            orderListenerRef.off();
+        }
+        
+        orderListenerRef = rtdb.ref('orders');
+        
+        // Step 1: Load initial data dulu TANPA notifikasi
+        orderListenerRef.once('value', (snap) => {
+            const data = snap.val();
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    if (data[key]?.status === 'order') {
+                        shownOrderIds.add(key);
+                    }
+                });
+            }
+            
+            // Update badge dengan count initial
+            updateJobBadge(shownOrderIds.size);
+            
+            // Tandai sudah initialize
+            orderListenerInitialized = true;
+            console.log('✅ Order listener initialized, existing orders:', shownOrderIds.size);
+        }).catch(err => {
+            console.error('Error loading initial orders:', err);
+            orderListenerInitialized = true;
+        });
+        
+        // Step 2: Listen untuk item BARU saja (child_added)
+        orderListenerRef.on('child_added', (snap) => {
+            if (!orderListenerInitialized) return; // Skip saat initial load
+            
+            const data = snap.val();
+            const key = snap.key;
+            
+            // Hanya notifikasi jika:
+            // 1. Status = 'order'
+            // 2. Belum pernah di-notifikasi (tidak ada di Set)
+            if (data?.status === 'order' && !shownOrderIds.has(key)) {
+                shownOrderIds.add(key);
+                updateJobBadge(shownOrderIds.size);
+                
+                console.log('🔔 New order detected:', key);
+                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
+                
+                // Vibrate hanya untuk notifikasi baru
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
+        });
+        
+        // Step 3: Handle order yang dihapus
+        orderListenerRef.on('child_removed', (snap) => {
+            const key = snap.key;
+            if (shownOrderIds.has(key)) {
+                shownOrderIds.delete(key);
+                updateJobBadge(shownOrderIds.size);
+                console.log('🗑️ Order removed:', key);
+            }
+        });
+        
+        // Step 4: Handle perubahan status order
+        orderListenerRef.on('child_changed', (snap) => {
+            const data = snap.val();
+            const key = snap.key;
+            
+            // Jika status berubah dari 'order' ke status lain
+            if (data?.status !== 'order' && shownOrderIds.has(key)) {
+                shownOrderIds.delete(key);
+                updateJobBadge(shownOrderIds.size);
+                console.log('📝 Order status changed:', key, '->', data?.status);
+            }
+            // Jika status berubah MENJADI 'order' (jarang terjadi, tapi just in case)
+            else if (data?.status === 'order' && !shownOrderIds.has(key) && orderListenerInitialized) {
+                shownOrderIds.add(key);
+                updateJobBadge(shownOrderIds.size);
+                showToast('info', 'Job Baru!', 'Ada lowongan kerja baru.');
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
+        });
+    }
+
+    // ============================================
+    // PERBAIKAN: FCM dengan debounce & deduplication
+    // ============================================
+    async function initFCM() {
+        try {
+            if (!('Notification' in window)) {
+                console.log('Browser tidak mendukung notifikasi');
+                return;
+            }
+            
+            messaging = firebase.messaging();
+            
+            let permission = Notification.permission;
+            if (permission === 'default') {
+                // Jangan tampilkan toast permintaan notifikasi
+                permission = await Notification.requestPermission();
+            }
+            
+            if (permission !== 'granted') {
+                console.log('Notifikasi ditolak');
+                return;
+            }
+            
+            console.log('✅ Notifikasi diizinkan');
+            
+            // VAPID Key (hanya satu deklarasi)
+            const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
+            
+            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+            
+            if (token) {
+                console.log('✅ FCM Token:', token.substring(0, 30) + '...');
+                const user = auth.currentUser;
+                if (user) {
+                    await db.collection('users').doc(user.uid).set({
+                        fcmToken: token,
+                        fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                }
+            }
+            
+            // Track notifikasi yang sudah ditampilkan untuk deduplication
+            let lastFCMNotifTime = 0;
+            let lastFCMNotifBody = '';
+            
+            // Foreground message handler
+            messaging.onMessage((payload) => {
+                console.log('📬 FCM Foreground:', payload);
+                
+                const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
+                const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
+                
+                // Deduplication: skip jika body sama dalam 5 detik terakhir
+                const now = Date.now();
+                if (body === lastFCMNotifBody && (now - lastFCMNotifTime) < 5000) {
+                    console.log('⚠️ FCM duplicate, skipped');
+                    return;
+                }
+                lastFCMNotifTime = now;
+                lastFCMNotifBody = body;
+                
+                // Cek apakah ini notifikasi job
+                // Jika ya, skip karena sudah dihandle oleh orderListener
+                const bodyLower = body.toLowerCase();
+                if (bodyLower.includes('job') || bodyLower.includes('lowongan') || bodyLower.includes('kerja')) {
+                    console.log('⚠️ Job notification handled by orderListener, skipping FCM toast');
+                    return;
+                }
+                
+                // Tampilkan toast untuk notifikasi non-job
+                showToast('info', title, body);
+                
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ FCM Error:', error.message);
+        }
+    }
+
+    // ============================================
+    // SERVICE WORKER REGISTRATION
+    // ============================================
+    async function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const swUrl = '/leong.github.io/firebase-messaging-sw.js';
+                const registration = await navigator.serviceWorker.register(swUrl, {
+                    scope: '/leong.github.io/'
+                });
+                console.log('✅ SW Registered:', registration.scope);
+                await navigator.serviceWorker.ready;
+                return registration;
+            } catch (error) {
+                console.error('❌ SW Error:', error.message);
+                return null;
+            }
+        }
+    }
+
+    // ============================================
+    // PENAMBAHAN: AUTO TRACKING LOKASI
     // ============================================
     function startBackgroundLocationTracking(uid) {
         if (!navigator.geolocation) return;
-        if (locationWatchId !== null) return;
-        console.log("📍 Starting Background Location Tracking...");
-        const options = { enableHighAccuracy: false, timeout: 60000, maximumAge: 0 };
+        if (locationWatchId !== null) return; // Sudah jalan
+
+        console.log("📍 Memulai Auto Tracking di Branda...");
+
+        // Opsi hemat baterai
+        const options = {
+            enableHighAccuracy: false, // False di branda agar hemat baterai
+            timeout: 60000,
+            maximumAge: 0
+        };
+
         locationWatchId = navigator.geolocation.watchPosition(
             (position) => {
-                const { latitude, longitude, accuracy } = position.coords;
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const acc = position.coords.accuracy;
+
+                // Kirim ke Firebase
                 db.collection('users').doc(uid).update({
-                    latitude, longitude, accuracy,
+                    latitude: lat,
+                    longitude: lng,
+                    accuracy: acc,
                     lastActive: firebase.firestore.FieldValue.serverTimestamp(),
                     currentSessionId: localSessionId // Kirim session ID bersama lokasi
                 }).catch(e => console.log("Loc update error", e));
             },
-            (error) => console.log("Branda Loc Error:", error.message),
+            (error) => {
+                console.log("Branda Loc Error:", error.message);
+            },
             options
         );
     }
 
     // ============================================
-    // AUTH STATE CHANGED (INTI)
+    // AUTH LISTENER
     // ============================================
     auth.onAuthStateChanged(async (user) => {
-        if (!user) { window.location.href = 'index.html'; return; }
+        if (!user) { 
+            window.location.href = 'index.html'; 
+            return; 
+        }
         
         try {
             const doc = await db.collection('users').doc(user.uid).get();
-            if (!doc.exists) { await auth.signOut(); window.location.href = 'index.html'; return; }
+            if (!doc.exists) { 
+                await auth.signOut(); 
+                window.location.href = 'index.html'; 
+                return; 
+            }
             
             const data = doc.data();
             const sessId = safeGetItem('userSessionId');
             
-            // PERBAIKAN KRITIS:
-            // Jika localSessionId ada, tapi DB punya ID lain -> KICK
             if (data.currentSessionId && sessId && data.currentSessionId !== sessId) {
                 localStorage.removeItem('userSessionId');
                 await auth.signOut();
                 showSessionKick(data.currentDevice || 'Perangkat lain');
                 return;
             }
-
-            // PERBAIKAN: Pastikan DB selalu diupdate dengan Session ID saat ini
-            // Ini mencegah kondisi "ID tidak cocok" karena data kadaluarsa
-            await db.collection('users').doc(user.uid).update({
-                currentSessionId: sessId,
-                lastActive: firebase.firestore.FieldValue.serverTimestamp()
-            });
             
             startSessionMonitor(user.uid);
             showUserData(data);
             initFCM();
             registerServiceWorker();
             startOrderListener();
+            
+            // PANGGIL FUNGSI TRACKING BARU
             startBackgroundLocationTracking(user.uid);
             
         } catch (e) {
@@ -622,11 +852,19 @@
         }
     });
 
+    // ============================================
+    // CLEANUP on page unload
+    // ============================================
     window.addEventListener('beforeunload', () => {
-        if (orderListenerRef) orderListenerRef.off();
-        if (sessionUnsubscribe) sessionUnsubscribe();
+        if (orderListenerRef) {
+            orderListenerRef.off();
+        }
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+        }
         if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
     });
 </script>
+
 </body>
 </html>
