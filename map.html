@@ -268,69 +268,43 @@
             z-index: 1000;
             font-size: 0.75rem;
         }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
         .legend-item:last-child { margin-bottom: 0; }
-        .legend-dot {
-            width: 12px; height: 12px;
-            border-radius: 50%;
-        }
-        .legend-dot.online {
-            background: var(--success);
-            box-shadow: 0 0 6px var(--success);
-        }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .legend-dot.online { background: var(--success); box-shadow: 0 0 6px var(--success); }
         .legend-dot.offline { background: #94a3b8; }
+        .legend-dot.me { background: var(--primary); box-shadow: 0 0 6px var(--primary); }
     </style>
 </head>
 <body>
 
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
         <div style="font-weight: 500; color: var(--gray);">Memuat peta anggota...</div>
     </div>
 
-    <!-- Header -->
     <header class="header">
         <button class="header-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
         <div class="header-title">Peta Anggota</div>
         <button class="header-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i></button>
     </header>
 
-    <!-- Map -->
     <div id="map"></div>
 
-    <!-- Legend -->
     <div class="map-legend">
-        <div class="legend-item">
-            <div class="legend-dot online"></div>
-            <span>Online</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-dot offline"></div>
-            <span>Offline</span>
-        </div>
+        <div class="legend-item"><div class="legend-dot me"></div><span>Anda</span></div>
+        <div class="legend-item"><div class="legend-dot online"></div><span>Online</span></div>
+        <div class="legend-item"><div class="legend-dot offline"></div><span>Offline</span></div>
     </div>
 
-    <!-- Floating Buttons -->
     <div class="fab-container" id="fabContainer">
-        <button class="fab-btn zoom-btn" onclick="zoomToAllMembers()" title="Lihat Semua Anggota">
-            <i class="fas fa-expand-alt"></i>
-        </button>
-        <button class="fab-btn" onclick="locateMe()" title="Lokasi Saya">
-            <i class="fas fa-crosshairs"></i>
-        </button>
+        <button class="fab-btn zoom-btn" onclick="zoomToAllMembers()" title="Lihat Semua Anggota"><i class="fas fa-expand-alt"></i></button>
+        <button class="fab-btn" onclick="locateMe()" title="Lokasi Saya"><i class="fas fa-crosshairs"></i></button>
     </div>
 
-    <!-- Bottom Panel -->
     <div class="map-panel collapsed" id="mapPanel">
         <div class="panel-handle" onclick="togglePanel()"></div>
         <div class="panel-content">
-            <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-box">
                     <span class="stat-num total" id="statTotal">0</span>
@@ -345,35 +319,24 @@
                     <span class="stat-label">Offline</span>
                 </div>
             </div>
-
-            <!-- List -->
             <div class="section-title">
                 <span><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 6px;"></i>Anggota dengan Lokasi</span>
                 <span id="locationCount" style="font-weight: 400; font-size: 0.7rem; color: var(--primary);">0 Lokasi</span>
             </div>
             <div id="memberList">
-                <div class="empty-state">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Memuat data Firebase...</p>
-                </div>
+                <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Memuat data...</p></div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="toast" id="toast">Memuat data...</div>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <script>
-        // ================= KONFIGURASI FIREBASE =================
         const firebaseConfig = {
             apiKey: "AIzaSyCahZIFKFXMCokFNxCpFokNSVtKzN4llus",
             authDomain: "cedar-setup-425414-d7.firebaseapp.com",
@@ -384,401 +347,267 @@
             appId: "1:723545991983:web:379548d2b425a502a60fda"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const rtdb = firebase.database();
         const auth = firebase.auth();
-        // =============================================================
 
         let map = null;
-        let markers = {};
+        let markers = {}; // Marker anggota lain
+        let myMarker = null; // Marker saya sendiri (Realtime Movement)
         let allMembers = [];
         let unsubscribe = null;
-        let presenceListener = null;
-        const DEFAULT_LOC = [-2.5, 118.0]; // Pusat Indonesia
-
-        // Track online status from RTDB
-        let onlineUsers = new Set();
+        let watchId = null;
+        let initialZoomDone = false; // Flag untuk auto zoom sekali
+        const DEFAULT_LOC = [-2.5, 118.0];
 
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
-            initPresenceListener();
-            loadFirebaseData();
+            initAuth();
             handlePanelScroll();
         });
 
-        // 1. Init Map
         function initMap() {
             if (map) return;
-            
-            map = L.map('map', {
-                center: DEFAULT_LOC,
-                zoom: 5,
-                zoomControl: false
-            });
-
+            map = L.map('map', { center: DEFAULT_LOC, zoom: 5, zoomControl: false });
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
-
-            // Menggunakan OpenStreetMap (Gratis & Tanpa API Key)
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© OpenStreetMap'
             }).addTo(map);
-
-            // Hide loading after map ready
-            setTimeout(() => {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-            }, 1000);
+            setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 1000);
         }
 
-        // 2. Init Presence Listener dari RTDB (sama seperti branda.html)
-        function initPresenceListener() {
-            // Listen ke presence di RTDB untuk real-time online status
-            presenceListener = rtdb.ref('presence').on('value', (snapshot) => {
-                onlineUsers.clear();
-                const data = snapshot.val();
-                if (data) {
-                    Object.keys(data).forEach(uid => {
-                        if (data[uid]?.online === true) {
-                            onlineUsers.add(uid);
-                        }
-                    });
+        function initAuth() {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // Update data dasar
+                    db.collection('users').doc(user.uid).set({
+                        currentSessionId: user.uid,
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                    
+                    startLocationTracking(user.uid);
+                    loadFirebaseData(user.uid);
+                } else {
+                    await auth.signInAnonymously();
                 }
-                console.log('Online users updated:', onlineUsers.size);
-                
-                // Re-render markers dengan status terbaru
-                if (allMembers.length > 0) {
-                    renderMarkers();
-                    renderList();
-                    updateStats();
-                }
-            }, (error) => {
-                console.error('Presence listener error:', error);
             });
         }
 
-        // 3. Load Firebase Data dari Firestore
-        function loadFirebaseData() {
-            console.log("Menghubungkan ke Firestore...");
+        // ==================================================
+        // LOGIKA REALTIME TRACKING (BERGERAK SESUAI TITIK)
+        // ==================================================
+        function startLocationTracking(uid) {
+            if (!navigator.geolocation) return;
+            if (watchId !== null) return;
+
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    
+                    // 1. Update Marker Saya (Smooth Movement)
+                    updateMyMarker(latitude, longitude, accuracy, uid);
+
+                    // 2. Kirim ke Firebase
+                    db.collection('users').doc(uid).update({
+                        latitude: latitude,
+                        longitude: longitude,
+                        accuracy: accuracy,
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    }).catch(e => console.log("Update loc error", e));
+                },
+                (err) => console.log("GPS Error", err),
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        function updateMyMarker(lat, lng, accuracy, uid) {
+            const userData = allMembers.find(m => m.id === uid);
+            const myName = userData?.nama || "Anda";
             
+            // Icon khusus pengguna saat ini (Warna Ungu)
+            const myIcon = L.divIcon({
+                html: `
+                    <div class="marker-container" style="position: relative;">
+                        <div style="
+                            position: absolute; width: 50px; height: 50px;
+                            background: rgba(99, 102, 241, 0.2);
+                            border-radius: 50%; top: -7px; left: -7px;
+                            animation: markerPulse 2s infinite;
+                        "></div>
+                        <div style="
+                            width: 36px; height: 36px;
+                            background: linear-gradient(135deg, #6366f1, #4f46e5);
+                            border-radius: 50%; border: 3px solid white;
+                            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+                            display: flex; justify-content: center; align-items: center;
+                        "><i class="fas fa-user" style="color: white; font-size: 14px;"></i></div>
+                    </div>`,
+                className: '',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+
+            if (myMarker) {
+                // JIKA SUDAH ADA: Pindahkan posisi (Smooth)
+                myMarker.setLatLng([lat, lng]);
+                // Update popup content jika perlu
+                myMarker.setPopupContent(`<b>${myName} (Anda)</b><br>Lokasi Akurat: ±${accuracy.toFixed(0)}m`);
+            } else {
+                // JIKA BELUM: Buat baru
+                myMarker = L.marker([lat, lng], { icon: myIcon })
+                    .addTo(map)
+                    .bindPopup(`<b>${myName} (Anda)</b><br>Lokasi Akurat: ±${accuracy.toFixed(0)}m`);
+                
+                // Auto zoom hanya sekali saat pertama kali lokasi ditemukan
+                if (!initialZoomDone) {
+                    map.setView([lat, lng], 16);
+                    initialZoomDone = true;
+                }
+            }
+        }
+
+        // ==================================================
+        // LOAD DATA & UPDATE MARKER ANGGOTA LAIN
+        // ==================================================
+        function loadFirebaseData(uid) {
             unsubscribe = db.collection('users').onSnapshot(snapshot => {
                 allMembers = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    allMembers.push({ id: doc.id, ...data });
-                });
+                snapshot.forEach(doc => allMembers.push({ id: doc.id, ...doc.data() }));
                 
-                console.log("Data diterima:", allMembers.length, "anggota");
-                console.log("Dengan lokasi:", allMembers.filter(m => m.latitude && m.longitude).length);
-                
-                renderMarkers();
+                renderMemberMarkers(uid); // Update marker anggota lain
+                renderList(uid);          // Update daftar di panel
                 updateStats();
-                renderList();
-
-            }, err => {
-                console.error("Firestore Error:", err);
-                showError("Gagal memuat data. Cek Console (F12) untuk detail error. <br><small>Pastikan Rules Firestore = 'allow read'</small>");
             });
         }
 
-        // 4. Cek Online Status (sinkron dengan branda.html)
         function checkOnline(m) {
-            // Method 1: Cek di RTDB presence (paling akurat)
-            if (onlineUsers.has(m.id)) return true;
-            
-            // Method 2: Cek currentSessionId di Firestore
             if (!m.currentSessionId) return false;
-            
-            // Method 3: Cek lastActive
             if (m.lastActive) {
                 const last = m.lastActive.toDate ? m.lastActive.toDate() : new Date(m.lastActive);
-                const now = new Date();
-                const diffMinutes = (now - last) / 60000;
-                
-                // Anggap online jika aktif dalam 5 menit terakhir
-                if (diffMinutes > 5) return false;
+                if ((new Date() - last) / 60000 > 3) return false; // 3 menit
             }
-            
-            // Method 4: Cek lastSeen (field alternatif)
-            if (m.lastSeen) {
-                const last = m.lastSeen.toDate ? m.lastSeen.toDate() : new Date(m.lastSeen);
-                const now = new Date();
-                const diffMinutes = (now - last) / 60000;
-                if (diffMinutes > 5) return false;
-            }
-            
             return true;
         }
 
-        // 5. Render Markers to Map
-        function renderMarkers() {
-            // Clear old markers
-            Object.values(markers).forEach(m => map.removeLayer(m));
+        function renderMemberMarkers(myUid) {
+            // Hapus marker lama yang bukan milik saya
+            Object.keys(markers).forEach(id => map.removeLayer(markers[id]));
             markers = {};
 
-            let bounds = L.latLngBounds();
-            let hasLocation = false;
-
             allMembers.forEach(m => {
-                if (m.latitude && m.longitude) {
-                    hasLocation = true;
+                if (m.latitude && m.longitude && m.id !== myUid) {
                     const isOnline = checkOnline(m);
                     const lat = parseFloat(m.latitude);
                     const lng = parseFloat(m.longitude);
-                    
                     if (isNaN(lat) || isNaN(lng)) return;
 
-                    bounds.extend([lat, lng]);
-
-                    // Custom Icon dengan animasi untuk online
-                    const iconHtml = `
-                        <div class="marker-container" style="position: relative;">
-                            ${isOnline ? `
-                                <div style="
-                                    position: absolute;
-                                    width: 44px; height: 44px;
-                                    background: rgba(16, 185, 129, 0.3);
-                                    border-radius: 50%;
-                                    top: -4px; left: -4px;
-                                    animation: markerPulse 2s infinite;
-                                "></div>
-                            ` : ''}
-                            <div style="
-                                width: 36px; height: 36px; 
-                                background: ${isOnline ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #94a3b8, #64748b)'};
-                                border-radius: 50%; 
-                                border: 3px solid white;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-                                display: flex; justify-content: center; align-items: center;
-                                position: relative;
-                                z-index: 1;
-                            ">
-                                <i class="fas fa-user" style="color: white; font-size: 14px;"></i>
-                            </div>
-                        </div>
-                    `;
-
                     const icon = L.divIcon({
-                        html: iconHtml,
-                        className: '', 
-                        iconSize: [36, 36],
-                        iconAnchor: [18, 18],
-                        popupAnchor: [0, -18]
+                        html: `
+                            <div style="
+                                width: 36px; height: 36px;
+                                background: ${isOnline ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #94a3b8, #64748b)'};
+                                border-radius: 50%; border: 3px solid white;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                                display: flex; justify-content: center; align-items: center;
+                            "><i class="fas fa-user" style="color: white; font-size: 14px;"></i></div>`,
+                        className: '', iconSize: [36, 36], iconAnchor: [18, 18]
                     });
 
-                    const marker = L.marker([lat, lng], { icon: icon })
+                    markers[m.id] = L.marker([lat, lng], { icon: icon })
                         .addTo(map)
-                        .bindPopup(`
-                            <div style="min-width:180px; font-family: Poppins;">
-                                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-                                    <img src="${m.profilePicUrl || m.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.nama || 'U')}&background=6366f1&color=fff`}" 
-                                         style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid ${isOnline ? '#10b981' : '#e2e8f0'};">
-                                    <div>
-                                        <b style="font-size:1rem; display:block;">${escapeHtml(m.nama || 'Anonim')}</b>
-                                        <span style="font-size:0.7rem; padding:2px 8px; border-radius:4px; 
-                                            background:${isOnline ? 'rgba(16,185,129,0.1)' : '#f1f5f9'}; 
-                                            color:${isOnline ? '#10b981' : '#64748b'}; font-weight:600;">
-                                            ${isOnline ? '● Online' : '○ Offline'}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div style="margin-top:10px; font-size:0.75rem; color:#64748b; border-top:1px solid #f1f5f9; padding-top:8px;">
-                                    ${m.email ? '<div style="margin-bottom:4px;"><i class="fas fa-envelope" style="width:16px;"></i> ' + escapeHtml(m.email) + '</div>' : ''}
-                                    ${m.titel ? '<div><i class="fas fa-award" style="width:16px;"></i> ' + escapeHtml(m.titel) + '</div>' : ''}
-                                </div>
-                            </div>
-                        `);
-                    
-                    markers[m.id] = marker;
+                        .bindPopup(`<b>${m.nama || 'Anonim'}</b><br>Status: ${isOnline ? 'Online' : 'Offline'}`);
                 }
             });
-
-            // AUTO ZOOM
-            if (hasLocation) {
-                map.fitBounds(bounds, { padding: [50, 50] });
-            }
         }
 
-        // 6. Render List UI
-        function renderList() {
-            const container = document.getElementById('memberList');
+        // UI Helpers
+        function renderList(myUid) {
+            const list = document.getElementById('memberList');
             const withLoc = allMembers.filter(m => m.latitude && m.longitude);
-            
             document.getElementById('locationCount').textContent = `${withLoc.length} Lokasi`;
-
-            if (allMembers.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-users-slash"></i><p>Belum ada data anggota.</p></div>`;
-                return;
-            }
-
+            
             if (withLoc.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <p>Belum ada anggota yang mengaktifkan lokasi.</p>
-                        <p style="font-size:0.7rem; margin-top:5px; color:#94a3b8;">Data latitude/longitude kosong.</p>
-                    </div>`;
+                list.innerHTML = `<div class="empty-state"><i class="fas fa-map-marker-alt"></i><p>Tidak ada lokasi.</p></div>`;
                 return;
             }
 
-            // Sort: Online First
-            withLoc.sort((a, b) => checkOnline(b) - checkOnline(a));
-
-            container.innerHTML = withLoc.map(m => {
+            list.innerHTML = withLoc.map(m => {
+                const isMe = m.id === myUid;
                 const isOnline = checkOnline(m);
                 return `
-                <div class="member-card" onclick="focusMember('${m.id}')">
-                    <img src="${m.profilePicUrl || m.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.nama || 'U')}&background=6366f1&color=fff`}" 
-                         class="member-avatar" 
-                         onerror="this.src='https://ui-avatars.com/api/?name=U&background=6366f1&color=fff'"
-                         style="border-color: ${isOnline ? '#10b981' : '#e2e8f0'};">
+                <div class="member-card" onclick="focusMember('${m.id}', ${isMe})">
+                    <img src="${m.profilePicUrl || `https://ui-avatars.com/api/?name=${m.nama||'U'}`}" class="member-avatar" style="border-color: ${isMe ? 'var(--primary)' : (isOnline ? 'var(--success)' : '#e2e8f0')}">
                     <div class="member-info">
-                        <div class="member-name">
-                            ${escapeHtml(m.nama || 'Anonim')}
-                        </div>
-                        <div class="member-location">
-                            <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i>
-                            ${m.alamat || m.kota || 'Lokasi tidak diketahui'}
-                        </div>
+                        <div class="member-name">${isMe ? 'Anda' : (m.nama || 'Anonim')}</div>
+                        <div class="member-location">Lat: ${m.latitude.toFixed(4)}, Lng: ${m.longitude.toFixed(4)}</div>
                     </div>
                     <div class="status-indicator ${isOnline ? 'online' : 'offline'}">
                         <div class="status-dot ${isOnline ? 'on' : 'off'}"></div>
-                        ${isOnline ? 'Online' : 'Offline'}
+                        ${isMe ? 'Anda' : (isOnline ? 'Online' : 'Offline')}
                     </div>
-                </div>
-            `}).join('');
+                </div>`;
+            }).join('');
         }
 
-        // 7. Update Stats
         function updateStats() {
             const total = allMembers.length;
             const withLoc = allMembers.filter(m => m.latitude && m.longitude);
             const online = withLoc.filter(m => checkOnline(m)).length;
-            
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statOnline').textContent = online;
             document.getElementById('statOffline').textContent = withLoc.length - online;
         }
 
-        // 8. Helpers
-        function escapeHtml(text) {
-            if (!text) return '';
-            return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        function focusMember(id) {
-            const m = markers[id];
-            if (m) {
-                map.setView(m.getLatLng(), 16);
-                m.openPopup();
-                document.getElementById('mapPanel').classList.add('collapsed');
-                adjustFabPosition(true);
+        function focusMember(id, isMe) {
+            let targetMarker = isMe ? myMarker : markers[id];
+            if (targetMarker) {
+                map.setView(targetMarker.getLatLng(), 16);
+                targetMarker.openPopup();
             }
+            document.getElementById('mapPanel').classList.add('collapsed');
         }
 
         function zoomToAllMembers() {
-            const points = Object.values(markers).map(m => m.getLatLng());
-            if (points.length === 0) {
-                showToast("Tidak ada lokasi anggota.");
-                return;
-            }
-            const bounds = L.latLngBounds(points);
-            map.fitBounds(bounds, { padding: [50, 50] });
-            showToast("Menampilkan semua anggota.");
+            const points = [];
+            if (myMarker) points.push(myMarker.getLatLng());
+            Object.values(markers).forEach(m => points.push(m.getLatLng()));
+            if (points.length > 0) map.fitBounds(L.latLngBounds(points), { padding: [50, 50] });
+            else showToast("Tidak ada lokasi.");
         }
 
         function locateMe() {
-            if (!navigator.geolocation) return showToast("GPS tidak didukung browser");
-            showToast("Mencari lokasi Anda...");
-            navigator.geolocation.getCurrentPosition(pos => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                map.setView([lat, lng], 16);
-                
-                // Tambah marker biru untuk lokasi sendiri
-                L.circleMarker([lat, lng], {
-                    radius: 10, 
-                    fillColor: "#6366f1", 
-                    color: "#fff", 
-                    weight: 3, 
-                    fillOpacity: 1
-                }).addTo(map).bindPopup("<b>Lokasi Anda</b>").openPopup();
-
-                // Tambah circle untuk akurasi
-                L.circle([lat, lng], {
-                    radius: pos.coords.accuracy,
-                    color: '#6366f1',
-                    fillColor: '#6366f1',
-                    fillOpacity: 0.1,
-                    weight: 1
-                }).addTo(map);
-                
-            }, (err) => {
-                console.error('Geolocation error:', err);
-                showToast("Gagal mendapatkan izin lokasi");
-            }, {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            });
-        }
-
-        function refreshData() {
-            showToast("Memperbarui data...");
-            // Force re-render
-            renderMarkers();
-            renderList();
-            updateStats();
-        }
-
-        function togglePanel() {
-            const panel = document.getElementById('mapPanel');
-            const isCollapsed = panel.classList.toggle('collapsed');
-            adjustFabPosition(isCollapsed);
-        }
-
-        function handlePanelScroll() {
-            const panel = document.getElementById('mapPanel');
-            const observer = new MutationObserver(() => {
-                adjustFabPosition(panel.classList.contains('collapsed'));
-            });
-            observer.observe(panel, { attributes: true });
-            adjustFabPosition(true);
-        }
-
-        function adjustFabPosition(isPanelCollapsed) {
-            const fab = document.getElementById('fabContainer');
-            if (isPanelCollapsed) {
-                fab.classList.remove('panel-open');
+            if (myMarker) {
+                map.setView(myMarker.getLatLng(), 16);
+                myMarker.openPopup();
             } else {
-                fab.classList.add('panel-open');
+                showToast("GPS mencari lokasi...");
             }
         }
 
-        function showError(msg) {
-            document.getElementById('memberList').innerHTML = `
-                <div class="empty-state" style="color: var(--danger);">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>${msg}</p>
-                </div>
-            `;
+        function refreshData() { showToast("Data diperbarui"); }
+        function togglePanel() {
+            const panel = document.getElementById('mapPanel');
+            const isCollapsed = panel.classList.toggle('collapsed');
+            document.getElementById('fabContainer').classList.toggle('panel-open', !isCollapsed);
         }
-
+        function handlePanelScroll() {
+            const observer = new MutationObserver(() => {
+                const isCollapsed = document.getElementById('mapPanel').classList.contains('collapsed');
+                document.getElementById('fabContainer').classList.toggle('panel-open', !isCollapsed);
+            });
+            observer.observe(document.getElementById('mapPanel'), { attributes: true });
+        }
         function showToast(msg) {
             const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
         }
 
-        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             if (unsubscribe) unsubscribe();
-            if (presenceListener) rtdb.ref('presence').off('value', presenceListener);
+            if (watchId) navigator.geolocation.clearWatch(watchId);
         });
     </script>
-
-    <!-- CSS Animation untuk marker pulse -->
     <style>
         @keyframes markerPulse {
             0% { transform: scale(1); opacity: 0.6; }
