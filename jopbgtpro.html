@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Orderan Masuk - BGT-PRO</title>
+    <title>Driver App - BGT-PRO</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -15,6 +15,7 @@
             --bg-card: #ffffff; --text-dark: #0f172a; --text-gray: #64748b;
             --border-light: #e2e8f0; --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
             --shadow-soft: 0 4px 20px rgba(37, 99, 235, 0.08);
+            --warning: #f59e0b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -231,7 +232,8 @@
         .action-btn:active { transform: scale(0.95); }
         .action-btn.take { background: var(--primary); }
         .action-btn.finish { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
-        .action-btn.cancel-btn { background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); }
+        /* Tombol Jalan warna kuning/orange untuk penekanan */
+        .action-btn.route { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
 
         .empty-state { text-align: center; padding: 60px 20px; color: var(--text-gray); background: var(--bg-card); border-radius: 16px; margin: 0 16px; border: 1px dashed var(--border-light); }
         .empty-state i { font-size: 3rem; margin-bottom: 15px; color: #cbd5e1; }
@@ -253,6 +255,7 @@
             flex-direction: column; align-items: center; justify-content: center;
         }
         .camera-modal.active { display: flex; }
+        .camera-instruction { color: white; margin-bottom: 15px; font-weight: 600; text-align: center; padding: 0 20px; }
         .camera-container { width: 100%; max-width: 400px; position: relative; }
         .camera-video { width: 100%; border-radius: 12px; transform: scaleX(-1); }
         .camera-canvas { display: none; }
@@ -280,7 +283,7 @@
         <header class="header">
             <div class="header-left">
                 <button class="back-btn" onclick="window.location.href='branda.html'"><i class="fas fa-arrow-left"></i></button>
-                <div class="header-title">Orderan Masuk</div>
+                <div class="header-title">Driver Panel</div>
             </div>
         </header>
 
@@ -348,6 +351,10 @@
         let capturedPhotoBlob = null;
         let currentFinishingOrderId = null;
 
+        // === VARIABLE UNTUK TRACKING LOKASI ===
+        let locationWatcher = null; // Menyimpan ID watchPosition
+        let currentRunningOrderId = null; // ID order yang sedang berjalan
+
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.error(e));
 
         auth.onAuthStateChanged(async (user) => {
@@ -399,9 +406,11 @@
         }
 
         function isMyOrder(order) {
-            const myId = currentUserId || '';
+            if (!currentUserId) return false;
+            if (order.driverId && order.driverId === currentUserId) return true;
             const myName = (currentUserData && currentUserData.nama) ? currentUserData.nama : '';
-            return (order.driverId && order.driverId === myId) || (order.driverName && myName && order.driverName === myName);
+            if (order.driverName && myName && order.driverName === myName) return true;
+            return false;
         }
 
         function openImageModal(src) { document.getElementById('modalImageSrc').src = src; document.getElementById('imageModal').classList.add('active'); }
@@ -413,7 +422,7 @@
             let filtered = orderData;
             
             if (currentFilter === 'order') filtered = orderData.filter(o => o.status === 'order');
-            else if (currentFilter === 'berjalan') filtered = orderData.filter(o => o.status === 'berjalan' && isMyOrder(o));
+            else if (currentFilter === 'berjalan') filtered = orderData.filter(o => o.status === 'berjalan');
             else if (currentFilter === 'selesai') filtered = orderData.filter(o => o.status === 'selesai' && isMyOrder(o));
 
             if (filtered.length === 0) {
@@ -426,9 +435,10 @@
             }
 
             list.innerHTML = filtered.map(o => {
-                // State Logic
                 let badgeClass = 'new', badgeText = 'ORDER', btnHtml = '', isDisabled = false;
                 let showDriver = false;
+
+                const isOwner = isMyOrder(o);
 
                 if (currentFilter === 'all') {
                     if (o.status === 'order') { badgeClass = 'new'; badgeText = 'ORDER BARU'; }
@@ -444,24 +454,35 @@
                 }
                 else if (currentFilter === 'berjalan') {
                     badgeClass = 'progress'; badgeText = 'BERJALAN';
-                    isDisabled = false; showDriver = true;
-                    btnHtml = `
-                        <div class="action-buttons">
-                            <button class="action-btn cancel-btn" onclick="cancelOrder(event, '${o.id}')"><i class="fas fa-times"></i> Batal</button>
-                            <button class="action-btn finish" onclick="openCameraForFinish(event, '${o.id}')"><i class="fas fa-camera"></i> Selesai</button>
-                        </div>`;
+                    showDriver = true;
+                    isDisabled = false; 
+
+                    if (isOwner) {
+                        // Cek apakah tracking sudah aktif
+                        const isTracking = currentRunningOrderId === o.id;
+                        const trackingBtnHtml = isTracking 
+                            ? `<button class="action-btn route" style="opacity: 0.7;" disabled><i class="fas fa-spinner fa-spin"></i> Tracking...</button>`
+                            : `<button class="action-btn route" onclick="startRouteTracking(event, '${o.id}')"><i class="fas fa-route"></i> Jalan</button>`;
+
+                        btnHtml = `
+                            <div class="action-buttons">
+                                ${trackingBtnHtml}
+                                <button class="action-btn finish" onclick="openCameraForFinish(event, '${o.id}')"><i class="fas fa-camera"></i> Selesai</button>
+                            </div>`;
+                    } else {
+                        btnHtml = ''; 
+                        isDisabled = true;
+                    }
                 }
                 else if (currentFilter === 'selesai') {
                     badgeClass = 'done'; badgeText = 'SELESAI';
                     isDisabled = true; showDriver = true; btnHtml = '';
                 }
 
-                // Image
                 let imgHtml = '';
                 if (o.finishPhoto) imgHtml = `<img src="${o.finishPhoto}" class="photo-preview" onclick="openImageModal(this.src)">`;
                 else if (o.imageUrl) imgHtml = `<img src="${o.imageUrl}" class="order-image" onclick="openImageModal(this.src)">`;
 
-                // Time
                 const formatTime = (t) => { if(!t) return ''; let[h,m]=t.split(':'); return `${h%12||12}:${m} ${h>=12?'PM':'AM'}`; };
                 const formatDate = (d) => { let dt=new Date(d); return `${['Min','Sen','Sel','Rab','Kam','Jum','Sab'][dt.getDay()]}, ${dt.getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][dt.getMonth()]}`; };
                 
@@ -478,14 +499,12 @@
                 const koper = o.koper || o.luggage || '';
                 const koperHtml = koper && koper !== '-' ? `<div class="ket-box koper-box"><div class="ket-label koper-label"><i class="fas fa-suitcase-rolling"></i> Koper</div><div class="ket-text">${koper}</div></div>` : '';
 
-                // Driver Data
                 const dName = o.driverName || '-';
                 const dPhone = o.driverPhone || '-';
                 const dPlate = o.driverPlate || '-';
 
                 const disabledClass = isDisabled ? 'disabled' : '';
                 
-                // Render Info Section
                 let infoSectionHtml = '';
                 
                 if (showDriver) {
@@ -598,8 +617,78 @@
         });
 
         // ==========================================
-        // FUNGSI TAKE ORDER - PENYESUAIAN FIELD PROFIL
+        // FUNGSI GPS TRACKING (REALTIME)
         // ==========================================
+        
+        // Fungsi untuk mulai mengirim lokasi (dipanggil saat tombol Jalan ditekan)
+        function startRouteTracking(e, orderId) {
+            e.preventDefault();
+            if (!navigator.geolocation) {
+                alert("Browser tidak mendukung GPS.");
+                return;
+            }
+
+            // Set ID order yang sedang berjalan
+            currentRunningOrderId = orderId;
+            
+            // Update UI tombol langsung (loading state)
+            renderOrders();
+
+            // Hentikan tracking sebelumnya jika ada (untuk berjaga-jaga)
+            if (locationWatcher) {
+                navigator.geolocation.clearWatch(locationWatcher);
+            }
+            
+            console.log("Memulai tracking rute untuk order:", orderId);
+
+            // Gunakan watchPosition untuk update realtime
+            locationWatcher = navigator.geolocation.watchPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Kirim ke Firebase hanya jika orderId masih aktif
+                    if (currentRunningOrderId === orderId) {
+                        db.ref('orders/' + orderId).update({
+                            driverLat: lat,
+                            driverLng: lng,
+                            lastLocationUpdate: firebase.database.ServerValue.TIMESTAMP
+                        }).then(() => {
+                            console.log("Lokasi terkirim:", lat, lng);
+                        }).catch(err => console.error("Gagal kirim lokasi:", err));
+                    }
+                },
+                (error) => {
+                    console.error("Error GPS:", error);
+                    if(error.code === 1) {
+                        alert("Izin lokasi ditolak. Aktifkan izin lokasi di pengaturan browser.");
+                        // Reset state jika izin ditolak
+                        currentRunningOrderId = null;
+                        renderOrders();
+                    }
+                },
+                { 
+                    enableHighAccuracy: true, 
+                    timeout: 10000, 
+                    maximumAge: 0 
+                }
+            );
+        }
+
+        // Fungsi untuk berhenti mengirim lokasi
+        function stopDriverTracking() {
+            if (locationWatcher) {
+                navigator.geolocation.clearWatch(locationWatcher);
+                locationWatcher = null;
+                console.log("Tracking dihentikan.");
+            }
+            currentRunningOrderId = null;
+        }
+
+        // ==========================================
+        // AKSI DRIVER
+        // ==========================================
+
         async function takeOrder(e, id) {
             e.preventDefault();
             const btn = e.target.closest('button');
@@ -608,22 +697,16 @@
 
             if (!currentUserData) {
                 alert("Data profil tidak ditemukan. Coba refresh halaman.");
-                btn.disabled = false; btn.innerHTML = 'Ambil'; return;
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> Ambil'; return;
             }
 
-            // SESUAIKAN DENGAN NAMA FIELD DI PROFIL ANDA
-            // Nama: 'nama'
-            // Telepon: 'telepon'
-            // Plat: 'platMobil'
-            
             let dName = currentUserData.nama || '';
             let dPhone = currentUserData.telepon || ''; 
             let dPlate = currentUserData.platMobil || '';
 
-            // Jika data profil kosong, minta input
             if (!dName) {
                 let input = prompt("Nama tidak ditemukan di profil.\nMasukkan Nama Anda:");
-                if (!input) { btn.disabled = false; btn.innerHTML = 'Ambil'; return; }
+                if (!input) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> Ambil'; return; }
                 dName = input;
             }
 
@@ -646,7 +729,10 @@
                     driverPlate: dPlate, 
                     takenAt: firebase.database.ServerValue.TIMESTAMP
                 });
-                alert('Order berhasil diambil oleh ' + dName);
+                
+                alert('Order berhasil diambil! Tekan tombol "Jalan" saat siap berangkat.');
+                // Tidak langsung start tracking, tunggu tombol "Jalan"
+
             } catch (err) { 
                 alert("Gagal mengambil order: " + err.message); 
                 btn.disabled = false; 
@@ -654,16 +740,9 @@
             }
         }
 
-        async function cancelOrder(e, id) {
-            e.preventDefault();
-            if (!confirm("Yakin membatalkan? Order kembali tersedia.")) return;
-            const btn = e.target.closest('button'); btn.disabled = true;
-            try { await db.ref('orders/' + id).update({ status: 'order', driverId: null, driverName: null, driverPhone: null, driverPlate: null, takenAt: null }); }
-            catch (err) { alert(err.message); btn.disabled = false; }
-        }
-
         async function openCameraForFinish(e, id) {
-            e.preventDefault(); currentFinishingOrderId = id;
+            e.preventDefault(); 
+            currentFinishingOrderId = id;
             const modal = document.getElementById('cameraModal'), video = document.getElementById('cameraVideo');
             document.getElementById('cameraPreviewImg').style.display = 'none';
             video.style.display = 'block';
@@ -705,8 +784,23 @@
                 if (w > 800 || h > 600) { const r = Math.min(800/w, 600/h); w *= r; h *= r; }
                 cvs.width = w; cvs.height = h; ctx.drawImage(img, 0, 0, w, h);
                 const b64 = cvs.toDataURL('image/jpeg', 0.7);
-                await db.ref('orders/' + currentFinishingOrderId).update({ status: 'selesai', finishPhoto: b64, finishedAt: firebase.database.ServerValue.TIMESTAMP });
-                alert('Selesai!'); closeCamera();
+                
+                // Update status selesai
+                await db.ref('orders/' + currentFinishingOrderId).update({ 
+                    status: 'selesai', 
+                    finishPhoto: b64, 
+                    finishedAt: firebase.database.ServerValue.TIMESTAMP,
+                    // Hapus koordinat live saat selesai
+                    driverLat: null, 
+                    driverLng: null 
+                });
+                
+                alert('Order Selesai!');
+                
+                // HENTIKAN TRACKING
+                stopDriverTracking();
+                
+                closeCamera();
             } catch (e) { alert('Error: ' + e.message); btn.innerHTML = '<i class="fas fa-check"></i>'; btn.disabled = false; }
         }
 
