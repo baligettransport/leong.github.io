@@ -1382,24 +1382,35 @@
     // KEAMANAN: DEVICE CONFLICT (LOGIN DITOLAK)
     // ============================================
     function showDeviceConflict(deviceInfo) {
+        console.log('Showing device conflict modal:', deviceInfo);
+        
         const overlay = document.getElementById('deviceConflictOverlay');
         const iconEl = document.getElementById('conflictDeviceIcon');
         const nameEl = document.getElementById('conflictDeviceName');
         const metaEl = document.getElementById('conflictDeviceMeta');
 
-        // Set icon
-        const iconClass = getDeviceIconClass(deviceInfo.deviceType || 'mobile');
+        // Set icon based on device type
+        let iconClass = 'fa-mobile-alt';
+        if (deviceInfo.deviceType === 'tablet') {
+            iconClass = 'fa-tablet-alt';
+        } else if (deviceInfo.deviceType === 'desktop') {
+            iconClass = 'fa-laptop';
+        }
         iconEl.innerHTML = `<i class="fas ${iconClass}"></i>`;
 
         // Set device info
         nameEl.textContent = deviceInfo.deviceName || 'Perangkat Lain';
         metaEl.textContent = `${deviceInfo.deviceOS || ''} • ${deviceInfo.deviceBrowser || ''}`;
 
+        // Show overlay
         overlay.classList.add('active');
         document.body.classList.add('no-scroll');
+        
+        console.log('Conflict modal shown');
     }
 
     function handleConflictOk() {
+        console.log('Conflict modal closed');
         const overlay = document.getElementById('deviceConflictOverlay');
         overlay.classList.remove('active');
         document.body.classList.remove('no-scroll');
@@ -1442,31 +1453,49 @@
     async function checkAndCreateSession(user, deviceInfo) {
         const sessionRef = db.collection('sessions').doc(user.uid);
         
+        console.log('=== SESSION CHECK ===');
+        console.log('User ID:', user.uid);
+        console.log('Current Device ID:', deviceInfo.deviceId);
+        console.log('Current Device Name:', deviceInfo.deviceName);
+        
         try {
             const sessionDoc = await sessionRef.get();
 
             if (sessionDoc.exists) {
                 const sessionData = sessionDoc.data();
+                console.log('Existing Session Found:');
+                console.log('- Session Device ID:', sessionData.deviceId);
+                console.log('- Session Device Name:', sessionData.deviceName);
+                console.log('- Last Active:', sessionData.lastActive);
                 
-                // Jika ada session aktif di perangkat lain (deviceId BERBEDA)
-                if (sessionData.deviceId && sessionData.deviceId !== deviceInfo.deviceId) {
+                // CEK: Jika ada session dengan deviceId yang VALID dan BERBEDA = TOLAK LOGIN
+                // DeviceId harus ada dan tidak kosong
+                if (sessionData.deviceId && sessionData.deviceId.trim() !== '' && sessionData.deviceId !== deviceInfo.deviceId) {
+                    console.log('❌ LOGIN DITOLAK - Device berbeda terdeteksi!');
+                    console.log('Session Device ID:', sessionData.deviceId);
+                    console.log('Requesting Device ID:', deviceInfo.deviceId);
+                    
                     // LOGIN DITOLAK
                     return {
                         allowed: false,
                         activeDevice: {
-                            deviceName: sessionData.deviceName,
-                            deviceType: sessionData.deviceType,
-                            deviceOS: sessionData.deviceOS,
-                            deviceBrowser: sessionData.deviceBrowser
+                            deviceName: sessionData.deviceName || 'Perangkat Lain',
+                            deviceType: sessionData.deviceType || 'unknown',
+                            deviceOS: sessionData.deviceOS || '',
+                            deviceBrowser: sessionData.deviceBrowser || ''
                         }
                     };
                 }
                 
                 // Jika deviceId SAMA (login ulang dari perangkat yang sama) = BOLEH
-                console.log('Same device login, allowed');
+                // Atau jika deviceId kosong (session lama) = BOLEH dan update
+                console.log('✅ Same device or empty session - allowed');
+            } else {
+                console.log('No existing session - creating new');
             }
 
             // Buat/update session
+            console.log('Creating/updating session...');
             await sessionRef.set({
                 deviceId: deviceInfo.deviceId,
                 deviceName: deviceInfo.deviceName,
@@ -1475,9 +1504,11 @@
                 deviceBrowser: deviceInfo.deviceBrowser,
                 lastActive: firebase.firestore.FieldValue.serverTimestamp(),
                 createdAt: sessionDoc.exists ? sessionDoc.data().createdAt : firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+            });
 
-            // Update user document (dengan error handling)
+            console.log('✅ Session created/updated successfully');
+
+            // Update user document
             try {
                 await db.collection('users').doc(user.uid).update({
                     activeDeviceId: deviceInfo.deviceId,
@@ -1485,15 +1516,17 @@
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
                     status: 'ONLINE'
                 });
+                console.log('✅ User document updated');
             } catch (updateError) {
-                console.log('User update skipped (might be new user):', updateError.message);
+                console.log('User update skipped:', updateError.message);
             }
 
             return { allowed: true };
             
         } catch (error) {
-            console.error('Session check error:', error);
-            return { allowed: true }; // Allow login jika ada error
+            console.error('❌ Session check error:', error);
+            // Jika error, TETAP bolehkan login untuk menghindari user terkunci
+            return { allowed: true };
         }
     }
 
@@ -2088,17 +2121,24 @@
         try {
             // Get full device info
             const deviceInfo = await getFullDeviceInfo();
+            console.log('=== LOGIN ATTEMPT ===');
+            console.log('Email:', email);
             console.log('Device Info:', deviceInfo);
 
-            // Login
+            // Login ke Firebase Auth
+            console.log('Signing in to Firebase...');
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             const user = userCredential.user;
+            console.log('Firebase Auth Success - User ID:', user.uid);
 
             // CHECK SINGLE DEVICE - Apakah sudah login di perangkat lain?
+            console.log('Checking session...');
             const sessionCheck = await checkAndCreateSession(user, deviceInfo);
+            console.log('Session Check Result:', sessionCheck);
 
             if (!sessionCheck.allowed) {
                 // LOGIN DITOLAK - Sudah login di perangkat lain
+                console.log('❌ LOGIN DITOLAK - Showing conflict modal');
                 await auth.signOut();
                 setLoading(btn, false);
                 
@@ -2106,6 +2146,8 @@
                 showDeviceConflict(sessionCheck.activeDevice);
                 return;
             }
+
+            console.log('✅ LOGIN ALLOWED');
 
             // Save session and device locally
             safeSetItem('userSessionId', newSessionId);
