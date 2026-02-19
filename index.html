@@ -311,7 +311,7 @@
         }
         .attempt-dot.failed { background: var(--danger-color); box-shadow: 0 0 10px rgba(231, 74, 59, 0.5); }
 
-        /* Session Kick Notification */
+        /* Session Kick Notification (ONE DEVICE LOGIN) */
         .session-kick-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.98); z-index: 99998; display: none;
@@ -386,7 +386,7 @@
         </p>
     </div>
 
-    <!-- KEAMANAN: SESSION KICK OVERLAY -->
+    <!-- KEAMANAN: SESSION KICK OVERLAY (NEW DEVICE LOGIN) -->
     <div id="sessionKickOverlay" class="session-kick-overlay">
         <div class="kick-icon">
             <i class="fas fa-sign-out-alt"></i>
@@ -569,8 +569,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
 
-<!-- GANTI SELURUH BAGIAN <script> DI BAWAH INI -->
-
 <script>
     // ============================================
     // KONFIGURASI
@@ -600,12 +598,28 @@
     // STATE
     let sessionUnsubscribe = null;
     let currentUserId = null;
+    let localDeviceId = null; // ID unik perangkat ini
     let localSessionId = null;
     let isScreenLocked = false;
     let lockTimerInterval = null;
     let currentAppUser = null;
     let watchId = null; 
     let selectedPhotoFile = null;
+
+    // ============================================
+    // FUNGSI DEVICE ID (KUNCI ONE DEVICE LOGIN)
+    // ============================================
+    
+    // Membuat atau mengambil ID unik perangkat dari localStorage
+    function getDeviceId() {
+        let deviceId = safeGetItem('deviceId');
+        if (!deviceId) {
+            // Buat ID baru jika tidak ada: timestamp + random string
+            deviceId = 'device_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+            safeSetItem('deviceId', deviceId);
+        }
+        return deviceId;
+    }
 
     // LOCAL STORAGE HELPERS
     function safeSetItem(key, value) {
@@ -618,16 +632,18 @@
     function clearOldStorage() {
         try {
             const sessionId = safeGetItem('userSessionId');
+            const deviceId = safeGetItem('deviceId'); // Jaga device ID
             const loginAttempts = safeGetItem('loginAttempts');
             const lockoutEndTime = safeGetItem('lockoutEndTime');
             localStorage.clear();
             if (sessionId) safeSetItem('userSessionId', sessionId);
+            if (deviceId) safeSetItem('deviceId', deviceId);
             if (loginAttempts) safeSetItem('loginAttempts', loginAttempts);
             if (lockoutEndTime) safeSetItem('lockoutEndTime', lockoutEndTime);
         } catch (e) { console.log('Storage clear attempt:', e.message); }
     }
 
-    // DEVICE INFO
+    // DEVICE INFO (UNTUK TAMPILAN)
     function getDeviceInfo() {
         const ua = navigator.userAgent;
         let device = 'Unknown Device', browser = 'Unknown Browser';
@@ -701,35 +717,64 @@
         });
     }
 
-    // SESSION KICK
+    // SESSION KICK HANDLERS
     function showSessionKick(deviceInfo) {
+        // Hentikan listener db lain untuk mencegah loop
+        if (sessionUnsubscribe) { 
+            sessionUnsubscribe(); 
+            sessionUnsubscribe = null; 
+        }
+        
         if (deviceInfo) document.getElementById('kickDeviceInfo').textContent = deviceInfo;
         document.getElementById('sessionKickOverlay').classList.add('active');
         document.body.classList.add('no-scroll');
     }
+    
     function handleSessionKick() {
-        localStorage.clear(); sessionStorage.clear();
-        if (sessionUnsubscribe) { sessionUnsubscribe(); sessionUnsubscribe = null; }
+        // Hapus data sesi lokal
+        localStorage.removeItem('userSessionId');
+        // Jangan hapus deviceId agar perangkat tetap dikenali jika login lagi
         if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
-        auth.signOut().then(() => window.location.reload()).catch(() => window.location.reload());
+        
+        // Logout dari Firebase
+        auth.signOut().then(() => {
+            window.location.reload(); 
+        }).catch(() => {
+            window.location.reload();
+        });
     }
+
+    // MONITOR SESI (ONE DEVICE LOGIC)
     function startSessionMonitor(userId) {
         currentUserId = userId;
         localSessionId = safeGetItem('userSessionId');
+        localDeviceId = getDeviceId(); // Ambil ID perangkat lokal
+
         if (sessionUnsubscribe) sessionUnsubscribe();
+
+        // Dengarkan perubahan data user di Firestore
         sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot((doc) => {
             if (!doc.exists) return;
             const data = doc.data();
-            if (data.currentSessionId && data.currentSessionId !== localSessionId) {
-                if (sessionUnsubscribe) { sessionUnsubscribe(); sessionUnsubscribe = null; }
-                showSessionKick(data.currentDevice || 'Perangkat lain');
+            
+            // LOGIKA KICK:
+            // Jika Device ID di database BERBEDA dengan Device ID lokal
+            // ATAU Session ID di database berbeda dengan Session ID lokal
+            if (data.currentDeviceId && data.currentDeviceId !== localDeviceId) {
+                 console.log("Device ID mismatch! Kicking out.");
+                 showSessionKick(data.currentDevice || 'Perangkat lain');
+            } else if (data.currentSessionId && data.currentSessionId !== localSessionId) {
+                 console.log("Session ID mismatch! Kicking out.");
+                 showSessionKick(data.currentDevice || 'Perangkat lain');
             }
         }, (error) => console.error('Session monitor error:', error));
     }
+
     function stopSessionMonitor() {
         if (sessionUnsubscribe) { sessionUnsubscribe(); sessionUnsubscribe = null; }
         currentUserId = null;
     }
+
     function checkLockoutStatus() {
         const endTime = getLockoutEndTime();
         const attempts = getLoginAttempts();
@@ -749,6 +794,9 @@
     }
     document.addEventListener('DOMContentLoaded', () => {
         setJoinDate(); checkLockoutStatus();
+        // Inisialisasi Device ID saat aplikasi dimuat
+        localDeviceId = getDeviceId();
+        
         const video = document.getElementById('bg-video');
         if (video) video.play().catch(() => { video.style.display = 'none'; });
     });
@@ -901,22 +949,12 @@
     }
     clearOldStorage();
 
-    // ============================================
-    // TRACKING LOKASI (PERBAIKAN: DITAMBAHKAN IZIN)
-    // ============================================
-    
-    // Fungsi Minta Izin Lokasi (Baru)
+    // TRACKING LOKASI
     function requestLocationPermission() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 () => { console.log("Izin lokasi diberikan"); }, 
-                (error) => { 
-                    console.warn("Gagal minta izin lokasi:", error);
-                    if (error.code === error.PERMISSION_DENIED) {
-                        // Jika ditolak, coba minta lagi atau beri tahu user
-                        // Kita biarkan saja, karena tracking akan coba lagi di branda.html
-                    }
-                }, 
+                (error) => { console.warn("Gagal minta izin lokasi:", error); }, 
                 { enableHighAccuracy: true, timeout: 10000 }
             );
         }
@@ -930,7 +968,6 @@
                 locationUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastActive: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log("Lokasi terupdate:", lat, lng);
         } catch (e) { console.error("Gagal update lokasi:", e); }
     }
 
@@ -944,7 +981,6 @@
             (e) => { if(e.code === e.PERMISSION_DENIED) console.log('Izin lokasi ditolak.'); }, 
             options
         );
-        console.log("Tracking lokasi dimulai di index.html");
     }
 
     // ============================================
@@ -984,6 +1020,7 @@
         const platMobilFinal = platKode + " " + platNomor + " " + platHuruf;
         const newSessionId = generateSessionId();
         const deviceInfo = getDeviceInfo();
+        const deviceId = getDeviceId(); // Dapatkan ID perangkat unik
 
         try {
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -1001,7 +1038,12 @@
             const userData = {
                 nama: nama.toUpperCase(), titel: titel, telepon: telepon, email: email, password: password,
                 platMobil: platMobilFinal, status: status, bergabung: dateStr, profilePicUrl: profilePicUrl, role: 'anggota',
-                currentSessionId: newSessionId, currentDevice: deviceInfo,
+                
+                // Data Keamanan One Device
+                currentSessionId: newSessionId, 
+                currentDevice: deviceInfo, 
+                currentDeviceId: deviceId, // Simpan Device ID
+                
                 loginHistory: firebase.firestore.FieldValue.arrayUnion({
                     sessionId: newSessionId, device: deviceInfo, timestamp: new Date().toISOString(), action: 'register'
                 }),
@@ -1012,7 +1054,6 @@
             safeSetItem('userSessionId', newSessionId);
             resetLoginAttempts(); clearLockoutEndTime();
 
-            // MINTA IZIN LOKASI SAAT REGISTER
             requestLocationPermission();
 
             currentAppUser = user;
@@ -1045,13 +1086,19 @@
         const password = document.getElementById('login-password').value;
         const newSessionId = generateSessionId();
         const deviceInfo = getDeviceInfo();
+        const deviceId = getDeviceId(); // Dapatkan ID perangkat unik
 
         try {
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             const user = userCredential.user;
 
+            // Update data login di Firestore termasuk Device ID baru
             await db.collection('users').doc(user.uid).update({
-                currentSessionId: newSessionId, currentDevice: deviceInfo, password: password, status: 'ONLINE',
+                currentSessionId: newSessionId, 
+                currentDevice: deviceInfo, 
+                currentDeviceId: deviceId, // Update Device ID (menandai perangkat ini sebagai aktif)
+                password: password, 
+                status: 'ONLINE',
                 lastActive: firebase.firestore.FieldValue.serverTimestamp(),
                 loginHistory: firebase.firestore.FieldValue.arrayUnion({
                     sessionId: newSessionId, device: deviceInfo, timestamp: new Date().toISOString(), action: 'login'
@@ -1063,7 +1110,6 @@
             showMessage('Login berhasil! Mengalihkan...', 'success');
             startSessionMonitor(user.uid);
 
-            // MINTA IZIN LOKASI SAAT LOGIN
             requestLocationPermission();
 
             currentAppUser = user;
