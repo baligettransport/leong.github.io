@@ -181,77 +181,91 @@
         .toast-close { background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px; }
 
         /* ============================================
-           DEVICE CONFLICT MODAL - SINGLE DEVICE LOGIN
+           SESSION KICK OVERLAY - LANGSUNG REDIRECT
            ============================================ */
-        .device-conflict-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(15, 23, 42, 0.98); z-index: 99999; 
-            display: none; justify-content: center; align-items: center; 
-            flex-direction: column; padding: 20px; 
+        .session-kick-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
         }
-        .device-conflict-overlay.active { display: flex; }
-        
-        .conflict-icon { 
-            width: 100px; height: 100px; 
-            background: linear-gradient(135deg, #ef4444, #dc2626); 
-            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-            margin-bottom: 1.5rem; box-shadow: 0 0 40px rgba(239, 68, 68, 0.4); 
+        .session-kick-overlay.active {
+            display: flex;
         }
-        .conflict-icon i { font-size: 3rem; color: #fff; }
         
-        .conflict-title { 
+        .kick-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #f59e0b, #e67e22);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+        }
+        .kick-icon i { font-size: 3rem; color: #fff; }
+        
+        .kick-title { 
             font-size: 1.5rem; font-weight: 700; color: #fff; 
             margin-bottom: 0.5rem; text-align: center; 
         }
-        .conflict-subtitle { 
+        .kick-subtitle { 
             font-size: 0.95rem; color: rgba(255, 255, 255, 0.7); 
             text-align: center; margin-bottom: 1.5rem; 
         }
         
-        .conflict-device-card { 
-            background: rgba(255, 255, 255, 0.1); 
-            padding: 1.25rem; border-radius: 16px; 
-            margin-bottom: 1.5rem; width: 100%; max-width: 320px;
+        .kick-device-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.25rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 320px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .conflict-device-label { 
+        .kick-device-label { 
             font-size: 0.7rem; color: rgba(255, 255, 255, 0.5); 
             text-transform: uppercase; letter-spacing: 1px; 
             margin-bottom: 0.75rem; 
         }
-        .conflict-device-info { 
-            display: flex; align-items: center; gap: 1rem; 
-        }
-        .conflict-device-icon { 
+        .kick-device-info { display: flex; align-items: center; gap: 1rem; }
+        .kick-device-icon { 
             width: 50px; height: 50px; 
             background: linear-gradient(135deg, #f59e0b, #e67e22); 
             border-radius: 12px; display: flex; align-items: center; justify-content: center; 
             font-size: 1.5rem; color: #fff; 
         }
-        .conflict-device-details { flex: 1; }
-        .conflict-device-name { 
+        .kick-device-details { flex: 1; }
+        .kick-device-name { 
             font-size: 1rem; font-weight: 600; color: #fff; 
             margin-bottom: 0.25rem; 
         }
-        .conflict-device-meta { 
+        .kick-device-meta { 
             font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); 
         }
         
-        .conflict-message { 
+        .kick-message {
             font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); 
             text-align: center; max-width: 300px; margin-bottom: 1.5rem; 
             line-height: 1.6;
         }
         
-        .btn-conflict-ok { 
+        .btn-kick-ok { 
             padding: 0.9rem 2.5rem; 
-            background: linear-gradient(135deg, #ef4444, #dc2626); 
+            background: linear-gradient(135deg, #f59e0b, #e67e22); 
             color: white; border: none; border-radius: 30px; 
             font-size: 1rem; font-weight: 700; cursor: pointer; 
-            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4); 
-            transition: transform 0.2s;
+            box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4); 
         }
-        .btn-conflict-ok:active { transform: scale(0.95); }
 
         /* Loading */
         .loading-container { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; gap: 16px; }
@@ -269,35 +283,28 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ============================================
-     DEVICE CONFLICT MODAL - LOGIN DITOLAK
-     ============================================ -->
-<div id="deviceConflictOverlay" class="device-conflict-overlay">
-    <div class="conflict-icon"><i class="fas fa-ban"></i></div>
-    <h2 class="conflict-title">LOGIN DITOLAK</h2>
-    <p class="conflict-subtitle">Akun ini sedang digunakan di perangkat lain</p>
+<!-- SESSION KICK OVERLAY -->
+<div id="sessionKickOverlay" class="session-kick-overlay">
+    <div class="kick-icon"><i class="fas fa-sign-out-alt"></i></div>
+    <h2 class="kick-title">SESI ANDA BERAKHIR</h2>
+    <p class="kick-subtitle">Akun Anda telah login di perangkat lain</p>
     
-    <div class="conflict-device-card">
-        <div class="conflict-device-label">Perangkat Aktif Saat Ini</div>
-        <div class="conflict-device-info">
-            <div class="conflict-device-icon" id="conflictDeviceIcon">
+    <div class="kick-device-card">
+        <div class="kick-device-label">Login Baru Terdeteksi</div>
+        <div class="kick-device-info">
+            <div class="kick-device-icon" id="kickDeviceIcon">
                 <i class="fas fa-mobile-alt"></i>
             </div>
-            <div class="conflict-device-details">
-                <div class="conflict-device-name" id="conflictDeviceName">HP Samsung</div>
-                <div class="conflict-device-meta" id="conflictDeviceMeta">Android • Chrome</div>
+            <div class="kick-device-details">
+                <div class="kick-device-name" id="kickDeviceName">HP Samsung</div>
+                <div class="kick-device-meta" id="kickDeviceMeta">Android • Chrome</div>
             </div>
         </div>
     </div>
     
-    <p class="conflict-message">
-        Untuk keamanan akun Anda, satu akun hanya dapat digunakan di satu perangkat dalam waktu bersamaan. 
-        Silakan logout dari perangkat lain terlebih dahulu.
+    <p class="kick-message">
+        Anda akan diarahkan ke halaman login...
     </p>
-    
-    <button class="btn-conflict-ok" onclick="handleConflictOk()">
-        <i class="fas fa-check"></i> Mengerti
-    </button>
 </div>
 
 <!-- Loading -->
@@ -416,7 +423,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
 
 <script>
     // ============================================
@@ -440,11 +446,9 @@
     // ============================================
     // STATE
     // ============================================
+    let sessionUnsubscribe = null;
     let currentUserId = null;
-    let currentDeviceId = null;
-    let messaging = null;
-    let locationWatchId = null;
-    let sessionCheckInterval = null;
+    let localDeviceId = null;
 
     // Tracking untuk notifikasi
     let orderListenerRef = null;
@@ -464,164 +468,6 @@
         { id: 1, title: 'Kopdar Bulanan', date: '25 Jan 2025', time: '18:00', location: 'Sanur', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', status: 'soon' },
         { id: 2, title: 'Makan Malam', date: '01 Feb 2025', time: '19:00', location: 'Jimbaran', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', status: 'open' }
     ];
-
-    // ============================================
-    // DEVICE FINGERPRINT - SINGLE DEVICE LOGIN
-    // ============================================
-    
-    /**
-     * Deteksi tipe perangkat
-     */
-    function getDeviceType() {
-        const ua = navigator.userAgent.toLowerCase();
-        if (/tablet|ipad|playbook|silk/.test(ua)) return 'tablet';
-        if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/.test(ua)) return 'mobile';
-        return 'desktop';
-    }
-
-    /**
-     * Deteksi sistem operasi
-     */
-    function getDeviceOS() {
-        const ua = navigator.userAgent;
-        if (/Windows NT 10/.test(ua)) return 'Windows';
-        if (/Windows/.test(ua)) return 'Windows';
-        if (/Android/.test(ua)) {
-            const match = ua.match(/Android\s([0-9.]+)/);
-            return match ? `Android ${match[1]}` : 'Android';
-        }
-        if (/iPhone/.test(ua)) {
-            const match = ua.match(/iPhone OS\s([0-9_]+)/);
-            return match ? `iOS ${match[1].replace(/_/g, '.')}` : 'iOS';
-        }
-        if (/iPad/.test(ua)) return 'iPadOS';
-        if (/Mac OS X/.test(ua)) return 'macOS';
-        if (/Linux/.test(ua)) return 'Linux';
-        return 'Unknown';
-    }
-
-    /**
-     * Deteksi browser
-     */
-    function getDeviceBrowser() {
-        const ua = navigator.userAgent;
-        if (/Edg/.test(ua)) return 'Edge';
-        if (/OPR|Opera/.test(ua)) return 'Opera';
-        if (/Firefox/.test(ua)) return 'Firefox';
-        if (/Chrome/.test(ua)) return 'Chrome';
-        if (/Safari/.test(ua)) return 'Safari';
-        return 'Unknown';
-    }
-
-    /**
-     * Generate nama perangkat yang user-friendly
-     */
-    function getDeviceName(deviceType, os) {
-        const typeNames = {
-            'mobile': 'HP',
-            'tablet': 'Tablet',
-            'desktop': 'Laptop/PC'
-        };
-        const baseName = typeNames[deviceType] || 'Perangkat';
-        const ua = navigator.userAgent;
-
-        if (os.toLowerCase().includes('android')) {
-            if (/Samsung/i.test(ua)) return `${baseName} Samsung`;
-            if (/Xiaomi|Redmi|POCO/i.test(ua)) return `${baseName} Xiaomi`;
-            if (/Oppo/i.test(ua)) return `${baseName} Oppo`;
-            if (/Vivo/i.test(ua)) return `${baseName} Vivo`;
-            if (/Realme/i.test(ua)) return `${baseName} Realme`;
-            if (/OnePlus/i.test(ua)) return `${baseName} OnePlus`;
-            if (/Huawei/i.test(ua)) return `${baseName} Huawei`;
-            return `${baseName} Android`;
-        }
-        if (os.toLowerCase().includes('ios')) return `${baseName} iPhone`;
-        if (os.toLowerCase().includes('ipados')) return `${baseName} iPad`;
-        if (os.toLowerCase().includes('windows')) return 'PC Windows';
-        if (os.toLowerCase().includes('macos')) return 'MacBook';
-        return baseName;
-    }
-
-    /**
-     * Generate unique device ID berdasarkan fingerprint
-     */
-    async function generateDeviceId() {
-        const components = [];
-        
-        components.push(navigator.userAgent);
-        components.push(`${screen.width}x${screen.height}x${screen.colorDepth}`);
-        components.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
-        components.push(navigator.language);
-        components.push(navigator.platform);
-        components.push(String(navigator.hardwareConcurrency || 'unknown'));
-        
-        if (navigator.deviceMemory) {
-            components.push(String(navigator.deviceMemory));
-        }
-        
-        components.push(String('ontouchstart' in window || navigator.maxTouchPoints > 0));
-
-        // Canvas fingerprint
-        try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.textBaseline = 'top';
-                ctx.font = '14px Arial';
-                ctx.fillStyle = '#f60';
-                ctx.fillRect(125, 1, 62, 20);
-                ctx.fillStyle = '#069';
-                ctx.fillText('BGT-PRO', 2, 15);
-                components.push(canvas.toDataURL().slice(0, 100));
-            }
-        } catch (e) {}
-
-        // WebGL info
-        try {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            if (gl) {
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                if (debugInfo) {
-                    components.push(gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || '');
-                    components.push(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '');
-                }
-            }
-        } catch (e) {}
-
-        // Hash
-        const combined = components.join('|||');
-        const encoder = new TextEncoder();
-        const data = encoder.encode(combined);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 32);
-    }
-
-    /**
-     * Mendapatkan informasi lengkap perangkat
-     */
-    async function getDeviceInfo() {
-        const deviceType = getDeviceType();
-        const deviceOS = getDeviceOS();
-        const deviceBrowser = getDeviceBrowser();
-        const deviceName = getDeviceName(deviceType, deviceOS);
-        const deviceId = await generateDeviceId();
-
-        return { deviceId, deviceName, deviceType, deviceOS, deviceBrowser };
-    }
-
-    /**
-     * Get device icon based on type
-     */
-    function getDeviceIconClass(deviceType) {
-        switch (deviceType) {
-            case 'mobile': return 'fa-mobile-alt';
-            case 'tablet': return 'fa-tablet-alt';
-            case 'desktop': return 'fa-laptop';
-            default: return 'fa-desktop';
-        }
-    }
 
     // ============================================
     // HELPER FUNCTIONS
@@ -804,246 +650,120 @@
     }
 
     // ============================================
-    // FCM
+    // SESSION KICK - REALTIME MONITORING
     // ============================================
-    async function initFCM() {
-        try {
-            if (!('Notification' in window)) return;
-            messaging = firebase.messaging();
-            let permission = Notification.permission;
-            if (permission === 'default') permission = await Notification.requestPermission();
-            if (permission !== 'granted') return;
-            
-            const VAPID_KEY = 'BKJlH4x1Y4Kp38M-_0Ie_0DMpu6mUJ6TQcNwggXhdE3X3OcG4DFwINq-FUQxhqfJVDKk1F0Ppk-7Np4x8UjJtE0';
-            const token = await messaging.getToken({ vapidKey: VAPID_KEY });
-            
-            if (token) {
-                const user = auth.currentUser;
-                if (user) {
-                    await db.collection('users').doc(user.uid).set({
-                        fcmToken: token,
-                        fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-                }
-            }
-            
-            let lastFCMNotifTime = 0;
-            let lastFCMNotifBody = '';
-            
-            messaging.onMessage((payload) => {
-                const title = payload.data?.title || payload.notification?.title || 'BGT-PRO';
-                const body = payload.data?.body || payload.notification?.body || 'Notifikasi baru';
-                const now = Date.now();
-                if (body === lastFCMNotifBody && (now - lastFCMNotifTime) < 5000) return;
-                lastFCMNotifTime = now;
-                lastFCMNotifBody = body;
-                
-                const bodyLower = body.toLowerCase();
-                if (bodyLower.includes('job') || bodyLower.includes('lowongan') || bodyLower.includes('kerja')) return;
-                
-                showToast('info', title, body);
-                if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-            });
-        } catch (error) {
-            console.error('FCM Error:', error.message);
+    function getDeviceIconClass(deviceType) {
+        switch (deviceType) {
+            case 'mobile': return 'fa-mobile-alt';
+            case 'tablet': return 'fa-tablet-alt';
+            case 'desktop': return 'fa-laptop';
+            default: return 'fa-desktop';
         }
     }
 
-    async function registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            try {
-                const swUrl = '/leong.github.io/firebase-messaging-sw.js';
-                await navigator.serviceWorker.register(swUrl, { scope: '/leong.github.io/' });
-            } catch (error) {
-                console.error('SW Error:', error.message);
-            }
-        }
-    }
+    function showSessionKick(sessionData) {
+        const overlay = document.getElementById('sessionKickOverlay');
+        const iconEl = document.getElementById('kickDeviceIcon');
+        const nameEl = document.getElementById('kickDeviceName');
+        const metaEl = document.getElementById('kickDeviceMeta');
 
-    // ============================================
-    // LOCATION TRACKING
-    // ============================================
-    function startBackgroundLocationTracking(uid) {
-        if (!navigator.geolocation) return;
-        if (locationWatchId !== null) return;
-
-        const options = { enableHighAccuracy: false, timeout: 60000, maximumAge: 0 };
-        locationWatchId = navigator.geolocation.watchPosition(
-            (position) => {
-                db.collection('users').doc(uid).update({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    accuracy: position.coords.accuracy,
-                    lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                }).catch(e => console.log("Loc update error", e));
-            },
-            (error) => console.log("Loc Error:", error.message),
-            options
-        );
-    }
-
-    // ============================================
-    // SINGLE DEVICE LOGIN - SESSION MANAGEMENT
-    // ============================================
-
-    /**
-     * Cek apakah user sudah login di perangkat lain
-     * Jika ya, tolak login dan tampilkan modal
-     */
-    async function checkDeviceSession(user) {
-        const deviceInfo = await getDeviceInfo();
-        currentDeviceId = deviceInfo.deviceId;
-
-        // Simpan deviceId ke localStorage untuk referensi
-        safeSetItem('bgt_device_id', deviceInfo.deviceId);
-
-        // Cek session yang ada di Firestore
-        const sessionRef = db.collection('sessions').doc(user.uid);
-        const sessionDoc = await sessionRef.get();
-
-        if (sessionDoc.exists) {
-            const sessionData = sessionDoc.data();
-            
-            // Jika ada session aktif dan deviceId berbeda
-            if (sessionData.deviceId && sessionData.deviceId !== deviceInfo.deviceId) {
-                // LOGIN DITOLAK - Sudah login di perangkat lain
-                showDeviceConflictModal(sessionData);
-                
-                // Sign out user
-                await auth.signOut();
-                return false;
-            }
-        }
-
-        // Buat/update session untuk perangkat ini
-        await sessionRef.set({
-            deviceId: deviceInfo.deviceId,
-            deviceName: deviceInfo.deviceName,
-            deviceType: deviceInfo.deviceType,
-            deviceOS: deviceInfo.deviceOS,
-            deviceBrowser: deviceInfo.deviceBrowser,
-            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-            createdAt: sessionDoc.exists ? sessionData.createdAt : firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        // Update user document dengan device info
-        await db.collection('users').doc(user.uid).update({
-            activeDeviceId: deviceInfo.deviceId,
-            activeDeviceName: deviceInfo.deviceName,
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // Start session heartbeat (update setiap 30 detik)
-        startSessionHeartbeat(user.uid, deviceInfo.deviceId);
-
-        return true;
-    }
-
-    /**
-     * Heartbeat untuk menjaga session tetap aktif
-     */
-    function startSessionHeartbeat(uid, deviceId) {
-        if (sessionCheckInterval) clearInterval(sessionCheckInterval);
-
-        sessionCheckInterval = setInterval(async () => {
-            try {
-                const sessionRef = db.collection('sessions').doc(uid);
-                const sessionDoc = await sessionRef.get();
-
-                if (sessionDoc.exists) {
-                    const sessionData = sessionDoc.data();
-                    
-                    // Jika deviceId tidak cocok, berarti login di tempat lain
-                    if (sessionData.deviceId !== deviceId) {
-                        // Perangkat ini di-kick
-                        handleSessionKicked(sessionData);
-                        return;
-                    }
-                }
-
-                // Update lastActive
-                await sessionRef.update({
-                    lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } catch (e) {
-                console.error('Heartbeat error:', e);
-            }
-        }, 30000); // 30 detik
-    }
-
-    /**
-     * Tampilkan modal konflik perangkat
-     */
-    function showDeviceConflictModal(activeSession) {
-        const overlay = document.getElementById('deviceConflictOverlay');
-        const iconEl = document.getElementById('conflictDeviceIcon');
-        const nameEl = document.getElementById('conflictDeviceName');
-        const metaEl = document.getElementById('conflictDeviceMeta');
-
-        // Set icon berdasarkan device type
-        const iconClass = getDeviceIconClass(activeSession.deviceType);
+        // Set icon
+        const iconClass = getDeviceIconClass(sessionData.deviceType || 'mobile');
         iconEl.innerHTML = `<i class="fas ${iconClass}"></i>`;
 
         // Set device info
-        nameEl.textContent = activeSession.deviceName || 'Perangkat Lain';
-        metaEl.textContent = `${activeSession.deviceOS || ''} • ${activeSession.deviceBrowser || ''}`;
+        nameEl.textContent = sessionData.deviceName || 'Perangkat Lain';
+        metaEl.textContent = `${sessionData.deviceOS || ''} • ${sessionData.deviceBrowser || ''}`;
 
-        // Tampilkan modal
         overlay.classList.add('active');
-        
-        // Sembunyikan loading
-        document.getElementById('loadingContainer').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'none';
+
+        // LANGSUNG REDIRECT KE INDEX.HTML SETELAH 2 DETIK
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
     }
 
-    /**
-     * Handle ketika session di-kick dari perangkat lain
-     */
-    function handleSessionKicked(newSession) {
-        // Stop heartbeat
-        if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+    function startSessionMonitor(userId, deviceId) {
+        currentUserId = userId;
+        localDeviceId = deviceId;
 
-        // Stop location tracking
-        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+        }
 
-        // Stop order listener
-        if (orderListenerRef) orderListenerRef.off();
+        // REALTIME listener dengan onSnapshot
+        sessionUnsubscribe = db.collection('sessions').doc(userId).onSnapshot(
+            (doc) => {
+                if (!doc.exists) return;
 
-        // Tampilkan modal
-        showDeviceConflictModal(newSession);
+                const sessionData = doc.data();
 
-        // Sign out
-        auth.signOut();
+                // Jika deviceId tidak cocok, berarti login di tempat lain
+                // LANGSUNG ARAHKAN KE LOGIN PAGE
+                if (sessionData.deviceId && sessionData.deviceId !== localDeviceId) {
+                    console.log('Device ID changed! Another device logged in.');
+
+                    // Stop listener
+                    if (sessionUnsubscribe) {
+                        sessionUnsubscribe();
+                        sessionUnsubscribe = null;
+                    }
+
+                    // Stop order listener
+                    if (orderListenerRef) orderListenerRef.off();
+
+                    // Simpan info untuk ditampilkan di index.html
+                    sessionStorage.setItem('kicked_device', JSON.stringify({
+                        deviceName: sessionData.deviceName,
+                        deviceType: sessionData.deviceType,
+                        deviceOS: sessionData.deviceOS,
+                        deviceBrowser: sessionData.deviceBrowser
+                    }));
+
+                    // Tampilkan overlay kick dan redirect
+                    showSessionKick(sessionData);
+                }
+            },
+            (error) => {
+                console.error('Session monitor error:', error);
+            }
+        );
     }
 
-    /**
-     * Handle tombol OK pada modal konflik
-     */
-    function handleConflictOk() {
-        window.location.href = 'index.html';
+    function stopSessionMonitor() {
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+            sessionUnsubscribe = null;
+        }
+        currentUserId = null;
+        localDeviceId = null;
     }
 
-    /**
-     * Handle logout
-     */
+    // ============================================
+    // HANDLE LOGOUT
+    // ============================================
     async function handleLogout() {
         try {
             const user = auth.currentUser;
             if (user) {
-                // Hapus session
+                // Hapus session dari Firestore
                 await db.collection('sessions').doc(user.uid).delete();
 
                 // Update user document
                 await db.collection('users').doc(user.uid).update({
                     activeDeviceId: null,
-                    activeDeviceName: null
+                    activeDeviceName: null,
+                    status: 'OFFLINE'
                 });
             }
 
             // Stop semua listener
-            if (sessionCheckInterval) clearInterval(sessionCheckInterval);
-            if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
+            stopSessionMonitor();
             if (orderListenerRef) orderListenerRef.off();
+
+            // Clear local storage
+            localStorage.removeItem('userSessionId');
+            localStorage.removeItem('userDeviceId');
 
             // Sign out
             await auth.signOut();
@@ -1057,38 +777,40 @@
     }
 
     // ============================================
-    // AUTH LISTENER - DENGAN SINGLE DEVICE CHECK
+    // AUTH LISTENER
     // ============================================
     auth.onAuthStateChanged(async (user) => {
         if (!user) { 
             window.location.href = 'index.html'; 
             return; 
         }
+
+        // Ambil deviceId dari localStorage
+        localDeviceId = safeGetItem('userDeviceId');
+
+        if (!localDeviceId) {
+            // Jika tidak ada deviceId, redirect ke login
+            await auth.signOut();
+            window.location.href = 'index.html';
+            return;
+        }
         
         try {
-            // CEK SINGLE DEVICE LOGIN
-            const isAllowed = await checkDeviceSession(user);
-            if (!isAllowed) {
-                // Login ditolak - modal sudah ditampilkan
-                return;
-            }
-
             const doc = await db.collection('users').doc(user.uid).get();
             if (!doc.exists) { 
                 console.error('User data not found');
-                document.getElementById('loadingContainer').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
+                await auth.signOut();
+                window.location.href = 'index.html';
                 return;
             }
             
             const data = doc.data();
-            currentUserId = user.uid;
+            
+            // Start session monitoring
+            startSessionMonitor(user.uid, localDeviceId);
             
             showUserData(data);
-            initFCM();
-            registerServiceWorker();
             startOrderListener();
-            startBackgroundLocationTracking(user.uid);
             
         } catch (e) {
             console.error('Auth error:', e);
@@ -1100,12 +822,9 @@
     // Cleanup
     window.addEventListener('beforeunload', () => {
         if (orderListenerRef) orderListenerRef.off();
-        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
-        if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+        stopSessionMonitor();
     });
 </script>
 
 </body>
 </html>
-
-
