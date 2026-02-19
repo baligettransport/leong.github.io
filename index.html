@@ -1441,45 +1441,60 @@
     // ============================================
     async function checkAndCreateSession(user, deviceInfo) {
         const sessionRef = db.collection('sessions').doc(user.uid);
-        const sessionDoc = await sessionRef.get();
+        
+        try {
+            const sessionDoc = await sessionRef.get();
 
-        if (sessionDoc.exists) {
-            const sessionData = sessionDoc.data();
-            
-            // Jika ada session aktif di perangkat lain
-            if (sessionData.deviceId && sessionData.deviceId !== deviceInfo.deviceId) {
-                // LOGIN DITOLAK
-                return {
-                    allowed: false,
-                    activeDevice: {
-                        deviceName: sessionData.deviceName,
-                        deviceType: sessionData.deviceType,
-                        deviceOS: sessionData.deviceOS,
-                        deviceBrowser: sessionData.deviceBrowser
-                    }
-                };
+            if (sessionDoc.exists) {
+                const sessionData = sessionDoc.data();
+                
+                // Jika ada session aktif di perangkat lain (deviceId BERBEDA)
+                if (sessionData.deviceId && sessionData.deviceId !== deviceInfo.deviceId) {
+                    // LOGIN DITOLAK
+                    return {
+                        allowed: false,
+                        activeDevice: {
+                            deviceName: sessionData.deviceName,
+                            deviceType: sessionData.deviceType,
+                            deviceOS: sessionData.deviceOS,
+                            deviceBrowser: sessionData.deviceBrowser
+                        }
+                    };
+                }
+                
+                // Jika deviceId SAMA (login ulang dari perangkat yang sama) = BOLEH
+                console.log('Same device login, allowed');
             }
+
+            // Buat/update session
+            await sessionRef.set({
+                deviceId: deviceInfo.deviceId,
+                deviceName: deviceInfo.deviceName,
+                deviceType: deviceInfo.deviceType,
+                deviceOS: deviceInfo.deviceOS,
+                deviceBrowser: deviceInfo.deviceBrowser,
+                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: sessionDoc.exists ? sessionDoc.data().createdAt : firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            // Update user document (dengan error handling)
+            try {
+                await db.collection('users').doc(user.uid).update({
+                    activeDeviceId: deviceInfo.deviceId,
+                    activeDeviceName: deviceInfo.deviceName,
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'ONLINE'
+                });
+            } catch (updateError) {
+                console.log('User update skipped (might be new user):', updateError.message);
+            }
+
+            return { allowed: true };
+            
+        } catch (error) {
+            console.error('Session check error:', error);
+            return { allowed: true }; // Allow login jika ada error
         }
-
-        // Buat/update session
-        await sessionRef.set({
-            deviceId: deviceInfo.deviceId,
-            deviceName: deviceInfo.deviceName,
-            deviceType: deviceInfo.deviceType,
-            deviceOS: deviceInfo.deviceOS,
-            deviceBrowser: deviceInfo.deviceBrowser,
-            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-            createdAt: sessionDoc.exists ? sessionDoc.data().createdAt : firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        // Update user document
-        await db.collection('users').doc(user.uid).update({
-            activeDeviceId: deviceInfo.deviceId,
-            activeDeviceName: deviceInfo.deviceName,
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        return { allowed: true };
     }
 
     // ============================================
@@ -1880,21 +1895,38 @@
     clearOldStorage();
 
     // ============================================
-    // AUTH STATE LISTENER
+    // AUTH STATE LISTENER - JANGAN REDIRECT DI INDEX.HTML
     // ============================================
     auth.onAuthStateChanged(async (user) => {
+        // Di index.html, kita tidak perlu melakukan apa-apa
+        // User akan diarahkan ke branda.html setelah login sukses
         if (user) {
             localSessionId = safeGetItem('userSessionId');
             localDeviceId = safeGetItem('userDeviceId');
-
-            if (localSessionId && localDeviceId) {
-                startSessionMonitor(user.uid, localDeviceId);
-            } else {
-                // Jika tidak ada session lokal, sign out
-                await auth.signOut();
+            
+            // Cek apakah ini redirect dari branda (kicked)
+            const kickedDevice = sessionStorage.getItem('kicked_device');
+            if (kickedDevice) {
+                // User di-kick, biarkan di halaman login
+                return;
             }
-        } else {
-            stopSessionMonitor();
+            
+            // Jika sudah login dan ada session, redirect ke branda
+            if (localSessionId && localDeviceId) {
+                // Verifikasi session masih valid
+                try {
+                    const sessionDoc = await db.collection('sessions').doc(user.uid).get();
+                    if (sessionDoc.exists) {
+                        const sessionData = sessionDoc.data();
+                        // Jika session deviceId cocok, redirect ke branda
+                        if (sessionData.deviceId === localDeviceId) {
+                            window.location.href = 'branda.html';
+                        }
+                    }
+                } catch (e) {
+                    console.log('Session check error:', e);
+                }
+            }
         }
     });
 
@@ -2099,8 +2131,8 @@
 
             showMessage('Login berhasil! Mengalihkan...', 'success');
 
-            // Start session monitoring
-            startSessionMonitor(user.uid, deviceInfo.deviceId);
+            // TIDAK PERLU startSessionMonitor di sini karena akan redirect ke branda.html
+            // Session monitoring dilakukan di branda.html
 
             pendingRedirect = true;
 
