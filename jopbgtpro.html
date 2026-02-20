@@ -165,6 +165,13 @@
         }
         .info-val.link { color: var(--primary); text-decoration: none; font-weight: 600; }
         
+        /* Style untuk Nomor Telepon yang Disensor */
+        .info-val.censored {
+            color: var(--text-gray);
+            letter-spacing: 1px;
+            cursor: not-allowed;
+        }
+
         /* Plate Style */
         .plate-tag {
             background: #1e293b;
@@ -432,6 +439,22 @@
         function closeImageModal() { document.getElementById('imageModal').classList.remove('active'); }
         document.addEventListener('contextmenu', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
 
+        // Fungsi untuk sensor nomor telepon
+        // Mode 'partial': 0812****345 (untuk Tab Semua)
+        // Mode 'full': *********** (untuk Tab Order)
+        function maskPhone(number, mode = 'partial') {
+            if (!number) return '-';
+            const str = String(number);
+            if (mode === 'full') {
+                return '*'.repeat(str.length); // Sensor penuh
+            }
+            // Sensor sebagian (tampilkan 4 digit pertama dan 3 digit terakhir)
+            if (str.length > 7) {
+                return str.substring(0, 4) + '****' + str.substring(str.length - 3);
+            }
+            return str; // Jika pendek, tampilkan apa adanya atau sensor semua
+        }
+
         function renderOrders() {
             const list = document.getElementById('orderList');
             let filtered = orderData;
@@ -506,15 +529,9 @@
                 const namaCustomer = o.nama || o.customerName || o.name || 'Pelanggan';
                 const teleponCustomer = o.telepon || o.phone || o.noHp || '-';
                 
-                // === [ PENTING: PENULISAN VARIABEL DATA ] ===
-                // Pastikan nama field di sini sama dengan di Database Firebase Anda.
-                // Kode ini sudah mencakup banyak kemungkinan nama field.
-                
+                // Data Tambahan
                 const penumpang = o.penumpang || o.passengers || o.jumlahPenumpang || '';
-                
-                // Daftar kemungkinan field Pesawat
-                const pesawat = o.pesawat || o.flightNumber || o.flight || o.noPesawat || o.no_pesawat || o.flight_number || o.plane || o.kode_pesawat;
-                
+                const pesawat = o.flightCode || o['kode pesawat'] || o.kode_pesawat || o.pesawat || o.flightNumber || o.flight || o.noPesawat || '';
                 const koper = o.koper || o.luggage || '';
                 const deskripsi = o.deskripsi || o.description || '';
                 const keterangan = o.keterangan || o.notes || o.catatan || '';
@@ -525,13 +542,39 @@
 
                 const disabledClass = isDisabled ? 'disabled' : '';
                 
+                // === LOGIKA SENSOR TELEPON ===
+                let phoneHtmlCust;
+                
+                // 1. Tab Semua: Sensor Sebagian (contoh: 0812****345)
+                if (currentFilter === 'all') {
+                    phoneHtmlCust = `<span class="info-val censored">${maskPhone(teleponCustomer, 'partial')}</span>`;
+                }
+                // 2. Tab Order: Sensor Penuh (********) & Tidak Bisa Diklik
+                else if (currentFilter === 'order') {
+                    phoneHtmlCust = `<span class="info-val censored">${maskPhone(teleponCustomer, 'full')}</span>`;
+                }
+                // 3. Tab Berjalan (Driver Sudah Ambil): Tampil Penuh & Bisa Diklik
+                else if (currentFilter === 'berjalan') {
+                    if (isOwner) {
+                        // Jika driver yang sedang login adalah pemilik order, tampilkan nomor
+                        phoneHtmlCust = `<a href="tel:${teleponCustomer}" class="info-val link">${teleponCustomer}</a>`;
+                    } else {
+                        // Jika bukan pemilik (melihat list orang lain), sensor saja
+                        phoneHtmlCust = `<span class="info-val censored">${maskPhone(teleponCustomer, 'partial')}</span>`;
+                    }
+                }
+                // 4. Tab Selesai: Tampil Penuh
+                else if (currentFilter === 'selesai') {
+                     phoneHtmlCust = `<a href="tel:${teleponCustomer}" class="info-val link">${teleponCustomer}</a>`;
+                }
+                else {
+                    phoneHtmlCust = `<span class="info-val">${teleponCustomer}</span>`;
+                }
+                // ============================
+
                 let infoSectionHtml = '';
                 
                 if (showDriver) {
-                    const custPhoneHtml = isDisabled 
-                        ? `<span class="info-val">${teleponCustomer}</span>`
-                        : `<a href="tel:${teleponCustomer}" class="info-val link">${teleponCustomer}</a>`;
-
                     const drvPhoneHtml = isDisabled 
                         ? `<span class="info-val">${dPhone}</span>`
                         : `<a href="tel:${dPhone}" class="info-val link">${dPhone}</a>`;
@@ -541,7 +584,7 @@
                             <div class="info-box customer">
                                 <div class="info-title"><i class="fas fa-user-tag"></i> Pelanggan</div>
                                 <div class="info-row"><i class="fas fa-user"></i> <span class="info-val">${namaCustomer}</span></div>
-                                <div class="info-row"><i class="fas fa-phone"></i> ${custPhoneHtml}</div>
+                                <div class="info-row"><i class="fas fa-phone"></i> ${phoneHtmlCust}</div>
                             </div>
                             <div class="info-box driver">
                                 <div class="info-title"><i class="fas fa-id-card"></i> Driver</div>
@@ -552,23 +595,18 @@
                         </div>
                     `;
                 } else {
-                    const phoneHtml = isDisabled 
-                        ? `<span class="info-val">${teleponCustomer}</span>`
-                        : `<a href="tel:${teleponCustomer}" class="info-val link">${teleponCustomer}</a>`;
-                    
                     infoSectionHtml = `
                         <div class="customer-info-single">
                             <div class="customer-header"><i class="fas fa-user-tag"></i> Pelanggan</div>
                             <div class="customer-rows">
                                 <div class="info-row"><i class="fas fa-user"></i> <span class="info-val">${namaCustomer}</span></div>
-                                <div class="info-row"><i class="fas fa-phone"></i> ${phoneHtml}</div>
+                                <div class="info-row"><i class="fas fa-phone"></i> ${phoneHtmlCust}</div>
                             </div>
                         </div>
                     `;
                 }
 
                 // === BOX RINGKASAN ===
-                // Hanya tampilkan jika ada data pesawat ATAU koper ATAU penumpang
                 const hasSummary = pesawat || (koper && koper !== '-') || penumpang;
                 
                 let summaryHtml = '';
@@ -745,7 +783,7 @@
                     driverPlate: dPlate, 
                     takenAt: firebase.database.ServerValue.TIMESTAMP
                 });
-                alert('Order berhasil diambil! Tekan tombol "Jalan" saat siap berangkat.');
+                alert('Order berhasil diambil! Nomor telepon tamu sekarang dapat dilihat.');
             } catch (err) { 
                 alert("Gagal mengambil order: " + err.message); 
                 btn.disabled = false; 
