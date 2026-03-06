@@ -63,6 +63,73 @@
         /* Map */
         #map { width: 100%; height: 100%; z-index: 1; }
 
+        /* ================================================== */
+        /* CUSTOM MARKER STYLE (FULL FOTO PROFIL) */
+        /* ================================================== */
+        .custom-marker {
+            background: transparent !important;
+            border: none !important;
+            width: 44px !important;
+            height: 44px !important;
+            padding: 0 !important;
+            display: block !important;
+            overflow: visible !important;
+        }
+        
+        .marker-wrapper {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Pulse Animation Background */
+        .marker-pulse {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            animation: pulseAnim 2s infinite;
+            z-index: -1;
+        }
+        .marker-pulse.online { background: rgba(16, 185, 129, 0.25); }
+        .marker-pulse.me { background: rgba(99, 102, 241, 0.25); }
+        
+        /* Image Container - Lingkaran Penuh */
+        .marker-img-container {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2.5px solid #fff; /* Border tipis putih */
+            overflow: hidden; /* Penting: Memotong gambar menjadi lingkaran */
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            background: #fff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .marker-img-container img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover; /* Penting: Menyesuaikan gambar tanpa terdistorsi */
+            display: block;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Status Border Color */
+        .marker-img-container.online { border-color: var(--success); }
+        .marker-img-container.offline { border-color: #94a3b8; }
+        .marker-img-container.me { border-color: var(--primary); }
+
+        @keyframes pulseAnim {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
         /* Floating Buttons */
         .fab-container {
             position: fixed;
@@ -353,11 +420,11 @@
 
         let map = null;
         let markers = {}; // Marker anggota lain
-        let myMarker = null; // Marker saya sendiri (Realtime Movement)
+        let myMarker = null; // Marker saya sendiri
         let allMembers = [];
         let unsubscribe = null;
         let watchId = null;
-        let initialZoomDone = false; // Flag untuk auto zoom sekali
+        let initialZoomDone = false; 
         const DEFAULT_LOC = [-2.5, 118.0];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -379,7 +446,6 @@
         function initAuth() {
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    // Update data dasar
                     db.collection('users').doc(user.uid).set({
                         currentSessionId: user.uid,
                         lastActive: firebase.firestore.FieldValue.serverTimestamp()
@@ -393,9 +459,6 @@
             });
         }
 
-        // ==================================================
-        // LOGIKA REALTIME TRACKING (BERGERAK SESUAI TITIK)
-        // ==================================================
         function startLocationTracking(uid) {
             if (!navigator.geolocation) return;
             if (watchId !== null) return;
@@ -403,11 +466,7 @@
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
-                    
-                    // 1. Update Marker Saya (Smooth Movement)
                     updateMyMarker(latitude, longitude, accuracy, uid);
-
-                    // 2. Kirim ke Firebase
                     db.collection('users').doc(uid).update({
                         latitude: latitude,
                         longitude: longitude,
@@ -420,45 +479,49 @@
             );
         }
 
+        // ==================================================
+        // HELPER: BUAT HTML MARKER DENGAN FOTO (FULL CIRCLE)
+        // ==================================================
+        function createMarkerHtml(photoUrl, name, statusClass, showPulse) {
+            const pulseHtml = showPulse ? `<div class="marker-pulse ${statusClass}"></div>` : '';
+            const initial = name ? name.charAt(0).toUpperCase() : 'U';
+            // Fallback jika gambar error
+            const fallbackUrl = `https://ui-avatars.com/api/?name=${initial}&background=random&size=64`;
+            const src = photoUrl || fallbackUrl;
+
+            return `
+                <div class="marker-wrapper">
+                    ${pulseHtml}
+                    <div class="marker-img-container ${statusClass}">
+                        <img src="${src}" alt="${name}" onerror="this.src='${fallbackUrl}'">
+                    </div>
+                </div>
+            `;
+        }
+
         function updateMyMarker(lat, lng, accuracy, uid) {
             const userData = allMembers.find(m => m.id === uid);
             const myName = userData?.nama || "Anda";
+            const myPhoto = userData?.profilePicUrl;
+
+            const iconHtml = createMarkerHtml(myPhoto, myName, 'me', true);
             
-            // Icon khusus pengguna saat ini (Warna Ungu)
             const myIcon = L.divIcon({
-                html: `
-                    <div class="marker-container" style="position: relative;">
-                        <div style="
-                            position: absolute; width: 50px; height: 50px;
-                            background: rgba(99, 102, 241, 0.2);
-                            border-radius: 50%; top: -7px; left: -7px;
-                            animation: markerPulse 2s infinite;
-                        "></div>
-                        <div style="
-                            width: 36px; height: 36px;
-                            background: linear-gradient(135deg, #6366f1, #4f46e5);
-                            border-radius: 50%; border: 3px solid white;
-                            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
-                            display: flex; justify-content: center; align-items: center;
-                        "><i class="fas fa-user" style="color: white; font-size: 14px;"></i></div>
-                    </div>`,
-                className: '',
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
+                html: iconHtml,
+                className: 'custom-marker',
+                iconSize: [44, 44],
+                iconAnchor: [22, 22]
             });
 
             if (myMarker) {
-                // JIKA SUDAH ADA: Pindahkan posisi (Smooth)
                 myMarker.setLatLng([lat, lng]);
-                // Update popup content jika perlu
-                myMarker.setPopupContent(`<b>${myName} (Anda)</b><br>Lokasi Akurat: ±${accuracy.toFixed(0)}m`);
+                myMarker.setIcon(myIcon); // Update icon jika data berubah
+                myMarker.setPopupContent(`<b>${myName} (Anda)</b><br>Akurasi: ±${accuracy.toFixed(0)}m`);
             } else {
-                // JIKA BELUM: Buat baru
                 myMarker = L.marker([lat, lng], { icon: myIcon })
                     .addTo(map)
-                    .bindPopup(`<b>${myName} (Anda)</b><br>Lokasi Akurat: ±${accuracy.toFixed(0)}m`);
+                    .bindPopup(`<b>${myName} (Anda)</b><br>Akurasi: ±${accuracy.toFixed(0)}m`);
                 
-                // Auto zoom hanya sekali saat pertama kali lokasi ditemukan
                 if (!initialZoomDone) {
                     map.setView([lat, lng], 16);
                     initialZoomDone = true;
@@ -466,16 +529,13 @@
             }
         }
 
-        // ==================================================
-        // LOAD DATA & UPDATE MARKER ANGGOTA LAIN
-        // ==================================================
         function loadFirebaseData(uid) {
             unsubscribe = db.collection('users').onSnapshot(snapshot => {
                 allMembers = [];
                 snapshot.forEach(doc => allMembers.push({ id: doc.id, ...doc.data() }));
                 
-                renderMemberMarkers(uid); // Update marker anggota lain
-                renderList(uid);          // Update daftar di panel
+                renderMemberMarkers(uid);
+                renderList(uid);
                 updateStats();
             });
         }
@@ -484,13 +544,12 @@
             if (!m.currentSessionId) return false;
             if (m.lastActive) {
                 const last = m.lastActive.toDate ? m.lastActive.toDate() : new Date(m.lastActive);
-                if ((new Date() - last) / 60000 > 3) return false; // 3 menit
+                if ((new Date() - last) / 60000 > 3) return false;
             }
             return true;
         }
 
         function renderMemberMarkers(myUid) {
-            // Hapus marker lama yang bukan milik saya
             Object.keys(markers).forEach(id => map.removeLayer(markers[id]));
             markers = {};
 
@@ -501,26 +560,25 @@
                     const lng = parseFloat(m.longitude);
                     if (isNaN(lat) || isNaN(lng)) return;
 
+                    const statusClass = isOnline ? 'online' : 'offline';
+                    const memberName = m.nama || 'Anonim';
+                    
+                    const iconHtml = createMarkerHtml(m.profilePicUrl, memberName, statusClass, isOnline);
+                    
                     const icon = L.divIcon({
-                        html: `
-                            <div style="
-                                width: 36px; height: 36px;
-                                background: ${isOnline ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #94a3b8, #64748b)'};
-                                border-radius: 50%; border: 3px solid white;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                                display: flex; justify-content: center; align-items: center;
-                            "><i class="fas fa-user" style="color: white; font-size: 14px;"></i></div>`,
-                        className: '', iconSize: [36, 36], iconAnchor: [18, 18]
+                        html: iconHtml,
+                        className: 'custom-marker',
+                        iconSize: [44, 44],
+                        iconAnchor: [22, 22]
                     });
 
                     markers[m.id] = L.marker([lat, lng], { icon: icon })
                         .addTo(map)
-                        .bindPopup(`<b>${m.nama || 'Anonim'}</b><br>Status: ${isOnline ? 'Online' : 'Offline'}`);
+                        .bindPopup(`<b>${memberName}</b><br>Status: ${isOnline ? 'Online' : 'Offline'}`);
                 }
             });
         }
 
-        // UI Helpers
         function renderList(myUid) {
             const list = document.getElementById('memberList');
             const withLoc = allMembers.filter(m => m.latitude && m.longitude);
@@ -534,9 +592,12 @@
             list.innerHTML = withLoc.map(m => {
                 const isMe = m.id === myUid;
                 const isOnline = checkOnline(m);
+                const initial = m.nama ? m.nama.charAt(0) : 'U';
+                const imgSrc = m.profilePicUrl || `https://ui-avatars.com/api/?name=${initial}`;
+                
                 return `
                 <div class="member-card" onclick="focusMember('${m.id}', ${isMe})">
-                    <img src="${m.profilePicUrl || `https://ui-avatars.com/api/?name=${m.nama||'U'}`}" class="member-avatar" style="border-color: ${isMe ? 'var(--primary)' : (isOnline ? 'var(--success)' : '#e2e8f0')}">
+                    <img src="${imgSrc}" class="member-avatar" style="border-color: ${isMe ? 'var(--primary)' : (isOnline ? 'var(--success)' : '#e2e8f0')}" onerror="this.src='https://ui-avatars.com/api/?name=${initial}'">
                     <div class="member-info">
                         <div class="member-name">${isMe ? 'Anda' : (m.nama || 'Anonim')}</div>
                         <div class="member-location">Lat: ${m.latitude.toFixed(4)}, Lng: ${m.longitude.toFixed(4)}</div>
@@ -608,12 +669,5 @@
             if (watchId) navigator.geolocation.clearWatch(watchId);
         });
     </script>
-    <style>
-        @keyframes markerPulse {
-            0% { transform: scale(1); opacity: 0.6; }
-            50% { transform: scale(1.4); opacity: 0.3; }
-            100% { transform: scale(1); opacity: 0.6; }
-        }
-    </style>
 </body>
 </html>
