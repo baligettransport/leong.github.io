@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pengaturan - BGT-PRO</title>
     
+    <!-- PWA Support -->
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -246,16 +253,7 @@
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast.hiding { animation: slideOut 0.3s ease forwards; }
         @keyframes slideOut { to { transform: translateY(-20px); opacity: 0; } }
-        .toast-icon { 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 8px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1rem; 
-            flex-shrink: 0; 
-        }
+        .toast-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
         .toast-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
         .toast-icon.error { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
         .toast-icon.info { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
@@ -788,9 +786,13 @@
             </button>
         </div>
 
-        <div class="version">BGT-PRO © 2023 - 2029 - PT. BALI GLOBAL TRANS</div>
+        <div class="version">BGT-PRO © 2025 - PT. Bali Global Trans</div>
 
     </div>
+
+        <!-- ... kode HTML bagian atas ... -->
+    <!-- ... kode CSS ... -->
+    <!-- ... kode Body ... -->
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -832,6 +834,20 @@
         let currentUser = null;
 
         // ==========================================
+        // SERVICE WORKER REGISTRATION (INI DIA KODENYA)
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js') // Mendaftarkan sw.js
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    }).catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // ==========================================
         // TOAST NOTIFICATION
         // ==========================================
         function showToast(type, title, message) {
@@ -868,7 +884,6 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        // Close modal when clicking outside
         document.querySelectorAll('.modal-overlay').forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -889,10 +904,9 @@
         // REQUEST PERMISSIONS
         // ==========================================
         async function requestPermissions() {
-            // Request location permission
             if (navigator.geolocation) {
                 try {
-                    const position = await new Promise((resolve, reject) => {
+                    await new Promise((resolve, reject) => {
                         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
                     });
                     showToast('success', 'Izin Lokasi', 'Izin lokasi berhasil diberikan');
@@ -901,7 +915,6 @@
                 }
             }
 
-            // Request notification permission
             if ('Notification' in window) {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
@@ -925,7 +938,6 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             const btn = document.getElementById('btnChangePassword');
 
-            // Validation
             if (newPassword !== confirmPassword) {
                 showToast('error', 'Error', 'Password baru tidak cocok');
                 return;
@@ -943,10 +955,7 @@
                 const user = auth.currentUser;
                 const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPassword);
                 
-                // Re-authenticate
                 await user.reauthenticateWithCredential(credential);
-                
-                // Update password
                 await user.updatePassword(newPassword);
                 
                 showToast('success', 'Berhasil', 'Password berhasil diubah');
@@ -955,14 +964,12 @@
                 
             } catch (error) {
                 console.error('Error changing password:', error);
-                
                 let errorMessage = 'Gagal mengubah password';
                 if (error.code === 'auth/wrong-password') {
                     errorMessage = 'Password lama salah';
                 } else if (error.code === 'auth/weak-password') {
                     errorMessage = 'Password baru terlalu lemah';
                 }
-                
                 showToast('error', 'Error', errorMessage);
             } finally {
                 btn.disabled = false;
@@ -1020,7 +1027,7 @@
                 settings = { ...settings, ...parsed };
             }
             
-            settings.backgroundTracking = true;
+            settings.backgroundTracking = true; // Force true
             
             document.getElementById('toggleBackground').checked = settings.backgroundTracking;
             document.getElementById('toggleGps').checked = settings.gps;
@@ -1134,10 +1141,6 @@
             updateLocationUI(lat, lng, accuracy);
             updateCountUI();
             updateLocationToFirebase(lat, lng, accuracy);
-            
-            if (watchId === null) {
-                showToast('success', 'Berhasil', 'Lokasi berhasil diperbarui');
-            }
         }
 
         function handlePositionError(error) {
@@ -1156,11 +1159,6 @@
             }
             
             showToast('error', 'Error', errorMessage);
-            
-            const btn = document.getElementById('btnUpdate');
-            const btnText = document.getElementById('btnText');
-            btn.disabled = false;
-            btnText.textContent = 'Update Lokasi Manual';
         }
 
         const geoOptions = {
@@ -1292,7 +1290,7 @@
             if (document.referrer) {
                 window.history.back();
             } else {
-                window.location.href = 'profil.html';
+                window.location.href = 'branda.html';
             }
         }
 
@@ -1346,8 +1344,8 @@
             stopBackgroundTracking();
         });
     </script>
-
 </body>
 </html>
 
-
+</body>
+</html>
