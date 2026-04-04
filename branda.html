@@ -667,17 +667,14 @@
         const nameEl = document.getElementById('kickDeviceName');
         const metaEl = document.getElementById('kickDeviceMeta');
 
-        // Set icon
         const iconClass = getDeviceIconClass(sessionData.deviceType || 'mobile');
         iconEl.innerHTML = `<i class="fas ${iconClass}"></i>`;
 
-        // Set device info
         nameEl.textContent = sessionData.deviceName || 'Perangkat Lain';
         metaEl.textContent = `${sessionData.deviceOS || ''} • ${sessionData.deviceBrowser || ''}`;
 
         overlay.classList.add('active');
 
-        // LANGSUNG REDIRECT KE INDEX.HTML SETELAH 2 DETIK
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 2000);
@@ -691,37 +688,32 @@
             sessionUnsubscribe();
         }
 
-        // REALTIME listener dengan onSnapshot
-        sessionUnsubscribe = db.collection('sessions').doc(userId).onSnapshot(
+        // Listener untuk perubahan dokumen user (untuk deteksi kick)
+        sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
             (doc) => {
                 if (!doc.exists) return;
 
-                const sessionData = doc.data();
+                const userData = doc.data();
+                const serverSessionId = userData.currentSessionId;
+                const serverDevice = userData.currentDevice;
 
-                // Jika deviceId tidak cocok, berarti login di tempat lain
-                // LANGSUNG ARAHKAN KE LOGIN PAGE
-                if (sessionData.deviceId && sessionData.deviceId !== localDeviceId) {
-                    console.log('Device ID changed! Another device logged in.');
-
-                    // Stop listener
+                // PERBAIKAN: Cek apakah sessionId server ada dan berbeda dengan lokal
+                // Ini berarti ada login baru di perangkat lain
+                if (serverSessionId && serverSessionId !== localDeviceId) {
+                    console.log('Session ID mismatch! Kicked by another device.');
+                    
                     if (sessionUnsubscribe) {
                         sessionUnsubscribe();
                         sessionUnsubscribe = null;
                     }
-
-                    // Stop order listener
                     if (orderListenerRef) orderListenerRef.off();
 
-                    // Simpan info untuk ditampilkan di index.html
-                    sessionStorage.setItem('kicked_device', JSON.stringify({
-                        deviceName: sessionData.deviceName,
-                        deviceType: sessionData.deviceType,
-                        deviceOS: sessionData.deviceOS,
-                        deviceBrowser: sessionData.deviceBrowser
-                    }));
-
-                    // Tampilkan overlay kick dan redirect
-                    showSessionKick(sessionData);
+                    showSessionKick({
+                        deviceName: serverDevice || 'Perangkat Lain',
+                        deviceType: userData.deviceType || 'mobile',
+                        deviceOS: userData.deviceOS || 'Unknown',
+                        deviceBrowser: userData.deviceBrowser || 'Unknown'
+                    });
                 }
             },
             (error) => {
@@ -746,29 +738,20 @@
         try {
             const user = auth.currentUser;
             if (user) {
-                // Hapus session dari Firestore
-                await db.collection('sessions').doc(user.uid).delete();
-
-                // Update user document
+                // Update user status jadi offline
                 await db.collection('users').doc(user.uid).update({
-                    activeDeviceId: null,
-                    activeDeviceName: null,
-                    status: 'OFFLINE'
+                    status: 'OFFLINE',
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp()
                 });
             }
 
-            // Stop semua listener
             stopSessionMonitor();
             if (orderListenerRef) orderListenerRef.off();
 
-            // Clear local storage
             localStorage.removeItem('userSessionId');
             localStorage.removeItem('userDeviceId');
 
-            // Sign out
             await auth.signOut();
-
-            // Redirect ke login
             window.location.href = 'index.html';
         } catch (e) {
             console.error('Logout error:', e);
@@ -777,7 +760,7 @@
     }
 
     // ============================================
-    // AUTH LISTENER
+    // AUTH LISTENER - DENGAN PERBAIKAN KEY
     // ============================================
     auth.onAuthStateChanged(async (user) => {
         if (!user) { 
@@ -785,16 +768,9 @@
             return; 
         }
 
-        // Ambil deviceId dari localStorage
-        localDeviceId = safeGetItem('userDeviceId');
+        // PERBAIKAN: Gunakan key yang sama dengan index.html yaitu 'userSessionId'
+        localDeviceId = safeGetItem('userSessionId'); 
 
-        if (!localDeviceId) {
-            // Jika tidak ada deviceId, redirect ke login
-            await auth.signOut();
-            window.location.href = 'index.html';
-            return;
-        }
-        
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             if (!doc.exists) { 
@@ -806,9 +782,22 @@
             
             const data = doc.data();
             
-            // Start session monitoring
-            startSessionMonitor(user.uid, localDeviceId);
+            // Jika tidak ada session lokal (misal baru pertama kali buka branda setelah register)
+            // Atau session lokal berbeda dengan server (multi-tab), update lokal
+            if (!localDeviceId && data.currentSessionId) {
+                localDeviceId = data.currentSessionId;
+                safeSetItem('userSessionId', localDeviceId);
+            }
             
+            // Jika lokal tidak ada, paksa logout
+            if (!localDeviceId) {
+                 console.log('No session found, redirecting...');
+                 await auth.signOut();
+                 window.location.href = 'index.html';
+                 return;
+            }
+
+            startSessionMonitor(user.uid, localDeviceId);
             showUserData(data);
             startOrderListener();
             
