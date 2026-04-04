@@ -510,143 +510,6 @@
             box-shadow: 0 0 10px rgba(231, 74, 59, 0.5);
         }
 
-        /* ============================================
-           KEAMANAN: DEVICE CONFLICT OVERLAY (BARU)
-           LOGIN DITOLAK KARENA SUDAH LOGIN DI LAIN
-           ============================================ */
-        .device-conflict-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 99998;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        .device-conflict-overlay.active {
-            display: flex;
-        }
-
-        .conflict-icon {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #e74a3b, #c0392b);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 2rem;
-            animation: shakeIcon 0.5s ease-in-out;
-            box-shadow: 0 0 40px rgba(231, 74, 59, 0.5);
-        }
-
-        .conflict-icon i {
-            font-size: 4rem;
-            color: #fff;
-        }
-
-        .conflict-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        .conflict-subtitle {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .conflict-device-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1.25rem;
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
-            width: 90%;
-            max-width: 320px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .conflict-device-label {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.75rem;
-        }
-
-        .conflict-device-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .conflict-device-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: #fff;
-        }
-
-        .conflict-device-details {
-            flex: 1;
-        }
-
-        .conflict-device-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 0.25rem;
-        }
-
-        .conflict-device-meta {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .conflict-message {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
-            max-width: 300px;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            padding: 0 20px;
-        }
-
-        .btn-conflict-ok {
-            padding: 0.9rem 2.5rem;
-            background: linear-gradient(135deg, #e74a3b, #c0392b);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(231, 74, 59, 0.4);
-        }
-
-        .btn-conflict-ok:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(231, 74, 59, 0.5);
-        }
-
         /* Session Kick Notification */
         .session-kick-overlay {
             position: fixed;
@@ -655,7 +518,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.98);
-            z-index: 99997;
+            z-index: 99998;
             display: none;
             justify-content: center;
             align-items: center;
@@ -789,36 +652,6 @@
         </p>
     </div>
 
-    <!-- KEAMANAN: DEVICE CONFLICT OVERLAY (LOGIN DITOLAK) -->
-    <div id="deviceConflictOverlay" class="device-conflict-overlay">
-        <div class="conflict-icon">
-            <i class="fas fa-ban"></i>
-        </div>
-        <h2 class="conflict-title">LOGIN DITOLAK</h2>
-        <p class="conflict-subtitle">Akun ini sedang digunakan di perangkat lain</p>
-        
-        <div class="conflict-device-card">
-            <div class="conflict-device-label">Perangkat Aktif Saat Ini</div>
-            <div class="conflict-device-info">
-                <div class="conflict-device-icon" id="conflictDeviceIcon">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <div class="conflict-device-details">
-                    <div class="conflict-device-name" id="conflictDeviceName">HP Samsung</div>
-                    <div class="conflict-device-meta" id="conflictDeviceMeta">Android • Chrome</div>
-                </div>
-            </div>
-        </div>
-        
-        <p class="conflict-message">
-            Untuk keamanan akun Anda, satu akun hanya dapat digunakan di satu perangkat dalam waktu bersamaan.
-        </p>
-        
-        <button class="btn-conflict-ok" onclick="handleConflictOk()">
-            <i class="fas fa-check"></i> Mengerti
-        </button>
-    </div>
-
     <!-- KEAMANAN: SESSION KICK OVERLAY -->
     <div id="sessionKickOverlay" class="session-kick-overlay">
         <div class="kick-icon">
@@ -907,7 +740,9 @@
     <div id="register" class="form-container">
         <form id="registerForm">
             
-            <!-- FOTO PROFIL -->
+            <!-- ============================================
+                 FOTO PROFIL - DI ATAS, KLIK UNTUK PILIH
+                 ============================================ -->
             <div class="photo-upload-section">
                 <label class="photo-upload-label">
                     <i class="fas fa-camera"></i> Foto Profil
@@ -925,17 +760,20 @@
                 
                 <p class="photo-hint">Tap foto untuk kamera, tekan lama untuk galeri</p>
                 
+                <!-- Hidden file inputs - KAMERA UTAMA -->
                 <input type="file" 
                        id="cameraInput" 
                        class="hidden-file-input" 
                        accept="image/*" 
                        capture="environment"
                        onchange="previewPhoto(this)">
+                <!-- Input untuk galeri -->
                 <input type="file" 
                        id="galleryInput" 
                        class="hidden-file-input" 
                        accept="image/*"
                        onchange="previewPhoto(this)">
+                <!-- Input kamera depan (opsional) -->
                 <input type="file" 
                        id="frontCameraInput" 
                        class="hidden-file-input" 
@@ -982,7 +820,7 @@
                 <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePasswordVisibility()"></i>
             </div>
 
-            <!-- Plat Mobil -->
+            <!-- Plat Mobil - 3 Input -->
             <div class="form-group">
                 <label><i class="fas fa-car"></i> Plat Mobil</label>
                 <div class="input-group plat-group">
@@ -1064,173 +902,9 @@
     let sessionUnsubscribe = null;
     let currentUserId = null;
     let localSessionId = null;
-    let localDeviceId = null;
     let isScreenLocked = false;
     let lockTimerInterval = null;
     let pendingRedirect = false;
-
-    // ============================================
-    // KEAMANAN: DEVICE FINGERPRINT
-    // ============================================
-    function getDeviceType() {
-        const ua = navigator.userAgent.toLowerCase();
-        if (/tablet|ipad|playbook|silk/.test(ua)) return 'tablet';
-        if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/.test(ua)) return 'mobile';
-        return 'desktop';
-    }
-
-    function getDeviceOS() {
-        const ua = navigator.userAgent;
-        if (/Windows NT 10/.test(ua)) return 'Windows';
-        if (/Windows/.test(ua)) return 'Windows';
-        if (/Android/.test(ua)) {
-            const match = ua.match(/Android\s([0-9.]+)/);
-            return match ? `Android ${match[1]}` : 'Android';
-        }
-        if (/iPhone/.test(ua)) {
-            const match = ua.match(/iPhone OS\s([0-9_]+)/);
-            return match ? `iOS ${match[1].replace(/_/g, '.')}` : 'iOS';
-        }
-        if (/iPad/.test(ua)) return 'iPadOS';
-        if (/Mac OS X/.test(ua)) return 'macOS';
-        if (/Linux/.test(ua)) return 'Linux';
-        return 'Unknown';
-    }
-
-    function getDeviceBrowser() {
-        const ua = navigator.userAgent;
-        if (/Edg/.test(ua)) return 'Edge';
-        if (/OPR|Opera/.test(ua)) return 'Opera';
-        if (/Firefox/.test(ua)) return 'Firefox';
-        if (/Chrome/.test(ua)) return 'Chrome';
-        if (/Safari/.test(ua)) return 'Safari';
-        return 'Unknown';
-    }
-
-    function getDeviceName(deviceType, os) {
-        const typeNames = {
-            'mobile': 'HP',
-            'tablet': 'Tablet',
-            'desktop': 'Laptop/PC'
-        };
-        const baseName = typeNames[deviceType] || 'Perangkat';
-        const ua = navigator.userAgent;
-
-        if (os.toLowerCase().includes('android')) {
-            if (/Samsung/i.test(ua)) return `${baseName} Samsung`;
-            if (/Xiaomi|Redmi|POCO/i.test(ua)) return `${baseName} Xiaomi`;
-            if (/Oppo/i.test(ua)) return `${baseName} Oppo`;
-            if (/Vivo/i.test(ua)) return `${baseName} Vivo`;
-            if (/Realme/i.test(ua)) return `${baseName} Realme`;
-            if (/OnePlus/i.test(ua)) return `${baseName} OnePlus`;
-            if (/Huawei/i.test(ua)) return `${baseName} Huawei`;
-            return `${baseName} Android`;
-        }
-        if (os.toLowerCase().includes('ios')) return `${baseName} iPhone`;
-        if (os.toLowerCase().includes('ipados')) return `${baseName} iPad`;
-        if (os.toLowerCase().includes('windows')) return 'PC Windows';
-        if (os.toLowerCase().includes('macos')) return 'MacBook';
-        return baseName;
-    }
-
-    async function generateDeviceId() {
-        const components = [];
-        components.push(navigator.userAgent);
-        components.push(`${screen.width}x${screen.height}x${screen.colorDepth}`);
-        components.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
-        components.push(navigator.language);
-        components.push(navigator.platform);
-        components.push(String(navigator.hardwareConcurrency || 'unknown'));
-        
-        if (navigator.deviceMemory) {
-            components.push(String(navigator.deviceMemory));
-        }
-        
-        components.push(String('ontouchstart' in window || navigator.maxTouchPoints > 0));
-
-        try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.textBaseline = 'top';
-                ctx.font = '14px Arial';
-                ctx.fillStyle = '#f60';
-                ctx.fillRect(125, 1, 62, 20);
-                ctx.fillStyle = '#069';
-                ctx.fillText('BGT-PRO', 2, 15);
-                components.push(canvas.toDataURL().slice(0, 100));
-            }
-        } catch (e) {}
-
-        try {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            if (gl) {
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                if (debugInfo) {
-                    components.push(gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || '');
-                    components.push(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '');
-                }
-            }
-        } catch (e) {}
-
-        const combined = components.join('|||');
-        const encoder = new TextEncoder();
-        const data = encoder.encode(combined);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 32);
-    }
-
-    async function getFullDeviceInfo() {
-        const deviceType = getDeviceType();
-        const deviceOS = getDeviceOS();
-        const deviceBrowser = getDeviceBrowser();
-        const deviceName = getDeviceName(deviceType, deviceOS);
-        const deviceId = await generateDeviceId();
-
-        return { deviceId, deviceName, deviceType, deviceOS, deviceBrowser };
-    }
-
-    function getDeviceIconClass(deviceType) {
-        switch (deviceType) {
-            case 'mobile': return 'fa-mobile-alt';
-            case 'tablet': return 'fa-tablet-alt';
-            case 'desktop': return 'fa-laptop';
-            default: return 'fa-desktop';
-        }
-    }
-
-    // Legacy function for compatibility
-    function getDeviceInfo() {
-        const ua = navigator.userAgent;
-        let device = 'Unknown Device';
-        let browser = 'Unknown Browser';
-
-        if (/iPhone|iPad|iPod/i.test(ua)) {
-            device = 'iOS Device';
-        } else if (/Android/i.test(ua)) {
-            device = 'Android Device';
-        } else if (/Windows/i.test(ua)) {
-            device = 'Windows PC';
-        } else if (/Mac/i.test(ua)) {
-            device = 'Mac';
-        } else if (/Linux/i.test(ua)) {
-            device = 'Linux PC';
-        }
-
-        if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) {
-            browser = 'Chrome';
-        } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
-            browser = 'Safari';
-        } else if (/Firefox/i.test(ua)) {
-            browser = 'Firefox';
-        } else if (/Edg/i.test(ua)) {
-            browser = 'Edge';
-        }
-
-        return `${device} (${browser})`;
-    }
 
     // ============================================
     // KEAMANAN: LOCAL STORAGE FUNCTIONS
@@ -1263,17 +937,48 @@
     function clearOldStorage() {
         try {
             const sessionId = safeGetItem('userSessionId');
-            const deviceId = safeGetItem('userDeviceId');
             const loginAttempts = safeGetItem('loginAttempts');
             const lockoutEndTime = safeGetItem('lockoutEndTime');
             localStorage.clear();
             if (sessionId) safeSetItem('userSessionId', sessionId);
-            if (deviceId) safeSetItem('userDeviceId', deviceId);
             if (loginAttempts) safeSetItem('loginAttempts', loginAttempts);
             if (lockoutEndTime) safeSetItem('lockoutEndTime', lockoutEndTime);
         } catch (e) {
             console.log('Storage clear attempt:', e.message);
         }
+    }
+
+    // ============================================
+    // KEAMANAN: DEVICE INFO
+    // ============================================
+    function getDeviceInfo() {
+        const ua = navigator.userAgent;
+        let device = 'Unknown Device';
+        let browser = 'Unknown Browser';
+
+        if (/iPhone|iPad|iPod/i.test(ua)) {
+            device = 'iOS Device';
+        } else if (/Android/i.test(ua)) {
+            device = 'Android Device';
+        } else if (/Windows/i.test(ua)) {
+            device = 'Windows PC';
+        } else if (/Mac/i.test(ua)) {
+            device = 'Mac';
+        } else if (/Linux/i.test(ua)) {
+            device = 'Linux PC';
+        }
+
+        if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) {
+            browser = 'Chrome';
+        } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+            browser = 'Safari';
+        } else if (/Firefox/i.test(ua)) {
+            browser = 'Firefox';
+        } else if (/Edg/i.test(ua)) {
+            browser = 'Edge';
+        }
+
+        return `${device} (${browser})`;
     }
 
     // ============================================
@@ -1379,44 +1084,6 @@
     }
 
     // ============================================
-    // KEAMANAN: DEVICE CONFLICT (LOGIN DITOLAK)
-    // ============================================
-    function showDeviceConflict(deviceInfo) {
-        console.log('Showing device conflict modal:', deviceInfo);
-        
-        const overlay = document.getElementById('deviceConflictOverlay');
-        const iconEl = document.getElementById('conflictDeviceIcon');
-        const nameEl = document.getElementById('conflictDeviceName');
-        const metaEl = document.getElementById('conflictDeviceMeta');
-
-        // Set icon based on device type
-        let iconClass = 'fa-mobile-alt';
-        if (deviceInfo.deviceType === 'tablet') {
-            iconClass = 'fa-tablet-alt';
-        } else if (deviceInfo.deviceType === 'desktop') {
-            iconClass = 'fa-laptop';
-        }
-        iconEl.innerHTML = `<i class="fas ${iconClass}"></i>`;
-
-        // Set device info
-        nameEl.textContent = deviceInfo.deviceName || 'Perangkat Lain';
-        metaEl.textContent = `${deviceInfo.deviceOS || ''} • ${deviceInfo.deviceBrowser || ''}`;
-
-        // Show overlay
-        overlay.classList.add('active');
-        document.body.classList.add('no-scroll');
-        
-        console.log('Conflict modal shown');
-    }
-
-    function handleConflictOk() {
-        console.log('Conflict modal closed');
-        const overlay = document.getElementById('deviceConflictOverlay');
-        overlay.classList.remove('active');
-        document.body.classList.remove('no-scroll');
-    }
-
-    // ============================================
     // KEAMANAN: SESSION KICK FUNCTIONS
     // ============================================
     function showSessionKick(deviceInfo) {
@@ -1448,127 +1115,33 @@
     }
 
     // ============================================
-    // KEAMANAN: SINGLE DEVICE SESSION CHECK
+    // KEAMANAN: SESSION MONITORING
     // ============================================
-    async function checkAndCreateSession(user, deviceInfo) {
-        const sessionRef = db.collection('sessions').doc(user.uid);
-        
-        console.log('=== SESSION CHECK ===');
-        console.log('User ID:', user.uid);
-        console.log('Current Device ID:', deviceInfo.deviceId);
-        console.log('Current Device Name:', deviceInfo.deviceName);
-        
-        try {
-            const sessionDoc = await sessionRef.get();
-
-            if (sessionDoc.exists) {
-                const sessionData = sessionDoc.data();
-                console.log('Existing Session Found:');
-                console.log('- Session Device ID:', sessionData.deviceId);
-                console.log('- Session Device Name:', sessionData.deviceName);
-                console.log('- Last Active:', sessionData.lastActive);
-                
-                // CEK: Jika ada session dengan deviceId yang VALID dan BERBEDA = TOLAK LOGIN
-                // DeviceId harus ada dan tidak kosong
-                if (sessionData.deviceId && sessionData.deviceId.trim() !== '' && sessionData.deviceId !== deviceInfo.deviceId) {
-                    console.log('❌ LOGIN DITOLAK - Device berbeda terdeteksi!');
-                    console.log('Session Device ID:', sessionData.deviceId);
-                    console.log('Requesting Device ID:', deviceInfo.deviceId);
-                    
-                    // LOGIN DITOLAK
-                    return {
-                        allowed: false,
-                        activeDevice: {
-                            deviceName: sessionData.deviceName || 'Perangkat Lain',
-                            deviceType: sessionData.deviceType || 'unknown',
-                            deviceOS: sessionData.deviceOS || '',
-                            deviceBrowser: sessionData.deviceBrowser || ''
-                        }
-                    };
-                }
-                
-                // Jika deviceId SAMA (login ulang dari perangkat yang sama) = BOLEH
-                // Atau jika deviceId kosong (session lama) = BOLEH dan update
-                console.log('✅ Same device or empty session - allowed');
-            } else {
-                console.log('No existing session - creating new');
-            }
-
-            // Buat/update session
-            console.log('Creating/updating session...');
-            await sessionRef.set({
-                deviceId: deviceInfo.deviceId,
-                deviceName: deviceInfo.deviceName,
-                deviceType: deviceInfo.deviceType,
-                deviceOS: deviceInfo.deviceOS,
-                deviceBrowser: deviceInfo.deviceBrowser,
-                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-                createdAt: sessionDoc.exists ? sessionDoc.data().createdAt : firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            console.log('✅ Session created/updated successfully');
-
-            // Update user document
-            try {
-                await db.collection('users').doc(user.uid).update({
-                    activeDeviceId: deviceInfo.deviceId,
-                    activeDeviceName: deviceInfo.deviceName,
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'ONLINE'
-                });
-                console.log('✅ User document updated');
-            } catch (updateError) {
-                console.log('User update skipped:', updateError.message);
-            }
-
-            return { allowed: true };
-            
-        } catch (error) {
-            console.error('❌ Session check error:', error);
-            // Jika error, TETAP bolehkan login untuk menghindari user terkunci
-            return { allowed: true };
-        }
-    }
-
-    // ============================================
-    // KEAMANAN: REALTIME SESSION MONITOR
-    // ============================================
-    function startSessionMonitor(userId, deviceId) {
+    function startSessionMonitor(userId) {
         currentUserId = userId;
-        localDeviceId = deviceId;
+        localSessionId = safeGetItem('userSessionId');
         
         if (sessionUnsubscribe) {
             sessionUnsubscribe();
         }
         
-        // Gunakan onSnapshot untuk REALTIME monitoring
-        sessionUnsubscribe = db.collection('sessions').doc(userId).onSnapshot(
+        sessionUnsubscribe = db.collection('users').doc(userId).onSnapshot(
             (doc) => {
                 if (!doc.exists) return;
                 
-                const sessionData = doc.data();
+                const data = doc.data();
+                const serverSessionId = data.currentSessionId;
+                const serverDevice = data.currentDevice;
                 
-                // Jika deviceId tidak cocok, berarti login di tempat lain
-                // LANGSUNG ARAHKAN KE LOGIN PAGE
-                if (sessionData.deviceId && sessionData.deviceId !== localDeviceId) {
-                    console.log('Device ID changed! Another device logged in.');
+                if (serverSessionId && serverSessionId !== localSessionId) {
+                    console.log('Session mismatch detected - another device logged in');
                     
-                    // Stop listener
                     if (sessionUnsubscribe) {
                         sessionUnsubscribe();
                         sessionUnsubscribe = null;
                     }
                     
-                    // Simpan info untuk ditampilkan di index.html
-                    sessionStorage.setItem('kicked_device', JSON.stringify({
-                        deviceName: sessionData.deviceName,
-                        deviceType: sessionData.deviceType,
-                        deviceOS: sessionData.deviceOS,
-                        deviceBrowser: sessionData.deviceBrowser
-                    }));
-
-                    // Tampilkan overlay kick
-                    showSessionKick(sessionData.deviceName || 'Perangkat lain');
+                    showSessionKick(serverDevice || 'Perangkat lain');
                 }
             },
             (error) => {
@@ -1583,7 +1156,6 @@
             sessionUnsubscribe = null;
         }
         currentUserId = null;
-        localDeviceId = null;
     }
 
     // ============================================
@@ -1630,14 +1202,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         setJoinDate();
         checkLockoutStatus();
-        
-        // Cek jika baru di-kick
-        const kickedDevice = sessionStorage.getItem('kicked_device');
-        if (kickedDevice) {
-            const device = JSON.parse(kickedDevice);
-            showMessage(`Sesi Anda berakhir. Login di ${device.deviceName || 'perangkat lain'}.`, 'warning');
-            sessionStorage.removeItem('kicked_device');
-        }
         
         const video = document.getElementById('bg-video');
         if (video) {
@@ -1692,12 +1256,13 @@
     }
 
     // ============================================
-    // FUNGSI FOTO
+    // FUNGSI MODAL PILIH SUMBER FOTO
     // ============================================
+    
+    // Variable untuk menyimpan file yang dipilih
     let selectedPhotoFile = null;
-    let isLongPress = false;
-    let longPressTimer = null;
 
+    // Buka modal pilihan sumber foto
     function openPhotoSourceModal() {
         const modal = document.getElementById('photoSourceModal');
         const permissionDenied = document.getElementById('permissionDenied');
@@ -1706,51 +1271,70 @@
         document.body.classList.add('no-scroll');
     }
 
+    // Tutup modal
     function closePhotoSourceModal() {
         const modal = document.getElementById('photoSourceModal');
         modal.classList.remove('active');
         document.body.classList.remove('no-scroll');
     }
 
+    // ============================================
+    // FUNGSI KAMERA LANGSUNG (TANPA MODAL)
+    // ============================================
+    
+    // Buka kamera langsung saat foto diklik - KOMPATIBEL SEMUA PERANGKAT
     function openCameraDirect() {
+        // Cek apakah baru saja long press (untuk galeri)
         if (isLongPress) {
-            console.log('Skip openCameraDirect karena long press aktif');
+            console.log('⚠️ Skip openCameraDirect karena long press aktif');
             return;
         }
-        console.log('Membuka kamera langsung...');
+        
+        console.log('📷 Membuka kamera langsung...');
         triggerCamera();
     }
-
+    
+    // Buka galeri dari context menu (tekan lama)
     function openGalleryFromContext(event) {
         event.preventDefault();
-        console.log('Membuka galeri dari context menu...');
+        console.log('📁 Membuka galeri dari context menu...');
         openGallery();
     }
-
-    // Long press detection
+    
+    // ============================================
+    // LONG PRESS DETECTION UNTUK MOBILE
+    // ============================================
+    let longPressTimer = null;
+    let isLongPress = false;
     const photoContainer = document.querySelector('.photo-preview-container');
+    
     if (photoContainer) {
+        // Touch start - mulai timer
         photoContainer.addEventListener('touchstart', function(e) {
             isLongPress = false;
             longPressTimer = setTimeout(function() {
                 isLongPress = true;
-                console.log('Long press terdeteksi, buka galeri...');
+                console.log('📱 Long press terdeteksi, buka galeri...');
                 openGallery();
-            }, 500);
+            }, 500); // 500ms = tekan lama
         }, { passive: true });
-
+        
+        // Touch end - batalkan timer jika belum long press
         photoContainer.addEventListener('touchend', function(e) {
             if (longPressTimer) {
                 clearTimeout(longPressTimer);
                 longPressTimer = null;
             }
+            
+            // Reset isLongPress setelah sedikit delay
             if (isLongPress) {
                 setTimeout(function() {
                     isLongPress = false;
                 }, 300);
             }
         }, { passive: true });
-
+        
+        // Touch move - batalkan timer
         photoContainer.addEventListener('touchmove', function(e) {
             if (longPressTimer) {
                 clearTimeout(longPressTimer);
@@ -1759,45 +1343,57 @@
         }, { passive: true });
     }
 
+    // Buka kamera dengan izin (untuk modal)
     async function openCamera() {
         const permissionDenied = document.getElementById('permissionDenied');
         const cameraInput = document.getElementById('cameraInput');
-
+        
+        // Cek apakah HTTPS atau localhost
+        const isSecureContext = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        
+        // Deteksi mobile
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
+        
+        console.log('Is Secure Context:', isSecureContext);
+        console.log('Is Mobile:', isMobile);
+        
+        // Di mobile, langsung buka camera input
         if (isMobile) {
-            console.log('Mobile detected, langsung buka kamera...');
+            console.log('📱 Mobile detected, langsung buka kamera...');
             closePhotoSourceModal();
             if (cameraInput) {
                 cameraInput.click();
             }
             return;
         }
-
-        const isSecureContext = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-
+        
+        // Di desktop, cek izin dulu
         if (!isSecureContext) {
             showMessage('Kamera hanya bisa diakses di HTTPS atau localhost', 'warning');
             closePhotoSourceModal();
             return;
         }
-
+        
         try {
+            // Request izin kamera
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            // Stop stream karena hanya untuk cek izin
             stream.getTracks().forEach(track => track.stop());
-
-            console.log('Izin kamera diberikan');
+            
+            console.log('✅ Izin kamera diberikan');
             permissionDenied.classList.remove('show');
             closePhotoSourceModal();
-
+            
+            // Buka input kamera
             if (cameraInput) {
                 cameraInput.click();
             }
-
+            
         } catch (error) {
-            console.error('Izin kamera ditolak:', error.name, error.message);
-
+            console.error('❌ Izin kamera ditolak:', error.name, error.message);
+            
             if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                // Tampilkan pesan izin ditolak
                 permissionDenied.classList.add('show');
                 showMessage('Izin kamera ditolak. Silakan izinkan akses kamera di pengaturan browser.', 'warning');
             } else if (error.name === 'NotFoundError') {
@@ -1810,57 +1406,79 @@
         }
     }
 
+    // Buka galeri
     function openGallery() {
         closePhotoSourceModal();
         const galleryInput = document.getElementById('galleryInput');
         if (galleryInput) {
             galleryInput.click();
-            console.log('Gallery input triggered');
+            console.log('📁 Gallery input triggered');
         }
     }
-
+    
+    // ============================================
+    // FUNGSI BUKA KAMERA - MULTI BROWSER SUPPORT
+    // ============================================
+    
+    // Fungsi utama untuk buka kamera di SEMUA perangkat
     async function triggerCamera() {
         const cameraInput = document.getElementById('cameraInput');
         const frontCameraInput = document.getElementById('frontCameraInput');
-
+        
+        // Deteksi tipe perangkat dan browser
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        console.log('📱 Device Info:', { isMobile, isIOS, isAndroid });
+        
+        // Untuk SEMUA perangkat - langsung trigger input dengan capture
+        // Browser modern akan otomatis membuka kamera karena capture attribute
         if (cameraInput) {
             cameraInput.click();
             return;
         }
-
+        
+        // Fallback ke front camera input
         if (frontCameraInput) {
             frontCameraInput.click();
             return;
         }
-
+        
         showMessage('Tidak dapat membuka kamera', 'error');
     }
 
+    // Buka pengaturan aplikasi
     function openAppSettings() {
         alert('Untuk mengaktifkan izin kamera:\n\n1. Buka Pengaturan browser\n2. Cari izin/situs web\n3. Aktifkan akses Kamera\n4. Muat ulang halaman ini');
     }
 
+    // Preview foto saat dipilih
     function previewPhoto(input) {
         const preview = document.getElementById('photoPreview');
-
+        
         if (input.files && input.files[0]) {
             const file = input.files[0];
-
+            
+            // Validasi tipe file
             if (!file.type.startsWith('image/')) {
                 showMessage('Pilih file gambar yang valid!', 'error');
                 input.value = '';
                 return;
             }
-
+            
+            // Validasi ukuran (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showMessage('Ukuran gambar maksimal 5MB!', 'error');
                 input.value = '';
                 return;
             }
-
+            
+            // Simpan file untuk digunakan saat submit
             selectedPhotoFile = file;
             console.log('Foto dipilih:', file.name, 'ukuran:', file.size, 'bytes');
-
+            
+            // Tampilkan preview
             const reader = new FileReader();
             reader.onload = function(e) {
                 preview.src = e.target.result;
@@ -1869,16 +1487,19 @@
         }
     }
 
+    // Update preview saat nama diubah (untuk avatar default)
     document.getElementById('register-nama').addEventListener('input', function() {
         const preview = document.getElementById('photoPreview');
         const currentSrc = preview.src;
-
+        
+        // Hanya update jika masih pakai avatar default
         if (currentSrc.includes('ui-avatars.com')) {
             const nama = this.value || 'U';
             preview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=4e73df&color=fff&size=200`;
         }
     });
 
+    // Kompresi gambar sebelum upload
     function compressImage(file, maxWidth, maxHeight, quality) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -1890,7 +1511,8 @@
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-
+                    
+                    // Hitung ukuran baru proporsional
                     if (width > maxWidth) {
                         height = (height * maxWidth) / width;
                         width = maxWidth;
@@ -1899,15 +1521,17 @@
                         width = (width * maxHeight) / height;
                         height = maxHeight;
                     }
-
+                    
                     canvas.width = width;
                     canvas.height = height;
-
+                    
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-
+                    
+                    // Convert ke base64 dengan quality
                     const dataUrl = canvas.toDataURL('image/jpeg', quality);
                     console.log('Gambar dikompres:', img.width + 'x' + img.height, '->', width + 'x' + height);
+                    console.log('Panjang string:', dataUrl.length);
                     resolve(dataUrl);
                 };
                 img.onerror = (err) => reject(err);
@@ -1916,6 +1540,7 @@
         });
     }
 
+    // Fallback jika kompresi gagal
     function fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -1925,46 +1550,26 @@
         });
     }
 
+    // Clear old storage on page load
     clearOldStorage();
 
     // ============================================
-    // AUTH STATE LISTENER - JANGAN REDIRECT DI INDEX.HTML
+    // AUTH STATE LISTENER
     // ============================================
-    auth.onAuthStateChanged(async (user) => {
-        // Di index.html, kita tidak perlu melakukan apa-apa
-        // User akan diarahkan ke branda.html setelah login sukses
+    auth.onAuthStateChanged((user) => {
         if (user) {
             localSessionId = safeGetItem('userSessionId');
-            localDeviceId = safeGetItem('userDeviceId');
             
-            // Cek apakah ini redirect dari branda (kicked)
-            const kickedDevice = sessionStorage.getItem('kicked_device');
-            if (kickedDevice) {
-                // User di-kick, biarkan di halaman login
-                return;
+            if (localSessionId) {
+                startSessionMonitor(user.uid);
             }
-            
-            // Jika sudah login dan ada session, redirect ke branda
-            if (localSessionId && localDeviceId) {
-                // Verifikasi session masih valid
-                try {
-                    const sessionDoc = await db.collection('sessions').doc(user.uid).get();
-                    if (sessionDoc.exists) {
-                        const sessionData = sessionDoc.data();
-                        // Jika session deviceId cocok, redirect ke branda
-                        if (sessionData.deviceId === localDeviceId) {
-                            window.location.href = 'branda.html';
-                        }
-                    }
-                } catch (e) {
-                    console.log('Session check error:', e);
-                }
-            }
+        } else {
+            stopSessionMonitor();
         }
     });
 
     // ============================================
-    // REGISTER FORM
+    // REGISTER FORM - DENGAN PERBAIKAN FOTO
     // ============================================
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -1977,12 +1582,13 @@
         const telepon = document.getElementById('register-telepon').value.trim();
         const email = document.getElementById('register-email').value.trim();
         const password = document.getElementById('register-password').value;
-        const picFile = selectedPhotoFile;
+        const picFile = selectedPhotoFile; // Gunakan file yang sudah dipilih
         const platKode = document.getElementById('plat-kode').value;
         const platNomor = document.getElementById('plat-nomor').value.trim().toUpperCase();
         const platHuruf = document.getElementById('plat-huruf').value.trim().toUpperCase();
         const dateStr = document.getElementById('register-joined').value;
 
+        // Validasi Plat
         if (!platKode) {
             setLoading(btn, false);
             return showMessage("Harap pilih kode plat.", "error");
@@ -1996,36 +1602,95 @@
             return showMessage("Harap isi huruf plat.", "error");
         }
 
+        // Format: DK 1234 AA
         const platMobilFinal = platKode + " " + platNomor + " " + platHuruf;
         const newSessionId = generateSessionId();
+        const deviceInfo = getDeviceInfo();
 
         try {
-            // Get full device info
-            const deviceInfo = await getFullDeviceInfo();
-
+            // Create user di Firebase Auth
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             const user = userCredential.user;
 
-            let profilePicUrl = '';
+    // ============================================
+    // REGISTER FORM - FIXED VERSION
+    // ============================================
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('registerBtn');
+        
+        // Tambahkan log untuk debugging
+        console.log('Tombol Daftar Ditekan');
 
+        // 1. Validasi Manual Input (Agar Pesan Error Jelas)
+        const platKode = document.getElementById('plat-kode').value;
+        const platNomor = document.getElementById('plat-nomor').value.trim();
+        const platHuruf = document.getElementById('plat-huruf').value.trim();
+
+        if (!platKode) {
+            showMessage("Harap pilih KODE PLAT (contoh: B, DK, dll).", "error");
+            return; // Hentikan proses
+        }
+        if (!platNomor || platNomor.length < 1 || platNomor.length > 4) {
+            showMessage("Nomor Plat harus 1-4 digit angka.", "error");
+            return;
+        }
+        if (!platHuruf || platHuruf.length < 1 || platHuruf.length > 3) {
+            showMessage("Huruf Belakang Plat harus 1-3 huruf.", "error");
+            return;
+        }
+
+        setLoading(btn, true);
+
+        const nama = document.getElementById('register-nama').value.trim();
+        const titel = document.getElementById('register-titel').value;
+        const status = document.getElementById('register-status').value;
+        const telepon = document.getElementById('register-telepon').value.trim();
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value;
+        const picFile = selectedPhotoFile;
+        
+        const dateStr = document.getElementById('register-joined').value;
+        const platMobilFinal = platKode + " " + platNomor.toUpperCase() + " " + platHuruf.toUpperCase();
+        const newSessionId = generateSessionId();
+
+        try {
+            // Get full device info dengan error handling
+            let deviceInfo;
+            try {
+                deviceInfo = await getFullDeviceInfo();
+            } catch (deviceError) {
+                console.error('Error getting device info, using fallback:', deviceError);
+                // Fallback jika generateDeviceId error
+                deviceInfo = {
+                    deviceId: 'web-' + Date.now(),
+                    deviceName: 'Perangkat Web',
+                    deviceType: 'desktop',
+                    deviceOS: 'Unknown',
+                    deviceBrowser: 'Unknown'
+                };
+            }
+
+            console.log('Mencoba register dengan email:', email);
+
+            // Firebase Auth Create User
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+            console.log('User berhasil dibuat di Auth:', user.uid);
+
+            // Proses Foto
+            let profilePicUrl = '';
             if (picFile) {
                 try {
                     console.log('Memproses foto profil...');
                     profilePicUrl = await compressImage(picFile, 200, 200, 0.7);
-                    console.log('Foto berhasil dikompres, panjang string:', profilePicUrl.length);
-                } catch (compressError) {
-                    console.log('Kompresi gagal, coba langsung:', compressError.message);
-                    try {
-                        profilePicUrl = await fileToBase64(picFile);
-                    } catch (base64Error) {
-                        console.log('Base64 juga gagal:', base64Error.message);
-                    }
+                } catch (imgError) {
+                    console.warn('Gagal kompres foto, pakai default:', imgError);
                 }
             }
 
-            if (!profilePicUrl || profilePicUrl === '') {
+            if (!profilePicUrl) {
                 profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=4e73df&color=fff&size=200`;
-                console.log('Menggunakan avatar default');
             }
 
             // Create session in Firestore
@@ -2039,12 +1704,13 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            // Siapkan Data User
             const userData = {
                 nama: nama.toUpperCase(),
                 titel: titel,
                 telepon: telepon,
                 email: email,
-                password: password,
+                password: password, // Hati-hati menyimpan password plain text
                 platMobil: platMobilFinal,
                 status: status,
                 bergabung: dateStr,
@@ -2063,11 +1729,11 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            console.log('Menyimpan data user...');
+            console.log('Menyimpan data ke Firestore...');
             await db.collection('users').doc(user.uid).set(userData);
-            console.log('Data berhasil disimpan!');
+            console.log('Data Firestore tersimpan!');
 
-            // Save session and device locally
+            // Save local session
             safeSetItem('userSessionId', newSessionId);
             safeSetItem('userDeviceId', deviceInfo.deviceId);
 
@@ -2076,11 +1742,106 @@
 
             showMessage('Registrasi berhasil! Mengalihkan...', 'success');
 
+            // Redirect
+            setTimeout(() => {
+                window.location.href = 'branda.html';
+            }, 1500);
+
+        } catch (error) {
+            console.error('=== REGISTER ERROR ===', error);
+            let msg = "Terjadi kesalahan.";
+            
+            if (error.code === 'auth/email-already-in-use') {
+                msg = 'Email sudah terdaftar. Silakan login atau gunakan email lain.';
+            } else if (error.code === 'auth/weak-password') {
+                msg = 'Password terlalu lemah (minimal 6 karakter).';
+            } else if (error.code === 'auth/invalid-email') {
+                msg = 'Format email tidak valid.';
+            } else if (error.code === 'auth/network-request-failed') {
+                msg = 'Gagal koneksi ke server. Periksa internet Anda.';
+            } else {
+                msg = error.message; // Tampilkan error asli untuk debug
+            }
+            
+            showMessage(msg, 'error');
+            setLoading(btn, false); // Kembalikan tombol ke state semula
+        }
+    });
+
+            // ============================================
+            // PROSES FOTO PROFIL - DENGAN KOMPRESI
+            // ============================================
+            let profilePicUrl = '';
+            
+            if (picFile) {
+                try {
+                    // Kompres gambar ke 200x200, quality 70%
+                    console.log('Memproses foto profil...');
+                    profilePicUrl = await compressImage(picFile, 200, 200, 0.7);
+                    console.log('Foto berhasil dikompres, panjang string:', profilePicUrl.length);
+                } catch (compressError) {
+                    console.log('Kompresi gagal, coba langsung:', compressError.message);
+                    try {
+                        profilePicUrl = await fileToBase64(picFile);
+                    } catch (base64Error) {
+                        console.log('Base64 juga gagal:', base64Error.message);
+                    }
+                }
+            }
+            
+            // Jika tidak ada foto atau gagal proses, gunakan avatar default
+            if (!profilePicUrl || profilePicUrl === '') {
+                profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=4e73df&color=fff&size=200`;
+                console.log('Menggunakan avatar default');
+            }
+            
+            console.log('Foto profil final, panjang:', profilePicUrl.length);
+
+            // ============================================
+            // SIMPAN KE FIRESTORE
+            // ============================================
+            const userData = {
+                nama: nama.toUpperCase(),
+                titel: titel,
+                telepon: telepon,
+                email: email,
+                password: password,
+                platMobil: platMobilFinal,
+                status: status,
+                bergabung: dateStr,
+                profilePicUrl: profilePicUrl,
+                role: 'anggota',
+                currentSessionId: newSessionId,
+                currentDevice: deviceInfo,
+                loginHistory: firebase.firestore.FieldValue.arrayUnion({
+                    sessionId: newSessionId,
+                    device: deviceInfo,
+                    timestamp: new Date().toISOString(),
+                    action: 'register'
+                }),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            console.log('Menyimpan data user...');
+            await db.collection('users').doc(user.uid).set(userData);
+            console.log('Data berhasil disimpan!');
+
+            // Save session locally
+            safeSetItem('userSessionId', newSessionId);
+
+            // Reset login attempts on successful registration
+            resetLoginAttempts();
+            clearLockoutEndTime();
+
+            showMessage('Registrasi berhasil! Mengalihkan...', 'success');
+            
             // Start session monitoring
-            startSessionMonitor(user.uid, deviceInfo.deviceId);
-
+            startSessionMonitor(user.uid);
+            
+            // Set pending redirect
             pendingRedirect = true;
-
+            
+            // Redirect ke branda.html
             setTimeout(() => {
                 window.location.href = 'branda.html';
             }, 1500);
@@ -2101,93 +1862,71 @@
     });
 
     // ============================================
-    // LOGIN FORM - WITH SINGLE DEVICE CHECK
+    // LOGIN FORM - WITH SECURITY
     // ============================================
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-
+        
         if (isScreenLocked) {
             showMessage('Akses dikunci. Silakan tunggu.', 'error');
             return;
         }
-
+        
         const btn = document.getElementById('loginBtn');
         setLoading(btn, true);
 
         const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value;
         const newSessionId = generateSessionId();
+        const deviceInfo = getDeviceInfo();
 
         try {
-            // Get full device info
-            const deviceInfo = await getFullDeviceInfo();
-            console.log('=== LOGIN ATTEMPT ===');
-            console.log('Email:', email);
-            console.log('Device Info:', deviceInfo);
-
-            // Login ke Firebase Auth
-            console.log('Signing in to Firebase...');
+            // Login
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             const user = userCredential.user;
-            console.log('Firebase Auth Success - User ID:', user.uid);
 
-            // CHECK SINGLE DEVICE - Apakah sudah login di perangkat lain?
-            console.log('Checking session...');
-            const sessionCheck = await checkAndCreateSession(user, deviceInfo);
-            console.log('Session Check Result:', sessionCheck);
-
-            if (!sessionCheck.allowed) {
-                // LOGIN DITOLAK - Sudah login di perangkat lain
-                console.log('❌ LOGIN DITOLAK - Showing conflict modal');
-                await auth.signOut();
-                setLoading(btn, false);
-                
-                // Tampilkan modal konflik
-                showDeviceConflict(sessionCheck.activeDevice);
-                return;
-            }
-
-            console.log('✅ LOGIN ALLOWED');
-
-            // Save session and device locally
-            safeSetItem('userSessionId', newSessionId);
-            safeSetItem('userDeviceId', deviceInfo.deviceId);
-
-            // Update user document
+            // Update session dan device info
             await db.collection('users').doc(user.uid).update({
                 currentSessionId: newSessionId,
-                currentDevice: deviceInfo.deviceName,
+                currentDevice: deviceInfo,
                 password: password,
                 status: 'ONLINE',
                 lastActive: firebase.firestore.FieldValue.serverTimestamp(),
                 loginHistory: firebase.firestore.FieldValue.arrayUnion({
                     sessionId: newSessionId,
-                    device: deviceInfo.deviceName,
+                    device: deviceInfo,
                     timestamp: new Date().toISOString(),
                     action: 'login'
                 })
             });
 
+            // Save session locally
+            safeSetItem('userSessionId', newSessionId);
+
+            // Reset login attempts on successful login
             resetLoginAttempts();
             clearLockoutEndTime();
 
             showMessage('Login berhasil! Mengalihkan...', 'success');
 
-            // TIDAK PERLU startSessionMonitor di sini karena akan redirect ke branda.html
-            // Session monitoring dilakukan di branda.html
-
+            // Start session monitoring
+            startSessionMonitor(user.uid);
+            
+            // Set pending redirect
             pendingRedirect = true;
-
+            
+            // Redirect ke branda.html
             setTimeout(() => {
                 window.location.href = 'branda.html';
             }, 1500);
 
         } catch (error) {
             console.error('Login error:', error);
-
+            
+            // INCREMENT LOGIN ATTEMPT
             const attempts = incrementLoginAttempt();
             updateAttemptDots(attempts);
-
+            
             let msg = 'Email atau password salah.';
             if (error.code === 'auth/user-not-found') {
                 msg = 'Email tidak terdaftar.';
@@ -2198,25 +1937,27 @@
             } else if (error.code === 'auth/too-many-requests') {
                 msg = 'Terlalu banyak percobaan. Coba lagi nanti.';
             }
-
+            
+            // Show remaining attempts
             const remaining = SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS - attempts;
             if (remaining > 0) {
                 msg += ` (${remaining} percobaan tersisa)`;
             }
-
+            
             showMessage(msg, 'error');
-
+            
+            // CHECK IF MAX ATTEMPTS REACHED
             if (attempts >= SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
                 const lockoutEnd = Date.now() + SECURITY_CONFIG.LOCKOUT_DURATION;
                 setLockoutEndTime(lockoutEnd);
-
+                
                 showMessage('Terlalu banyak percobaan gagal! Layar akan dikunci.', 'warning');
-
+                
                 setTimeout(() => {
                     showScreenLock();
                 }, 1000);
             }
-
+            
             setLoading(btn, false);
         }
     });
@@ -2229,7 +1970,7 @@
             showMessage('Akses dikunci. Tidak dapat reset password.', 'error');
             return;
         }
-
+        
         const email = prompt('Masukkan email Anda untuk reset password:');
         if (email) {
             auth.sendPasswordResetEmail(email)
