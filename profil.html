@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* CSS Sama seperti sebelumnya */
         :root {
             --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8; --secondary: #8b5cf6;
             --accent: #f59e0b; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --info: #06b6d4;
@@ -85,7 +84,7 @@
         .nav-job-logo { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; position: relative; }
         .nav-job-logo img { width: 45px; height: 45px; object-fit: contain; }
         .nav-job-text { font-size: 0.6rem; font-weight: 700; color: var(--primary); }
-        .job-badge { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 50%; font-size: 0.65rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+        .job-badge { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; background: linear-gradient(135deg, #ef4444 0%, #dc262d 100%); border-radius: 50%; font-size: 0.65rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
         .job-badge.hidden { display: none; }
 
         /* Toast */
@@ -168,7 +167,8 @@
                         <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff&size=200" alt="Photo" class="photo-preview" id="photoPreview">
                         <label class="photo-edit-btn" for="photoInput" title="Ganti Foto"><i class="fas fa-camera"></i></label>
                     </div>
-                    <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)">
+                    <!-- Input file tersembunyi -->
+                    <input type="file" id="photoInput" accept="image/*">
                     <p class="input-hint">Klik ikon kamera untuk ganti foto</p>
                 </div>
 
@@ -352,7 +352,7 @@
         <a class="nav-item active" href="profil.html"><i class="fas fa-user"></i><span>Profil</span></a>
     </nav>
 
-        <!-- Firebase SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -382,38 +382,10 @@
         let pendingChanges = {};
 
         // ==========================================
-        // PERBAIKAN 1: Jadikan fungsi global agar bisa diakses HTML onclick
+        // FUNGSI UTILITAS (Diakses dari HTML)
         // ==========================================
-        window.handlePhotoSelect = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (!file.type.match('image.*')) { 
-                showToast('error', 'Error', 'Hanya file gambar yang diizinkan'); 
-                return; 
-            }
-            if (file.size > 2 * 1024 * 1024) { 
-                showToast('error', 'Error', 'Ukuran file maksimal 2MB'); 
-                return; 
-            }
-            
-            selectedPhotoFile = file;
-            const reader = new FileReader();
-            reader.onload = function(e) { 
-                document.getElementById('photoPreview').src = e.target.result; 
-            };
-            reader.readAsDataURL(file);
-        };
-
-        // Helper Upload
-        async function uploadPhoto(file) {
-            if (!file) return null;
-            const fileName = `profiles/${currentUserId}_${Date.now()}`;
-            const storageRef = storage.ref(fileName);
-            await storageRef.put(file);
-            return await storageRef.getDownloadURL();
-        }
-
-        // Toast (Global)
+        
+        // 1. Toast Notification
         window.showToast = function(type, title, message) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -423,9 +395,9 @@
             toast.innerHTML = `<div class="toast-icon ${iconClass}"><i class="fas ${iconName}"></i></div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div>`;
             container.appendChild(toast);
             setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 5000);
-        }
+        };
 
-        // Tab & Toggle (Global)
+        // 2. Tab Switching
         window.switchTab = function(tabName, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -433,6 +405,7 @@
             document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
         };
 
+        // 3. Toggle Password Visibility
         window.togglePassword = function(inputId) {
             const input = document.getElementById(inputId);
             const icon = input.parentElement.querySelector('.toggle-password i');
@@ -440,7 +413,38 @@
             else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
         };
 
-        // Modals (Global)
+        // 4. Handle Photo Selection (PERBAIKAN UTAMA)
+        window.handlePhotoSelect = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.match('image.*')) {
+                showToast('error', 'Error', 'Hanya file gambar yang diizinkan');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) { // 2MB Limit
+                showToast('error', 'Error', 'Ukuran file maksimal 2MB');
+                return;
+            }
+
+            selectedPhotoFile = file; // Simpan file ke variabel global
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoPreview').src = e.target.result; // Tampilkan preview
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Tambahkan listener saat halaman dimuat agar input file bisa trigger fungsi di atas
+        document.addEventListener('DOMContentLoaded', () => {
+            const photoInput = document.getElementById('photoInput');
+            if (photoInput) {
+                photoInput.addEventListener('change', window.handlePhotoSelect);
+            }
+        });
+
+        // 5. Modal Controls
         window.openEditModal = function() {
             if (userData) {
                 document.getElementById('editNama').value = userData.nama || '';
@@ -450,34 +454,45 @@
                 document.getElementById('newEmail').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
+
                 const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
                 document.getElementById('photoPreview').src = avatar;
-                selectedPhotoFile = null; // Reset pilihan foto
+                
+                // Reset state foto
+                selectedPhotoFile = null;
                 document.getElementById('photoInput').value = '';
             }
+            // Reset tab ke Profil
             document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === 0));
             document.getElementById('tabProfil').classList.add('active');
             document.getElementById('tabAkun').classList.remove('active');
+            
             document.getElementById('editModal').classList.add('active');
         };
 
-        window.closeEditModal = function() { document.getElementById('editModal').classList.remove('active'); };
-        
-        window.closeReauthModal = function() { 
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.remove('active');
+        };
+
+        window.closeReauthModal = function() {
             document.getElementById('reauthModal').classList.remove('active');
             document.getElementById('reauthPassword').value = '';
         };
 
-        window.shareProfile = async function() {
-            const shareData = { title: 'Profil BGT-PRO', text: `Lihat profil ${userData?.nama}`, url: window.location.href };
-            if (navigator.share) { try { await navigator.share(shareData); } catch (err) {} }
-            else {
-                navigator.clipboard.writeText(window.location.href);
-                showToast('success', 'Berhasil', 'Link profil disalin');
-            }
-        };
+        // ==========================================
+        // LOGIKA FIREBASE
+        // ==========================================
+        
+        // Helper: Upload Photo to Storage
+        async function uploadPhoto(file) {
+            if (!file) return null;
+            const fileName = `profiles/${currentUserId}_${Date.now()}`;
+            const storageRef = storage.ref(fileName);
+            await storageRef.put(file);
+            return await storageRef.getDownloadURL();
+        }
 
-        // Notification Helper
+        // Helper: Send Notification
         async function sendNotificationToAdmin(type, message) {
             try {
                 await db.collection('notifications').add({
@@ -487,22 +502,28 @@
             } catch (e) { console.error("Notif error:", e); }
         }
 
-        // ==========================================
-        // PERBAIKAN 2: Logika Save Profile yang lebih robust
-        // ==========================================
+        // Helper: Update Profile UI
+        function updateProfileUI() {
+            const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
+            document.getElementById('profileAvatar').src = avatar;
+            document.getElementById('profileName').textContent = userData.nama || '-';
+            document.getElementById('profilePhone').textContent = userData.telepon || '-';
+            document.getElementById('profilePlat').textContent = userData.platMobil || '-';
+        }
+
+        // Main Save Logic
         async function saveProfileChanges(data, photoFile, skipClose = false) {
             try {
                 let photoURL = userData.profilePicUrl;
                 
-                // Cek jika ada file foto baru yang dipilih
                 if (photoFile) {
-                    showToast('info', 'Mengupload', 'Sedang mengunggah foto...');
+                    showToast('info', 'Mengupload', 'Sedang mengunggah foto baru...');
                     photoURL = await uploadPhoto(photoFile);
                 }
 
                 const updateData = {
-                    nama: data.nama, 
-                    telepon: data.telepon, 
+                    nama: data.nama,
+                    telepon: data.telepon,
                     platMobil: data.platMobil,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
@@ -512,8 +533,8 @@
                 await db.collection('users').doc(currentUserId).update(updateData);
                 
                 // Update local state
-                userData.nama = data.nama; 
-                userData.telepon = data.telepon; 
+                userData.nama = data.nama;
+                userData.telepon = data.telepon;
                 userData.platMobil = data.platMobil;
                 if (photoURL) userData.profilePicUrl = photoURL;
                 
@@ -521,19 +542,12 @@
                 
                 if (!skipClose) {
                     closeEditModal();
-                    showToast('success', 'Berhasil', 'Profil diperbarui');
+                    showToast('success', 'Berhasil', 'Profil berhasil diperbarui');
                 }
-            } catch (err) { 
-                showToast('error', 'Error', err.message); 
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Error', err.message);
             }
-        }
-
-        function updateProfileUI() {
-            const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
-            document.getElementById('profileAvatar').src = avatar;
-            document.getElementById('profileName').textContent = userData.nama || '-';
-            document.getElementById('profilePhone').textContent = userData.telepon || '-';
-            document.getElementById('profilePlat').textContent = userData.platMobil || '-';
         }
 
         // Form Submit Logic
@@ -549,26 +563,36 @@
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (!nama) { showToast('error', 'Error', 'Nama wajib diisi'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan'; return; }
-            if (newPassword && newPassword.length < 6) { showToast('error', 'Error', 'Password min 6 karakter'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan'; return; }
-            if (newPassword && newPassword !== confirmPassword) { showToast('error', 'Error', 'Konfirmasi password tidak cocok'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan'; return; }
+            if (!nama) {
+                showToast('error', 'Error', 'Nama wajib diisi');
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+                return;
+            }
+            if (newPassword && newPassword.length < 6) {
+                showToast('error', 'Error', 'Password minimal 6 karakter');
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+                return;
+            }
+            if (newPassword && newPassword !== confirmPassword) {
+                showToast('error', 'Error', 'Konfirmasi password tidak cocok');
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+                return;
+            }
 
             const requiresReauth = (newEmail && newEmail !== userData.email) || newPassword;
 
             if (requiresReauth) {
-                // Simpan perubahan (termasuk foto) ke pending
                 pendingChanges = { nama, telepon, platMobil, newEmail, newPassword, photoFile: selectedPhotoFile };
                 btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
                 document.getElementById('reauthModal').classList.add('active');
                 document.getElementById('reauthPassword').focus();
             } else {
-                // Jika tidak butuh reauth, langsung simpan
                 await saveProfileChanges({ nama, telepon, platMobil }, selectedPhotoFile);
                 btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
             }
         });
 
-        // Reauth Logic
+        // Reauth Form Submit
         document.getElementById('reauthForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnReauth');
@@ -579,14 +603,12 @@
                 const credential = firebase.auth.EmailAuthProvider.credential(userData.email, password);
                 await auth.currentUser.reauthenticateWithCredential(credential);
                 
-                // Logika Ganti Email
                 if (pendingChanges.newEmail && pendingChanges.newEmail !== userData.email) {
                     await auth.currentUser.verifyBeforeUpdateEmail(pendingChanges.newEmail);
                     await sendNotificationToAdmin('email_change_request', `Request ubah email: ${userData.email} -> ${pendingChanges.newEmail}`);
                     showToast('info', 'Cek Email', 'Link verifikasi terkirim ke ' + pendingChanges.newEmail);
                 }
 
-                // Logika Ganti Password
                 if (pendingChanges.newPassword) {
                     await auth.currentUser.updatePassword(pendingChanges.newPassword);
                     await sendNotificationToAdmin('password_change', `User ${userData.nama} ubah password`);
@@ -594,8 +616,7 @@
                     setTimeout(() => { auth.signOut(); window.location.href = 'index.html'; }, 2000);
                 }
 
-                // Simpan data profil (termasuk foto dari pendingChanges)
-                // PERBAIKAN: Meneruskan pendingChanges.photoFile dengan benar
+                // Simpan perubahan profil (termasuk foto jika ada)
                 await saveProfileChanges(pendingChanges, pendingChanges.photoFile, true);
                 
                 closeReauthModal();
@@ -615,7 +636,7 @@
         });
 
         // ============================================
-        // INITIAL LOAD
+        // INITIAL LOAD & AUTH STATE
         // ============================================
         function showUserData(data) {
             userData = data;
@@ -648,7 +669,7 @@
                 if (doc.exists) {
                     let data = doc.data();
                     
-                    // RESCUE MODE: Sync email jika sudah terverifikasi di Auth tapi belum di DB
+                    // Rescue Mode: Sinkronkan email jika sudah verifikasi tapi DB belum update
                     if (user.email && user.email !== data.email) {
                         console.log("Rescue Mode Active: Syncing email...");
                         const oldEmail = data.email;
@@ -671,7 +692,18 @@
             }
         });
 
-        // Event listener untuk klik di luar modal
+        // Share Profile
+        window.shareProfile = async function() {
+            const shareData = { title: 'Profil BGT-PRO', text: `Lihat profil ${userData?.nama}`, url: window.location.href };
+            if (navigator.share) { 
+                try { await navigator.share(shareData); } catch (err) {} 
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast('success', 'Berhasil', 'Link profil disalin');
+            }
+        };
+
+        // Close modal on outside click
         document.getElementById('editModal').addEventListener('click', (e) => { if (e.target.id === 'editModal') closeEditModal(); });
         document.getElementById('reauthModal').addEventListener('click', (e) => { if (e.target.id === 'reauthModal') closeReauthModal(); });
     </script>
