@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
+        /* CSS Sama seperti sebelumnya */
         :root {
             --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8; --secondary: #8b5cf6;
             --accent: #f59e0b; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --info: #06b6d4;
@@ -451,31 +452,19 @@
             document.getElementById('reauthPassword').value = '';
         }
 
-        // ============================================
-        // FUNGSI NOTIFIKASI KE ADMIN
-        // ============================================
+        // Notification
         async function sendNotificationToAdmin(type, message) {
             try {
                 await db.collection('notifications').add({
-                    type: type, // 'profile_update', 'email_change', etc
-                    userId: currentUserId,
-                    userName: userData.nama || 'Unknown',
-                    message: message,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    read: false
+                    type: type, userId: currentUserId, userName: userData?.nama || 'Unknown',
+                    message: message, timestamp: firebase.firestore.FieldValue.serverTimestamp(), read: false
                 });
-                console.log("Notifikasi terkirim ke admin");
-            } catch (e) {
-                console.error("Gagal kirim notifikasi:", e);
-            }
+            } catch (e) { console.error("Notif error:", e); }
         }
 
-        // ============================================
-        // HANDLE FORM SUBMIT
-        // ============================================
+        // Form Submit Logic
         document.getElementById('editForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const btn = document.getElementById('btnSave');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cek...';
 
@@ -503,9 +492,7 @@
             }
         });
 
-        // ============================================
-        // HANDLE RE-AUTHENTICATION
-        // ============================================
+        // Reauth Logic
         document.getElementById('reauthForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnReauth');
@@ -513,32 +500,22 @@
             const password = document.getElementById('reauthPassword').value;
 
             try {
-                // 1. Re-authenticate
                 const credential = firebase.auth.EmailAuthProvider.credential(userData.email, password);
                 await auth.currentUser.reauthenticateWithCredential(credential);
                 
-                // 2. Proses Ganti Email (Jika ada)
                 if (pendingChanges.newEmail && pendingChanges.newEmail !== userData.email) {
                     await auth.currentUser.verifyBeforeUpdateEmail(pendingChanges.newEmail);
-                    
-                    // Kirim notifikasi ke admin bahwa ada request ganti email
-                    await sendNotificationToAdmin('email_change_request', `User ${userData.nama} request ganti email dari ${userData.email} ke ${pendingChanges.newEmail}`);
-                    
-                    showToast('info', 'Cek Email Baru', 'Link verifikasi dikirim ke ' + pendingChanges.newEmail);
+                    await sendNotificationToAdmin('email_change_request', `Request ubah email: ${userData.email} -> ${pendingChanges.newEmail}`);
+                    showToast('info', 'Cek Email', 'Link verifikasi terkirim ke ' + pendingChanges.newEmail);
                 }
 
-                // 3. Proses Ganti Password (Jika ada)
                 if (pendingChanges.newPassword) {
                     await auth.currentUser.updatePassword(pendingChanges.newPassword);
-                    
-                    // Kirim notifikasi ke admin
-                    await sendNotificationToAdmin('password_change', `User ${userData.nama} telah mengubah password.`);
-                    
-                    showToast('success', 'Sukses', 'Password berhasil diubah. Silakan login ulang.');
+                    await sendNotificationToAdmin('password_change', `User ${userData.nama} ubah password`);
+                    showToast('success', 'Sukses', 'Password diubah. Silakan login ulang.');
                     setTimeout(() => { auth.signOut(); window.location.href = 'index.html'; }, 2000);
                 }
 
-                // 4. Simpan data profil lainnya
                 await saveProfileChanges(pendingChanges, pendingChanges.photoFile, true);
                 
                 closeReauthModal();
@@ -547,17 +524,16 @@
             } catch (error) {
                 console.error("Reauth Error:", error);
                 if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                    showToast('error', 'Gagal', 'Password yang Anda masukkan salah');
+                    showToast('error', 'Gagal', 'Password salah');
                 } else {
                     showToast('error', 'Error', error.message);
                 }
+            } finally {
                 btn.disabled = false; btn.innerHTML = 'Verifikasi';
             }
         });
 
-        // ============================================
-        // SIMPAN DATA PROFIL
-        // ============================================
+        // Save Profile Logic
         async function saveProfileChanges(data, photoFile, skipClose = false) {
             try {
                 let photoURL = userData.profilePicUrl;
@@ -567,34 +543,22 @@
                 }
 
                 const updateData = {
-                    nama: data.nama,
-                    telepon: data.telepon,
-                    platMobil: data.platMobil,
+                    nama: data.nama, telepon: data.telepon, platMobil: data.platMobil,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 if (photoURL) updateData.profilePicUrl = photoURL;
 
                 await db.collection('users').doc(currentUserId).update(updateData);
-
-                userData.nama = data.nama;
-                userData.telepon = data.telepon;
-                userData.platMobil = data.platMobil;
+                userData.nama = data.nama; userData.telepon = data.telepon; userData.platMobil = data.platMobil;
                 if (photoURL) userData.profilePicUrl = photoURL;
                 
                 updateProfileUI();
                 
-                // Kirim notifikasi jika ada perubahan data
-                if (data.nama || data.telepon || data.platMobil || photoFile) {
-                    await sendNotificationToAdmin('profile_update', `User ${data.nama} memperbarui profil.`);
-                }
-
                 if (!skipClose) {
                     closeEditModal();
-                    showToast('success', 'Berhasil', 'Profil berhasil diperbarui');
+                    showToast('success', 'Berhasil', 'Profil diperbarui');
                 }
-            } catch (err) {
-                showToast('error', 'Error', err.message);
-            }
+            } catch (err) { showToast('error', 'Error', err.message); }
         }
 
         function updateProfileUI() {
@@ -606,7 +570,7 @@
         }
 
         // ============================================
-        // INITIAL LOAD & AUTO SYNC EMAIL
+        // INITIAL LOAD & AUTO SYNC (RESCUE MODE)
         // ============================================
         function showUserData(data) {
             userData = data;
@@ -639,31 +603,40 @@
                 if (doc.exists) {
                     let data = doc.data();
                     
-                    // AUTO-SYNC: Deteksi jika email di Auth sudah berubah (karena user klik link verifikasi)
+                    // ==================================================
+                    // RESCUE MODE: JIKA EMAIL AUTH BEDA DENGAN DATABASE
+                    // ==================================================
+                    // Bagian ini menyelamatkan user yang sudah verifikasi email baru
+                    // tapi datanya belum ke-update di database.
                     if (user.email && user.email !== data.email) {
+                        console.log("Rescue Mode Active: Syncing email...");
                         const oldEmail = data.email;
                         
-                        // Update email di Firestore
+                        // 1. Paksa update email di Database
                         await db.collection('users').doc(user.uid).update({
                             email: user.email,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                         
-                        // Update lokal
+                        // 2. Update data lokal
                         data.email = user.email;
                         
-                        // Kirim notifikasi ke admin bahwa email sudah final berubah
-                        await sendNotificationToAdmin('email_verified', `User ${data.nama} TELAH MENGUBAH EMAIL dari ${oldEmail} ke ${user.email}`);
+                        // 3. Notifikasi admin
+                        await sendNotificationToAdmin('email_verified', `User ${data.nama} VERIFIKASI EMAIL: ${oldEmail} -> ${user.email}`);
                         
-                        showToast('success', 'Email Terverifikasi', 'Email Anda berhasil diubah ke ' + user.email);
+                        // 4. Tampilkan toast sukses
+                        showToast('success', 'Email Disinkronkan', 'Email Anda berhasil diupdate ke ' + user.email);
                     }
                     
                     showUserData(data);
                 } else {
+                    // Jika user tidak punya data di DB, logout
                     await auth.signOut();
                     window.location.href = 'index.html';
                 }
-            } catch (e) { console.error('Error:', e); }
+            } catch (e) { 
+                console.error('Error:', e); 
+            }
         });
 
         async function shareProfile() {
