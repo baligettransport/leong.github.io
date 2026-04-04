@@ -352,7 +352,7 @@
         <a class="nav-item active" href="profil.html"><i class="fas fa-user"></i><span>Profil</span></a>
     </nav>
 
-    <!-- Firebase SDK -->
+        <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -381,8 +381,40 @@
         let selectedPhotoFile = null;
         let pendingChanges = {};
 
-        // Toast
-        function showToast(type, title, message) {
+        // ==========================================
+        // PERBAIKAN 1: Jadikan fungsi global agar bisa diakses HTML onclick
+        // ==========================================
+        window.handlePhotoSelect = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.type.match('image.*')) { 
+                showToast('error', 'Error', 'Hanya file gambar yang diizinkan'); 
+                return; 
+            }
+            if (file.size > 2 * 1024 * 1024) { 
+                showToast('error', 'Error', 'Ukuran file maksimal 2MB'); 
+                return; 
+            }
+            
+            selectedPhotoFile = file;
+            const reader = new FileReader();
+            reader.onload = function(e) { 
+                document.getElementById('photoPreview').src = e.target.result; 
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Helper Upload
+        async function uploadPhoto(file) {
+            if (!file) return null;
+            const fileName = `profiles/${currentUserId}_${Date.now()}`;
+            const storageRef = storage.ref(fileName);
+            await storageRef.put(file);
+            return await storageRef.getDownloadURL();
+        }
+
+        // Toast (Global)
+        window.showToast = function(type, title, message) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = 'toast';
@@ -393,41 +425,23 @@
             setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 5000);
         }
 
-        // Tab & Toggle
-        function switchTab(tabName, btn) {
+        // Tab & Toggle (Global)
+        window.switchTab = function(tabName, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
-        }
-        function togglePassword(inputId) {
+        };
+
+        window.togglePassword = function(inputId) {
             const input = document.getElementById(inputId);
             const icon = input.parentElement.querySelector('.toggle-password i');
             if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); }
             else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
-        }
+        };
 
-        // Photo
-        function handlePhotoSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (!file.type.match('image.*')) { showToast('error', 'Error', 'Hanya file gambar'); return; }
-            if (file.size > 2 * 1024 * 1024) { showToast('error', 'Error', 'Maksimal 2MB'); return; }
-            selectedPhotoFile = file;
-            const reader = new FileReader();
-            reader.onload = function(e) { document.getElementById('photoPreview').src = e.target.result; };
-            reader.readAsDataURL(file);
-        }
-        async function uploadPhoto() {
-            if (!selectedPhotoFile) return null;
-            const fileName = `profiles/${currentUserId}_${Date.now()}`;
-            const storageRef = storage.ref(fileName);
-            await storageRef.put(selectedPhotoFile);
-            return await storageRef.getDownloadURL();
-        }
-
-        // Modals
-        function openEditModal() {
+        // Modals (Global)
+        window.openEditModal = function() {
             if (userData) {
                 document.getElementById('editNama').value = userData.nama || '';
                 document.getElementById('editTelepon').value = userData.telepon || '';
@@ -438,21 +452,32 @@
                 document.getElementById('confirmPassword').value = '';
                 const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
                 document.getElementById('photoPreview').src = avatar;
-                selectedPhotoFile = null;
+                selectedPhotoFile = null; // Reset pilihan foto
                 document.getElementById('photoInput').value = '';
             }
             document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === 0));
             document.getElementById('tabProfil').classList.add('active');
             document.getElementById('tabAkun').classList.remove('active');
             document.getElementById('editModal').classList.add('active');
-        }
-        function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
-        function closeReauthModal() { 
+        };
+
+        window.closeEditModal = function() { document.getElementById('editModal').classList.remove('active'); };
+        
+        window.closeReauthModal = function() { 
             document.getElementById('reauthModal').classList.remove('active');
             document.getElementById('reauthPassword').value = '';
-        }
+        };
 
-        // Notification
+        window.shareProfile = async function() {
+            const shareData = { title: 'Profil BGT-PRO', text: `Lihat profil ${userData?.nama}`, url: window.location.href };
+            if (navigator.share) { try { await navigator.share(shareData); } catch (err) {} }
+            else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast('success', 'Berhasil', 'Link profil disalin');
+            }
+        };
+
+        // Notification Helper
         async function sendNotificationToAdmin(type, message) {
             try {
                 await db.collection('notifications').add({
@@ -460,6 +485,55 @@
                     message: message, timestamp: firebase.firestore.FieldValue.serverTimestamp(), read: false
                 });
             } catch (e) { console.error("Notif error:", e); }
+        }
+
+        // ==========================================
+        // PERBAIKAN 2: Logika Save Profile yang lebih robust
+        // ==========================================
+        async function saveProfileChanges(data, photoFile, skipClose = false) {
+            try {
+                let photoURL = userData.profilePicUrl;
+                
+                // Cek jika ada file foto baru yang dipilih
+                if (photoFile) {
+                    showToast('info', 'Mengupload', 'Sedang mengunggah foto...');
+                    photoURL = await uploadPhoto(photoFile);
+                }
+
+                const updateData = {
+                    nama: data.nama, 
+                    telepon: data.telepon, 
+                    platMobil: data.platMobil,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (photoURL) updateData.profilePicUrl = photoURL;
+
+                await db.collection('users').doc(currentUserId).update(updateData);
+                
+                // Update local state
+                userData.nama = data.nama; 
+                userData.telepon = data.telepon; 
+                userData.platMobil = data.platMobil;
+                if (photoURL) userData.profilePicUrl = photoURL;
+                
+                updateProfileUI();
+                
+                if (!skipClose) {
+                    closeEditModal();
+                    showToast('success', 'Berhasil', 'Profil diperbarui');
+                }
+            } catch (err) { 
+                showToast('error', 'Error', err.message); 
+            }
+        }
+
+        function updateProfileUI() {
+            const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
+            document.getElementById('profileAvatar').src = avatar;
+            document.getElementById('profileName').textContent = userData.nama || '-';
+            document.getElementById('profilePhone').textContent = userData.telepon || '-';
+            document.getElementById('profilePlat').textContent = userData.platMobil || '-';
         }
 
         // Form Submit Logic
@@ -482,11 +556,13 @@
             const requiresReauth = (newEmail && newEmail !== userData.email) || newPassword;
 
             if (requiresReauth) {
+                // Simpan perubahan (termasuk foto) ke pending
                 pendingChanges = { nama, telepon, platMobil, newEmail, newPassword, photoFile: selectedPhotoFile };
                 btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
                 document.getElementById('reauthModal').classList.add('active');
                 document.getElementById('reauthPassword').focus();
             } else {
+                // Jika tidak butuh reauth, langsung simpan
                 await saveProfileChanges({ nama, telepon, platMobil }, selectedPhotoFile);
                 btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
             }
@@ -503,12 +579,14 @@
                 const credential = firebase.auth.EmailAuthProvider.credential(userData.email, password);
                 await auth.currentUser.reauthenticateWithCredential(credential);
                 
+                // Logika Ganti Email
                 if (pendingChanges.newEmail && pendingChanges.newEmail !== userData.email) {
                     await auth.currentUser.verifyBeforeUpdateEmail(pendingChanges.newEmail);
                     await sendNotificationToAdmin('email_change_request', `Request ubah email: ${userData.email} -> ${pendingChanges.newEmail}`);
                     showToast('info', 'Cek Email', 'Link verifikasi terkirim ke ' + pendingChanges.newEmail);
                 }
 
+                // Logika Ganti Password
                 if (pendingChanges.newPassword) {
                     await auth.currentUser.updatePassword(pendingChanges.newPassword);
                     await sendNotificationToAdmin('password_change', `User ${userData.nama} ubah password`);
@@ -516,10 +594,13 @@
                     setTimeout(() => { auth.signOut(); window.location.href = 'index.html'; }, 2000);
                 }
 
+                // Simpan data profil (termasuk foto dari pendingChanges)
+                // PERBAIKAN: Meneruskan pendingChanges.photoFile dengan benar
                 await saveProfileChanges(pendingChanges, pendingChanges.photoFile, true);
                 
                 closeReauthModal();
                 closeEditModal();
+                showToast('success', 'Sukses', 'Perubahan akun disimpan');
 
             } catch (error) {
                 console.error("Reauth Error:", error);
@@ -533,44 +614,8 @@
             }
         });
 
-        // Save Profile Logic
-        async function saveProfileChanges(data, photoFile, skipClose = false) {
-            try {
-                let photoURL = userData.profilePicUrl;
-                if (photoFile) {
-                    showToast('info', 'Upload', 'Mengupload foto...');
-                    photoURL = await uploadPhoto();
-                }
-
-                const updateData = {
-                    nama: data.nama, telepon: data.telepon, platMobil: data.platMobil,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                if (photoURL) updateData.profilePicUrl = photoURL;
-
-                await db.collection('users').doc(currentUserId).update(updateData);
-                userData.nama = data.nama; userData.telepon = data.telepon; userData.platMobil = data.platMobil;
-                if (photoURL) userData.profilePicUrl = photoURL;
-                
-                updateProfileUI();
-                
-                if (!skipClose) {
-                    closeEditModal();
-                    showToast('success', 'Berhasil', 'Profil diperbarui');
-                }
-            } catch (err) { showToast('error', 'Error', err.message); }
-        }
-
-        function updateProfileUI() {
-            const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
-            document.getElementById('profileAvatar').src = avatar;
-            document.getElementById('profileName').textContent = userData.nama || '-';
-            document.getElementById('profilePhone').textContent = userData.telepon || '-';
-            document.getElementById('profilePlat').textContent = userData.platMobil || '-';
-        }
-
         // ============================================
-        // INITIAL LOAD & AUTO SYNC (RESCUE MODE)
+        // INITIAL LOAD
         // ============================================
         function showUserData(data) {
             userData = data;
@@ -603,34 +648,21 @@
                 if (doc.exists) {
                     let data = doc.data();
                     
-                    // ==================================================
-                    // RESCUE MODE: JIKA EMAIL AUTH BEDA DENGAN DATABASE
-                    // ==================================================
-                    // Bagian ini menyelamatkan user yang sudah verifikasi email baru
-                    // tapi datanya belum ke-update di database.
+                    // RESCUE MODE: Sync email jika sudah terverifikasi di Auth tapi belum di DB
                     if (user.email && user.email !== data.email) {
                         console.log("Rescue Mode Active: Syncing email...");
                         const oldEmail = data.email;
-                        
-                        // 1. Paksa update email di Database
                         await db.collection('users').doc(user.uid).update({
                             email: user.email,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        
-                        // 2. Update data lokal
                         data.email = user.email;
-                        
-                        // 3. Notifikasi admin
                         await sendNotificationToAdmin('email_verified', `User ${data.nama} VERIFIKASI EMAIL: ${oldEmail} -> ${user.email}`);
-                        
-                        // 4. Tampilkan toast sukses
                         showToast('success', 'Email Disinkronkan', 'Email Anda berhasil diupdate ke ' + user.email);
                     }
                     
                     showUserData(data);
                 } else {
-                    // Jika user tidak punya data di DB, logout
                     await auth.signOut();
                     window.location.href = 'index.html';
                 }
@@ -639,15 +671,7 @@
             }
         });
 
-        async function shareProfile() {
-            const shareData = { title: 'Profil BGT-PRO', text: `Lihat profil ${userData?.nama}`, url: window.location.href };
-            if (navigator.share) { try { await navigator.share(shareData); } catch (err) {} }
-            else {
-                navigator.clipboard.writeText(window.location.href);
-                showToast('success', 'Berhasil', 'Link profil disalin');
-            }
-        }
-
+        // Event listener untuk klik di luar modal
         document.getElementById('editModal').addEventListener('click', (e) => { if (e.target.id === 'editModal') closeEditModal(); });
         document.getElementById('reauthModal').addEventListener('click', (e) => { if (e.target.id === 'reauthModal') closeReauthModal(); });
     </script>
