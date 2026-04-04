@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* CSS Styles (Tetap sama) */
+        /* CSS Styles */
         :root {
             --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8; --secondary: #8b5cf6;
             --accent: #f59e0b; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --info: #06b6d4;
@@ -159,7 +159,7 @@
                         <label class="photo-edit-btn" for="photoInput" title="Ganti Foto"><i class="fas fa-camera"></i></label>
                     </div>
                     <input type="file" id="photoInput" accept="image/*">
-                    <p class="input-hint">Klik ikon kamera untuk ganti foto</p>
+                    <p class="input-hint">Maks 200KB (Base64)</p>
                 </div>
 
                 <div class="tab-nav">
@@ -346,7 +346,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <!-- Storage SDK TIDAK DIPERLUKAN LAGI -->
 
     <script>
         // Firebase Config
@@ -363,12 +363,11 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
         // State
         let currentUserId = null;
         let userData = null;
-        let selectedPhotoFile = null;
+        let selectedPhotoBase64 = null; // Menyimpan string base64 foto
         let pendingChanges = {};
 
         // ==========================================
@@ -400,22 +399,27 @@
             else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
         };
 
-        // Handle Photo Selection
+        // Handle Photo Selection -> Convert to Base64
         window.handlePhotoSelect = function(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            // Validasi Tipe
             if (!file.type.match('image.*')) {
                 showToast('error', 'Error', 'Hanya file gambar yang diizinkan');
                 return;
             }
-            if (file.size > 2 * 1024 * 1024) {
-                showToast('error', 'Error', 'Ukuran file maksimal 2MB');
-                return;
+
+            // Validasi Ukuran (Maksimal 200KB agar muat di Firestore)
+            if (file.size > 200 * 1024) { 
+                showToast('error', 'Error', 'Ukuran file maksimal 200KB. Silakan kompres foto Anda.'); 
+                return; 
             }
-            selectedPhotoFile = file;
+
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('photoPreview').src = e.target.result;
+                selectedPhotoBase64 = e.target.result; // Simpan string Base64
+                document.getElementById('photoPreview').src = selectedPhotoBase64; // Tampilkan Preview
             };
             reader.readAsDataURL(file);
         };
@@ -436,9 +440,11 @@
                 document.getElementById('newEmail').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
+                
+                // Set Preview
                 const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
                 document.getElementById('photoPreview').src = avatar;
-                selectedPhotoFile = null;
+                selectedPhotoBase64 = null; // Reset pilihan foto
                 document.getElementById('photoInput').value = '';
             }
             document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === 0));
@@ -454,30 +460,9 @@
         };
 
         // ==========================================
-        // LOGIKA FIREBASE
+        // LOGIKA FIREBASE (BASE64 MODE)
         // ==========================================
         
-        // Helper: Upload Photo with Error Handling
-        async function uploadPhoto(file) {
-            if (!file) return null;
-            try {
-                const fileName = `profiles/${currentUserId}_${Date.now()}`;
-                const storageRef = storage.ref(fileName);
-                const uploadTask = await storageRef.put(file);
-                const downloadURL = await uploadTask.ref.getDownloadURL();
-                return downloadURL;
-            } catch (error) {
-                console.error("Storage Error:", error);
-                // Pesan error yang lebih spesifik
-                if (error.code === 'storage/unauthorized') {
-                    showToast('error', 'Izin Ditolak', 'Aturan Storage melarang upload. Cek Firebase Console > Storage > Rules.');
-                } else {
-                    showToast('error', 'Gagal Upload', error.message);
-                }
-                throw error; // Lempar error agar ditangkap fungsi pemanggil
-            }
-        }
-
         async function sendNotificationToAdmin(type, message) {
             try {
                 await db.collection('notifications').add({
@@ -495,36 +480,30 @@
             document.getElementById('profilePlat').textContent = userData.platMobil || '-';
         }
 
-        // ==========================================
-        // PERBAIKAN: Main Save Logic dengan Finally
-        // ==========================================
-        async function saveProfileChanges(data, photoFile, skipClose = false) {
-            const btn = document.getElementById('btnSave'); // Ambil referensi tombol
+        // Simpan Data + Foto Base64 ke Firestore
+        async function saveProfileChanges(data, photoBase64, skipClose = false) {
+            const btn = document.getElementById('btnSave');
             
             try {
-                let photoURL = userData.profilePicUrl;
-                
-                if (photoFile) {
-                    showToast('info', 'Mengupload', 'Sedang mengunggah foto baru...');
-                    photoURL = await uploadPhoto(photoFile);
-                }
-
                 const updateData = {
                     nama: data.nama,
                     telepon: data.telepon,
                     platMobil: data.platMobil,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
-                
-                if (photoURL) updateData.profilePicUrl = photoURL;
+
+                // Jika ada foto baru (Base64), simpan ke field profilePicUrl
+                if (photoBase64) {
+                    updateData.profilePicUrl = photoBase64;
+                }
 
                 await db.collection('users').doc(currentUserId).update(updateData);
                 
-                // Update local state
+                // Update Local State
                 userData.nama = data.nama;
                 userData.telepon = data.telepon;
                 userData.platMobil = data.platMobil;
-                if (photoURL) userData.profilePicUrl = photoURL;
+                if (photoBase64) userData.profilePicUrl = photoBase64;
                 
                 updateProfileUI();
                 
@@ -534,12 +513,8 @@
                 }
             } catch (err) {
                 console.error("Save Error:", err);
-                // Error sudah dihandle di uploadPhoto, tapi jika ada error lain:
-                if (!err.message.includes('storage')) {
-                     showToast('error', 'Gagal Menyimpan', err.message);
-                }
+                showToast('error', 'Gagal Menyimpan', err.message);
             } finally {
-                // PENTING: Kembalikan tombol ke keadaan normal tidak peduli sukses/gagal
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
             }
@@ -565,14 +540,13 @@
             const requiresReauth = (newEmail && newEmail !== userData.email) || newPassword;
 
             if (requiresReauth) {
-                pendingChanges = { nama, telepon, platMobil, newEmail, newPassword, photoFile: selectedPhotoFile };
-                // Kembalikan tombol dulu karena reauth butuh waktu
+                pendingChanges = { nama, telepon, platMobil, newEmail, newPassword, photoBase64: selectedPhotoBase64 };
                 btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
                 document.getElementById('reauthModal').classList.add('active');
                 document.getElementById('reauthPassword').focus();
             } else {
-                // Panggil fungsi simpan, tombol akan direset di dalam fungsi tersebut (finally block)
-                await saveProfileChanges({ nama, telepon, platMobil }, selectedPhotoFile);
+                // Langsung simpan dengan data foto Base64
+                await saveProfileChanges({ nama, telepon, platMobil }, selectedPhotoBase64);
             }
         });
 
@@ -600,7 +574,7 @@
                     setTimeout(() => { auth.signOut(); window.location.href = 'index.html'; }, 2000);
                 }
 
-                await saveProfileChanges(pendingChanges, pendingChanges.photoFile, true);
+                await saveProfileChanges(pendingChanges, pendingChanges.photoBase64, true);
                 
                 closeReauthModal();
                 closeEditModal();
