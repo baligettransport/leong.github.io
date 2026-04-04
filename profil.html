@@ -460,6 +460,7 @@
             flex-shrink: 0; 
         }
         .toast-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .toast-icon.error { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
         .toast-icon.info { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
         .toast-icon.warning { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
         .toast-content { flex: 1; }
@@ -528,7 +529,7 @@
             background: white;
             border-radius: 20px;
             width: 100%;
-            max-width: 380px;
+            max-width: 420px;
             max-height: 90vh;
             overflow-y: auto;
             animation: modalSlideIn 0.3s ease;
@@ -544,6 +545,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            z-index: 10;
         }
         .modal-title { font-weight: 700; font-size: 1.1rem; color: var(--dark); }
         .modal-close {
@@ -557,11 +563,81 @@
             align-items: center;
             justify-content: center;
             color: var(--gray);
+            transition: all 0.3s;
         }
+        .modal-close:active { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
         
         .modal-body { padding: 16px; }
+
+        /* Photo Upload Section */
+        .photo-upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .photo-preview-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .photo-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-light);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        .photo-edit-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-primary);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        .photo-edit-btn:active { transform: scale(0.9); }
+        .photo-hint {
+            font-size: 0.7rem;
+            color: var(--gray);
+            text-align: center;
+        }
+        #photoInput { display: none; }
+
+        /* Form Styles */
+        .form-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .form-section:last-of-type { border-bottom: none; margin-bottom: 0; }
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-section-title i { font-size: 0.7rem; }
         
-        .form-group { margin-bottom: 14px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group:last-child { margin-bottom: 0; }
         .form-group label {
             display: block;
             font-size: 0.8rem;
@@ -577,27 +653,122 @@
             font-size: 0.9rem;
             font-family: inherit;
             transition: all 0.3s;
+            background: rgba(0,0,0,0.02);
         }
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+        .form-group input:disabled {
+            background: rgba(0,0,0,0.05);
+            color: var(--gray);
+        }
+        .input-with-icon {
+            position: relative;
+        }
+        .input-with-icon input {
+            padding-right: 40px;
+        }
+        .input-with-icon .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 4px;
+        }
+        .input-hint {
+            font-size: 0.65rem;
+            color: var(--gray);
+            margin-top: 4px;
         }
         
-        .btn-save {
-            width: 100%;
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .btn {
+            flex: 1;
             padding: 12px;
-            background: var(--gradient-primary);
             border: none;
             border-radius: 10px;
-            color: white;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .btn-save:active { transform: scale(0.98); }
-        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        .btn-secondary {
+            background: rgba(0,0,0,0.05);
+            color: var(--dark);
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            background: rgba(0,0,0,0.03);
+            padding: 4px;
+            border-radius: 10px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Progress Bar for Upload */
+        .upload-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+            display: none;
+        }
+        .upload-progress.active { display: block; }
+        .upload-progress-bar {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
     </style>
 </head>
 <body>
@@ -615,22 +786,108 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="editForm">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Nama Lengkap</label>
-                        <input type="text" id="editNama" placeholder="Nama lengkap" required>
+                <!-- Photo Upload -->
+                <div class="photo-upload-section">
+                    <div class="photo-preview-container">
+                        <img src="https://ui-avatars.com/api/?name=U&background=6366f1&color=fff&size=200" alt="Photo" class="photo-preview" id="photoPreview">
+                        <label class="photo-edit-btn" for="photoInput" title="Ganti Foto">
+                            <i class="fas fa-camera"></i>
+                        </label>
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-phone"></i> Telepon</label>
-                        <input type="tel" id="editTelepon" placeholder="Nomor telepon">
+                    <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)">
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="upload-progress-bar" id="uploadProgressBar" style="width: 0%"></div>
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-car"></i> Plat Mobil</label>
-                        <input type="text" id="editPlat" placeholder="Plat mobil" style="text-transform: uppercase;">
-                    </div>
-                    <button type="submit" class="btn-save" id="btnSave">
-                        <i class="fas fa-save"></i> Simpan Perubahan
+                    <p class="photo-hint">Klik ikon kamera untuk ganti foto<br>Max 2MB (JPG, PNG)</p>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="switchTab('profil')">
+                        <i class="fas fa-user"></i> Profil
                     </button>
+                    <button class="tab-btn" onclick="switchTab('akun')">
+                        <i class="fas fa-lock"></i> Akun
+                    </button>
+                </div>
+
+                <form id="editForm">
+                    <!-- Tab Profil -->
+                    <div class="tab-content active" id="tabProfil">
+                        <div class="form-section">
+                            <div class="form-section-title"><i class="fas fa-user"></i> Informasi Pribadi</div>
+                            
+                            <div class="form-group">
+                                <label>Nama Lengkap</label>
+                                <input type="text" id="editNama" placeholder="Nama lengkap" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nomor Telepon</label>
+                                <input type="tel" id="editTelepon" placeholder="Contoh: 08123456789">
+                            </div>
+                            <div class="form-group">
+                                <label>Plat Mobil</label>
+                                <input type="text" id="editPlat" placeholder="Contoh: B 1234 XYZ" style="text-transform: uppercase;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Akun -->
+                    <div class="tab-content" id="tabAkun">
+                        <div class="form-section">
+                            <div class="form-section-title"><i class="fas fa-envelope"></i> Email</div>
+                            
+                            <div class="form-group">
+                                <label>Email Saat Ini</label>
+                                <input type="email" id="currentEmail" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Baru</label>
+                                <input type="email" id="newEmail" placeholder="Masukkan email baru">
+                                <p class="input-hint">Kosongkan jika tidak ingin mengubah email</p>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title"><i class="fas fa-key"></i> Password</div>
+                            
+                            <div class="form-group">
+                                <label>Password Baru</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="newPassword" placeholder="Masukkan password baru">
+                                    <button type="button" class="toggle-password" onclick="togglePassword('newPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <p class="input-hint">Minimal 6 karakter. Kosongkan jika tidak ingin mengubah</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Konfirmasi Password</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="confirmPassword" placeholder="Ulangi password baru">
+                                    <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section" style="background: rgba(245, 158, 11, 0.1); padding: 12px; border-radius: 10px; margin-bottom: 0;">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <i class="fas fa-info-circle" style="color: var(--accent); margin-top: 2px;"></i>
+                                <p style="font-size: 0.7rem; color: var(--dark); line-height: 1.5;">
+                                    Untuk mengubah email atau password, Anda akan diminta login ulang dengan kredensial baru setelah perubahan berhasil.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="btnSave">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -787,6 +1044,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
 
     <script>
         // Firebase Config
@@ -803,18 +1061,20 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
         // State
         let currentUserId = null;
         let userData = null;
+        let selectedPhotoFile = null;
 
         // Toast Function
         function showToast(type, title, message) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            let iconClass = type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
-            let iconName = type === 'success' ? 'fa-check' : type === 'warning' ? 'fa-exclamation' : 'fa-info';
+            let iconClass = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            let iconName = type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : type === 'warning' ? 'fa-exclamation' : 'fa-info';
             toast.innerHTML = `
                 <div class="toast-icon ${iconClass}"><i class="fas ${iconName}"></i></div>
                 <div class="toast-content">
@@ -831,22 +1091,147 @@
         }
 
         // ============================================
-        // FUNGSI EDIT PROFIL
+        // TAB NAVIGATION
+        // ============================================
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.tab-btn').classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+        }
+
+        // ============================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentElement.querySelector('.toggle-password i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // ============================================
+        // PHOTO HANDLING
+        // ============================================
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                showToast('error', 'Error', 'Hanya file gambar yang diizinkan');
+                return;
+            }
+
+            // Validate file size (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('error', 'Error', 'Ukuran file maksimal 2MB');
+                return;
+            }
+
+            selectedPhotoFile = file;
+
+            // Preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            showToast('info', 'Foto Dipilih', 'Klik Simpan untuk mengupload foto');
+        }
+
+        async function uploadPhoto() {
+            if (!selectedPhotoFile) return null;
+
+            const progressBar = document.getElementById('uploadProgress');
+            const progressBarInner = document.getElementById('uploadProgressBar');
+            progressBar.classList.add('active');
+
+            try {
+                const fileName = `profiles/${currentUserId}_${Date.now()}`;
+                const storageRef = storage.ref(fileName);
+                const uploadTask = storageRef.put(selectedPhotoFile);
+
+                return new Promise((resolve, reject) => {
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            progressBarInner.style.width = progress + '%';
+                        },
+                        (error) => {
+                            progressBar.classList.remove('active');
+                            reject(error);
+                        },
+                        async () => {
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            progressBar.classList.remove('active');
+                            resolve(downloadURL);
+                        }
+                    );
+                });
+            } catch (error) {
+                progressBar.classList.remove('active');
+                throw error;
+            }
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
         // ============================================
         function openEditModal() {
             if (userData) {
                 document.getElementById('editNama').value = userData.nama || '';
                 document.getElementById('editTelepon').value = userData.telepon || '';
                 document.getElementById('editPlat').value = userData.platMobil || '';
+                document.getElementById('currentEmail').value = userData.email || '';
+                
+                // Reset password fields
+                document.getElementById('newEmail').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+
+                // Set photo preview
+                const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
+                document.getElementById('photoPreview').src = avatar;
+
+                // Reset selected photo
+                selectedPhotoFile = null;
+                document.getElementById('photoInput').value = '';
             }
+            
+            // Reset to first tab
+            document.querySelectorAll('.tab-btn').forEach((btn, index) => {
+                btn.classList.toggle('active', index === 0);
+            });
+            document.getElementById('tabProfil').classList.add('active');
+            document.getElementById('tabAkun').classList.remove('active');
+            
             document.getElementById('editModal').classList.add('active');
         }
 
         function closeEditModal() {
             document.getElementById('editModal').classList.remove('active');
+            selectedPhotoFile = null;
         }
 
-        // Handle Edit Form Submit
+        // ============================================
+        // HANDLE FORM SUBMIT
+        // ============================================
         document.getElementById('editForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -857,43 +1242,183 @@
             const nama = document.getElementById('editNama').value.trim();
             const telepon = document.getElementById('editTelepon').value.trim();
             const platMobil = document.getElementById('editPlat').value.trim().toUpperCase();
+            const newEmail = document.getElementById('newEmail').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
 
             try {
-                await db.collection('users').doc(currentUserId).update({
+                // Validation
+                if (!nama) {
+                    throw new Error('Nama tidak boleh kosong');
+                }
+
+                if (newPassword && newPassword.length < 6) {
+                    throw new Error('Password minimal 6 karakter');
+                }
+
+                if (newPassword && newPassword !== confirmPassword) {
+                    throw new Error('Konfirmasi password tidak cocok');
+                }
+
+                if (newEmail && !validateEmail(newEmail)) {
+                    throw new Error('Format email tidak valid');
+                }
+
+                let photoURL = userData.profilePicUrl;
+
+                // Upload photo if selected
+                if (selectedPhotoFile) {
+                    showToast('info', 'Uploading', 'Mengupload foto...');
+                    photoURL = await uploadPhoto();
+                }
+
+                // Update Firestore data
+                const updateData = {
                     nama: nama,
                     telepon: telepon,
                     platMobil: platMobil,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                };
+
+                if (photoURL) {
+                    updateData.profilePicUrl = photoURL;
+                }
+
+                await db.collection('users').doc(currentUserId).update(updateData);
 
                 // Update local data
                 userData.nama = nama;
                 userData.telepon = telepon;
                 userData.platMobil = platMobil;
+                if (photoURL) userData.profilePicUrl = photoURL;
 
                 // Update UI
-                document.getElementById('profileName').textContent = nama;
-                document.getElementById('profilePhone').textContent = telepon || '-';
-                document.getElementById('profilePlat').textContent = platMobil || '-';
+                updateProfileUI();
 
-                // Update avatar
-                const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=6366f1&color=fff&size=200`;
-                document.getElementById('profileAvatar').src = avatar;
+                // Handle email change
+                if (newEmail && newEmail !== userData.email) {
+                    await handleEmailChange(newEmail);
+                    return; // Will re-login
+                }
+
+                // Handle password change
+                if (newPassword) {
+                    await handlePasswordChange(newPassword);
+                    return; // Will re-login
+                }
 
                 closeEditModal();
                 showToast('success', 'Berhasil', 'Profil berhasil diperbarui');
 
             } catch (error) {
                 console.error('Error updating profile:', error);
-                showToast('warning', 'Gagal', 'Gagal menyimpan perubahan: ' + error.message);
+                showToast('error', 'Gagal', error.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan';
+                btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
             }
         });
 
         // ============================================
-        // FUNGSI SHARE PROFIL
+        // EMAIL CHANGE
+        // ============================================
+        async function handleEmailChange(newEmail) {
+            const user = auth.currentUser;
+            
+            try {
+                await user.updateEmail(newEmail);
+                
+                // Update in Firestore
+                await db.collection('users').doc(currentUserId).update({
+                    email: newEmail
+                });
+
+                showToast('success', 'Berhasil', 'Email berhasil diubah. Silakan login ulang.');
+                
+                setTimeout(() => {
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    });
+                }, 2000);
+
+            } catch (error) {
+                if (error.code === 'auth/requires-recent-login') {
+                    showToast('warning', 'Perlu Re-authentikasi', 'Silakan login ulang untuk mengubah email');
+                    
+                    // Prompt for re-authentication
+                    const password = prompt('Masukkan password Anda untuk melanjutkan:');
+                    if (password) {
+                        const credential = firebase.auth.EmailAuthProvider.credential(
+                            userData.email,
+                            password
+                        );
+                        await user.reauthenticateWithCredential(credential);
+                        await handleEmailChange(newEmail);
+                    }
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        // ============================================
+        // PASSWORD CHANGE
+        // ============================================
+        async function handlePasswordChange(newPassword) {
+            const user = auth.currentUser;
+            
+            try {
+                await user.updatePassword(newPassword);
+                
+                showToast('success', 'Berhasil', 'Password berhasil diubah. Silakan login ulang.');
+                
+                setTimeout(() => {
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    });
+                }, 2000);
+
+            } catch (error) {
+                if (error.code === 'auth/requires-recent-login') {
+                    showToast('warning', 'Perlu Re-authentikasi', 'Silakan login ulang untuk mengubah password');
+                    
+                    const password = prompt('Masukkan password lama Anda untuk melanjutkan:');
+                    if (password) {
+                        const credential = firebase.auth.EmailAuthProvider.credential(
+                            userData.email,
+                            password
+                        );
+                        await user.reauthenticateWithCredential(credential);
+                        await handlePasswordChange(newPassword);
+                    }
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        // ============================================
+        // UPDATE PROFILE UI
+        // ============================================
+        function updateProfileUI() {
+            const avatar = userData.profilePicUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nama || 'U')}&background=6366f1&color=fff&size=200`;
+            document.getElementById('profileAvatar').src = avatar;
+            document.getElementById('profileName').textContent = userData.nama || '-';
+            document.getElementById('profileEmail').textContent = userData.email || '-';
+            document.getElementById('profilePhone').textContent = userData.telepon || '-';
+            document.getElementById('profilePlat').textContent = userData.platMobil || '-';
+        }
+
+        // ============================================
+        // EMAIL VALIDATION
+        // ============================================
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // ============================================
+        // SHARE PROFILE
         // ============================================
         async function shareProfile() {
             const shareData = {
@@ -922,7 +1447,6 @@
                     showToast('success', 'Berhasil', 'Link profil berhasil disalin');
                 });
             } else {
-                // Fallback
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
                 document.body.appendChild(textarea);
@@ -934,7 +1458,7 @@
         }
 
         // ============================================
-        // FUNGSI TAMPILKAN DATA USER
+        // TAMPILKAN DATA USER
         // ============================================
         function showUserData(data) {
             userData = data;
@@ -986,13 +1510,20 @@
                 }
             } catch (e) { 
                 console.error('Error loading profile:', e);
-                showToast('warning', 'Error', 'Gagal memuat data profil');
+                showToast('error', 'Error', 'Gagal memuat data profil');
             }
         });
 
         // Close modal when clicking outside
         document.getElementById('editModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('editModal')) {
+                closeEditModal();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
                 closeEditModal();
             }
         });
