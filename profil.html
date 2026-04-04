@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* CSS Styles (Sama seperti sebelumnya) */
+        /* CSS Styles (Tetap sama) */
         :root {
             --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8; --secondary: #8b5cf6;
             --accent: #f59e0b; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --info: #06b6d4;
@@ -463,19 +463,18 @@
             try {
                 const fileName = `profiles/${currentUserId}_${Date.now()}`;
                 const storageRef = storage.ref(fileName);
-                // Upload file
                 const uploadTask = await storageRef.put(file);
-                // Get Download URL
                 const downloadURL = await uploadTask.ref.getDownloadURL();
                 return downloadURL;
             } catch (error) {
                 console.error("Storage Error:", error);
+                // Pesan error yang lebih spesifik
                 if (error.code === 'storage/unauthorized') {
-                    showToast('error', 'Izin Ditolak', 'Aturan Firebase Storage melarang upload. Cek Rules di Console.');
+                    showToast('error', 'Izin Ditolak', 'Aturan Storage melarang upload. Cek Firebase Console > Storage > Rules.');
                 } else {
                     showToast('error', 'Gagal Upload', error.message);
                 }
-                throw error; // Lempar error agar ditangkap di fungsi utama
+                throw error; // Lempar error agar ditangkap fungsi pemanggil
             }
         }
 
@@ -496,14 +495,18 @@
             document.getElementById('profilePlat').textContent = userData.platMobil || '-';
         }
 
-        // Main Save Logic with Try-Catch
+        // ==========================================
+        // PERBAIKAN: Main Save Logic dengan Finally
+        // ==========================================
         async function saveProfileChanges(data, photoFile, skipClose = false) {
+            const btn = document.getElementById('btnSave'); // Ambil referensi tombol
+            
             try {
                 let photoURL = userData.profilePicUrl;
                 
                 if (photoFile) {
                     showToast('info', 'Mengupload', 'Sedang mengunggah foto baru...');
-                    photoURL = await uploadPhoto(photoFile); // Akan throw error jika gagal
+                    photoURL = await uploadPhoto(photoFile);
                 }
 
                 const updateData = {
@@ -517,6 +520,7 @@
 
                 await db.collection('users').doc(currentUserId).update(updateData);
                 
+                // Update local state
                 userData.nama = data.nama;
                 userData.telepon = data.telepon;
                 userData.platMobil = data.platMobil;
@@ -529,10 +533,15 @@
                     showToast('success', 'Berhasil', 'Profil berhasil diperbarui');
                 }
             } catch (err) {
+                console.error("Save Error:", err);
                 // Error sudah dihandle di uploadPhoto, tapi jika ada error lain:
-                if (!err.message.includes('Storage Error')) {
-                     showToast('error', 'Error', err.message);
+                if (!err.message.includes('storage')) {
+                     showToast('error', 'Gagal Menyimpan', err.message);
                 }
+            } finally {
+                // PENTING: Kembalikan tombol ke keadaan normal tidak peduli sukses/gagal
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
             }
         }
 
@@ -540,7 +549,7 @@
         document.getElementById('editForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSave');
-            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cek...';
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
             const nama = document.getElementById('editNama').value.trim();
             const telepon = document.getElementById('editTelepon').value.trim();
@@ -557,12 +566,13 @@
 
             if (requiresReauth) {
                 pendingChanges = { nama, telepon, platMobil, newEmail, newPassword, photoFile: selectedPhotoFile };
+                // Kembalikan tombol dulu karena reauth butuh waktu
                 btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
                 document.getElementById('reauthModal').classList.add('active');
                 document.getElementById('reauthPassword').focus();
             } else {
+                // Panggil fungsi simpan, tombol akan direset di dalam fungsi tersebut (finally block)
                 await saveProfileChanges({ nama, telepon, platMobil }, selectedPhotoFile);
-                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
             }
         });
 
